@@ -1,5 +1,5 @@
 import type * as Effect from 'effect/Effect'
-import type { Bot, Update } from './Bot.ts'
+import type * as Bot from './Bot.ts'
 import * as internal from './internal/runner.ts'
 
 /**
@@ -7,10 +7,10 @@ import * as internal from './internal/runner.ts'
  */
 export interface Runner<E = never, R = never> {
   readonly run: {
-    <E1, R1>(bot: Bot<E1, R1>): Effect.Effect<
+    <E1, R1>(bot: Bot.Bot<E1, R1>): Effect.Effect<
       never,
       E | E1,
-      R | Exclude<R1, Update>
+      R | Exclude<R1, Bot.Update>
     >
   }
 }

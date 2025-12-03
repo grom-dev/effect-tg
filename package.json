@@ -31,9 +31,9 @@
     "node": "22.x"
   },
   "scripts": {
-    "gen:bot-api": "node scripts/gen-bot-api.ts",
+    "gen:bot-api": "node ./scripts/gen-bot-api.ts",
     "typecheck": "tsc --build --noEmit tsconfig.json",
-    "build": "rm -rf dist/ && tsc --project tsconfig.lib.json",
+    "build": "rm -rf ./dist/ && tsc --project ./tsconfig.lib.json",
     "deps": "taze --write --interactive --include-locked minor",
     "lint": "eslint",
     "lint:fix": "eslint --fix",

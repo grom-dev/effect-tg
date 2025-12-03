@@ -8,7 +8,7 @@ import * as Schedule from 'effect/Schedule'
 import { Update } from '../Bot.ts'
 import { BotApi } from '../BotApi.ts'
 
-export const makeSimple = (options: void | {
+export const makeSimple = (options?: {
   allowedUpdates?: string[]
 }): Runner<BotApiError | BotApiTransportError, BotApi> => ({
   run: bot => Effect.gen(function* () {
@@ -27,21 +27,16 @@ export const makeSimple = (options: void | {
           Effect.retry({
             schedule: Schedule.spaced(Duration.seconds(3)),
             while: error => Match.value(error).pipe(
-              Match.tag(
-                '@grom.js/effect-tg/BotApiError',
-                error => Effect.succeed(
+              Match.tagsExhaustive({
+                '@grom.js/effect-tg/BotApiError': error => Effect.succeed(
                   error.code >= 500 || (
                     error.code !== 401
                     && error.code !== 403
                     && error.code !== 404
                   ),
                 ),
-              ),
-              Match.tag(
-                '@grom.js/effect-tg/BotApiTransportError',
-                () => Effect.succeed(true),
-              ),
-              Match.exhaustive,
+                '@grom.js/effect-tg/BotApiTransportError': () => Effect.succeed(true),
+              }),
             ),
           }),
         )

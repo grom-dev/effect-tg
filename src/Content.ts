@@ -1,9 +1,8 @@
-import type { MethodParams } from './BotApi.ts'
+import type * as Option from 'effect/Option'
 import type { InputFile } from './InputFile.ts'
 import type { LinkPreview } from './LinkPreview.ts'
-import type { Text as Text$ } from './Text.ts'
+import type * as Text$ from './Text.ts'
 import * as Data from 'effect/Data'
-import * as Option from 'effect/Option'
 
 /**
  * Content of a message to be sent.
@@ -19,48 +18,19 @@ export type Content
  *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_text.html td.td_api.inputMessageText}
  */
-export class Text extends Data.TaggedClass('text')<{
-  text: Text$
+export class Text extends Data.TaggedClass('Text')<{
+  text: Text$.Text
   linkPreview: Option.Option<LinkPreview>
-}> {
-  sendParams(): Pick<MethodParams['sendMessage'], 'text' | 'entities' | 'parse_mode' | 'link_preview_options'> {
-    return {
-      ...this.text.sendParams(),
-      link_preview_options: Option.match(this.linkPreview, {
-        onNone: () => ({ is_disabled: true }),
-        onSome: lp => lp.options(),
-      }),
-    }
-  }
-}
+}> {}
 
 /**
  * Content of a photo message.
  *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_photo.html td.td_api.inputMessagePhoto}
  */
-export class Photo extends Data.TaggedClass('photo')<{
+export class Photo extends Data.TaggedClass('Photo')<{
   file: InputFile
-  caption: Option.Option<Text>
+  caption: Option.Option<Text$.Text>
   layout: 'caption-above' | 'caption-below'
   spoiler: boolean
-}> {
-  sendParams(): Pick<MethodParams['sendPhoto'], 'photo' | 'caption' | 'caption_entities' | 'parse_mode' | 'show_caption_above_media' | 'has_spoiler'> {
-    const {
-      text: caption,
-      entities: caption_entities,
-      parse_mode,
-    } = Option.match(this.caption, {
-      onNone: () => ({} as Partial<ReturnType<Text$['sendParams']>>),
-      onSome: caption => caption.sendParams(),
-    })
-    return {
-      photo: this.file,
-      caption,
-      caption_entities,
-      parse_mode,
-      show_caption_above_media: this.layout === 'caption-above',
-      has_spoiler: this.spoiler,
-    }
-  }
-}
+}> {}
