@@ -1,15 +1,18 @@
-import type * as BotApi from '../BotApi.ts'
 import type * as Content from '../Content.ts'
 import type * as Dialog from '../Dialog.ts'
+import type * as Dialog_ from '../Dialog.ts'
+import type { Options } from '../Send.ts'
 import type * as Send from '../Send.ts'
 import type * as Text from '../Text.ts'
 import * as Tgx from '@grom.js/tgx'
+import * as Effect from 'effect/Effect'
 import * as Function from 'effect/Function'
 import * as Match from 'effect/Match'
 import * as Option from 'effect/Option'
+import * as BotApi from '../BotApi.ts'
 
-export type ParamsText = PickMethodParams<'sendMessage', 'text' | 'entities' | 'parse_mode'>
-export const paramsText: (text: Text.Text) => ParamsText = Function.pipe(
+type ParamsText = PickMethodParams<'sendMessage', 'text' | 'entities' | 'parse_mode'>
+const paramsText: (text: Text.Text) => ParamsText = Function.pipe(
   Match.type<Text.Text>(),
   Match.withReturnType<ParamsText>(),
   Match.tags({
@@ -21,7 +24,7 @@ export const paramsText: (text: Text.Text) => ParamsText = Function.pipe(
   Match.exhaustive,
 )
 
-export const paramsContent: {
+const paramsContent: {
   (content: Content.Text): PickMethodParams<'sendMessage', 'text' | 'entities' | 'parse_mode' | 'link_preview_options'>
   (content: Content.Photo): PickMethodParams<'sendPhoto', 'photo' | 'caption' | 'caption_entities' | 'parse_mode' | 'show_caption_above_media' | 'has_spoiler'>
 } = Function.pipe(
@@ -49,8 +52,8 @@ export const paramsContent: {
   }),
 ) as any
 
-export type ParamsDialog = PickMethodParams<SendMethod, 'chat_id' | 'message_thread_id' | 'direct_messages_topic_id'>
-export const paramsDialog: (dialog: Dialog.Dialog) => ParamsDialog = Function.pipe(
+type ParamsDialog = PickMethodParams<SendMethod, 'chat_id' | 'message_thread_id' | 'direct_messages_topic_id'>
+const paramsDialog: (dialog: Dialog.Dialog) => ParamsDialog = Function.pipe(
   Match.type<Dialog.Dialog>(),
   Match.withReturnType<ParamsDialog>(),
   Match.tagsExhaustive({
@@ -81,8 +84,8 @@ export const paramsDialog: (dialog: Dialog.Dialog) => ParamsDialog = Function.pi
   }),
 )
 
-export type ParamsOptions = PickMethodParams<SendMethod, 'disable_notification' | 'protect_content' | 'allow_paid_broadcast'>
-export const paramsOptions = (options: Send.Options): ParamsOptions => {
+type ParamsOptions = PickMethodParams<SendMethod, 'disable_notification' | 'protect_content' | 'allow_paid_broadcast'>
+const paramsOptions = (options: Send.Options): ParamsOptions => {
   return {
     disable_notification: options.disableNotification || undefined,
     protect_content: options.protectContent || undefined,
@@ -113,3 +116,23 @@ type PickMethodParams<
   TMethod extends keyof BotApi.MethodParams,
   TPick extends keyof BotApi.MethodParams[TMethod],
 > = Pick<BotApi.MethodParams[TMethod], TPick>
+
+export const sendMessage = Effect.fnUntraced(
+  function* (params: {
+    content: Content.Content
+    dialog: Dialog_.Dialog
+    options?: Options
+  }) {
+    const api = yield* BotApi.BotApi
+    const common = {
+      ...paramsDialog(params.dialog),
+      ...(params.options ? paramsOptions(params.options) : {}),
+    }
+    return yield* Match.value(params.content).pipe(
+      Match.tagsExhaustive({
+        Text: text => api.sendMessage({ ...common, ...paramsContent(text) }),
+        Photo: photo => api.sendPhoto({ ...common, ...paramsContent(photo) }),
+      }),
+    )
+  },
+)
