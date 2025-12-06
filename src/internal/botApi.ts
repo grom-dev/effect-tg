@@ -1,32 +1,31 @@
-import type { BotApiShape } from './botApiShape.gen.ts'
+import type * as BotApiTransport from '../BotApiTransport.ts'
 import * as Effect from 'effect/Effect'
-import { BotApiError } from '../BotApi.ts'
-import { BotApiTransport } from '../BotApiTransport.ts'
+import * as BotApi from '../BotApi.ts'
 
-export const make = Effect.gen(function* () {
-  const transport = yield* BotApiTransport
-  const botApi = new Proxy({}, {
+export const make = (
+  transport: BotApiTransport.BotApiTransport.Service,
+): BotApi.BotApi.Service => (
+  new Proxy({}, {
     get: (_target, prop) => {
       if (typeof prop !== 'string') {
         return
       }
       const method = prop
-      return (params: void | Record<string, unknown> = {}) => (
-        Effect.gen(function* () {
+      return Effect.fnUntraced(
+        function* (params: void | Record<string, unknown> = {}) {
           const response = yield* transport.sendRequest(method, params)
           if (response.ok) {
             return response.result
           }
-          yield* Effect.fail(
-            new BotApiError({
+          return yield* Effect.fail(
+            new BotApi.BotApiError({
               code: response.error_code,
               description: response.description,
               parameters: response.parameters,
             }),
           )
-        })
+        },
       )
     },
-  })
-  return botApi as BotApiShape
-})
+  }) as BotApi.BotApi.Service
+)

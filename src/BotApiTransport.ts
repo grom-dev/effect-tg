@@ -7,13 +7,17 @@ import * as internal from './internal/botApiTransport.ts'
 
 export class BotApiTransport extends Context.Tag('@grom.js/effect-tg/BotApiTransport')<
   BotApiTransport,
-  {
+  BotApiTransport.Service
+>() {
+}
+
+export declare namespace BotApiTransport {
+  export interface Service {
     sendRequest: (
       method: string,
       params: unknown,
     ) => Effect.Effect<BotApiResponse, BotApiTransportError>
   }
->() {
 }
 
 /**
