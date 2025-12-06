@@ -1,7 +1,12 @@
+/**
+ * Utilities for sending messages.
+ */
+
 import type * as BotApi from './BotApi.ts'
 import type * as BotApiTransport from './BotApiTransport.ts'
 import type * as Content from './Content.ts'
 import type * as Dialog_ from './Dialog.ts'
+import type * as Markup from './Markup.ts'
 import * as Context from 'effect/Context'
 import * as Data from 'effect/Data'
 import * as Effect from 'effect/Effect'
@@ -19,19 +24,6 @@ const MessageToSendTypeId: unique symbol = Symbol.for('@grom.js/effect-tg/Send/M
 
 /**
  * Service providing the target dialog for sending messages.
- * Required by `MessageToSend`. Provide via `Send.to()`.
- *
- * @example
- * ```ts
- * // Per-message
- * yield* Send.message(content).pipe(Send.to(dialog))
- *
- * // For entire handler
- * const handler = Effect.gen(function* () {
- *   yield* Send.message(content1)
- *   yield* Send.message(content2)
- * }).pipe(Send.to(dialog))
- * ```
  */
 export class Dialog extends Context.Tag('@grom.js/effect-tg/Send/Dialog')<
   Dialog,
@@ -78,6 +70,7 @@ export const sendMessage: (params: {
   content: Content.Content
   dialog: Dialog_.Dialog
   options?: Options
+  markup?: Markup.Markup
 }) => Effect.Effect<
   BotApi.Types.Message,
   BotApi.BotApiError | BotApiTransport.BotApiTransportError,
@@ -96,6 +89,7 @@ export interface MessageToSend extends
   readonly [MessageToSendTypeId]: typeof MessageToSendTypeId
   readonly content: Content.Content
   readonly options: Options
+  readonly markup: Markup.Markup | undefined
 }
 
 const Proto = {
@@ -106,7 +100,12 @@ const Proto = {
   commit(this: MessageToSend) {
     return Effect.flatMap(
       Dialog,
-      dialog => sendMessage({ content: this.content, dialog, options: this.options }),
+      dialog => sendMessage({
+        dialog,
+        content: this.content,
+        options: this.options,
+        markup: this.markup,
+      }),
     )
   },
 
@@ -115,6 +114,7 @@ const Proto = {
       _id: '@grom.js/effect-tg/Send/MessageToSend',
       content: this.content,
       options: this.options,
+      markup: this.markup,
     }
   },
 
@@ -124,13 +124,15 @@ const Proto = {
   },
 }
 
-const make = (
-  content: Content.Content,
-  options: Options,
-): MessageToSend => {
+const make = (args: {
+  content: Content.Content
+  options?: Options
+  markup?: Markup.Markup
+}): MessageToSend => {
   const self = Object.create(Proto)
-  self.content = content
-  self.options = options
+  self.content = args.content
+  self.options = args.options
+  self.markup = args.markup
   return self
 }
 
@@ -139,7 +141,7 @@ const make = (
 /**
  * Creates a message to send with the given content.
  *
- * @example
+ * Example:
  * ```ts
  * yield* Send.message(content).pipe(
  *   Send.withProtection,
@@ -149,7 +151,7 @@ const make = (
  */
 export const message = (
   content: Content.Content,
-): MessageToSend => make(content, new Options({}))
+): MessageToSend => make({ content })
 
 // ─── Dialog Provider ──────────────────────────────────────────────
 
@@ -157,6 +159,7 @@ export const to: {
   /**
    * Provides the target dialog for sending messages.
    *
+   * Example:
    * ```ts
    * // Per-message
    * yield* Send.message(content).pipe(
@@ -185,7 +188,8 @@ export const to: {
 /**
  * Modifies the options for sending a message by merging with existing options.
  *
- * ```
+ * Example:
+ * ```ts
  * yield* Send.message(content).pipe(
  *   Send.withOptions({
  *     disableNotification: true,
@@ -204,18 +208,21 @@ export const to: {
  * - {@linkcode withPaidBroadcast}
  */
 export const withOptions: {
-  (options: Partial<Options>): (self: MessageToSend) => MessageToSend
-  (self: MessageToSend, options: Partial<Options>): MessageToSend
+  (options: Options): (self: MessageToSend) => MessageToSend
+  (self: MessageToSend, options: Options): MessageToSend
 } = Function.dual(2, (
   self: MessageToSend,
-  options: Partial<Options>,
+  options: Options,
 ): MessageToSend => (
   make(
-    self.content,
-    new Options({
-      ...self.options,
-      ...options,
-    }),
+    {
+      content: self.content,
+      options: new Options({
+        ...self.options,
+        ...options,
+      }),
+      markup: self.markup,
+    },
   )
 ))
 
@@ -272,3 +279,46 @@ export const withoutPaidBroadcast: (
 export const withPaidBroadcast: (
   self: MessageToSend,
 ) => MessageToSend = withOptions({ allowPaidBroadcast: true })
+
+// ─── Markup Combinators ──────────────────────────────────────────
+
+/**
+ * Sets the reply markup for the message.
+ *
+ * Example:
+ * ```ts
+ * yield* Send.message(content).pipe(
+ *   Send.withMarkup(
+ *     new Markup.ForceReply({
+ *       selective: false,
+ *       inputPlaceholder: Option.some("effect-tg or grammY?"),
+ *     }),
+ *   ),
+ *   Send.to(dialog),
+ * )
+ * ```
+ */
+export const withMarkup: {
+  (markup: Markup.Markup): (self: MessageToSend) => MessageToSend
+  (self: MessageToSend, markup: Markup.Markup): MessageToSend
+} = Function.dual(2, (
+  self: MessageToSend,
+  markup: Markup.Markup,
+): MessageToSend => (
+  make({
+    content: self.content,
+    options: self.options,
+    markup,
+  })
+))
+
+/**
+ * Removes the reply markup from the message.
+ */
+export const withoutMarkup: (
+  self: MessageToSend,
+) => MessageToSend = self => make({
+  content: self.content,
+  options: self.options,
+  markup: undefined,
+})

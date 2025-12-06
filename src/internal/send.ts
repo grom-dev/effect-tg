@@ -1,7 +1,7 @@
 import type * as Content from '../Content.ts'
 import type * as Dialog from '../Dialog.ts'
 import type * as Dialog_ from '../Dialog.ts'
-import type { Options } from '../Send.ts'
+import type * as Markup from '../Markup.ts'
 import type * as Send from '../Send.ts'
 import type * as Text from '../Text.ts'
 import * as Tgx from '@grom.js/tgx'
@@ -10,6 +10,7 @@ import * as Function from 'effect/Function'
 import * as Match from 'effect/Match'
 import * as Option from 'effect/Option'
 import * as BotApi from '../BotApi.ts'
+import * as LinkPreview from '../LinkPreview.ts'
 
 type ParamsText = PickMethodParams<'sendMessage', 'text' | 'entities' | 'parse_mode'>
 const paramsText: (text: Text.Text) => ParamsText = Function.pipe(
@@ -24,21 +25,22 @@ const paramsText: (text: Text.Text) => ParamsText = Function.pipe(
   Match.exhaustive,
 )
 
+type ParamsContentText = PickMethodParams<'sendMessage', 'text' | 'entities' | 'parse_mode' | 'link_preview_options'>
+type ParamsContentPhoto = PickMethodParams<'sendPhoto', 'photo' | 'caption' | 'caption_entities' | 'parse_mode' | 'show_caption_above_media' | 'has_spoiler'>
 const paramsContent: {
-  (content: Content.Text): PickMethodParams<'sendMessage', 'text' | 'entities' | 'parse_mode' | 'link_preview_options'>
-  (content: Content.Photo): PickMethodParams<'sendPhoto', 'photo' | 'caption' | 'caption_entities' | 'parse_mode' | 'show_caption_above_media' | 'has_spoiler'>
+  (content: Content.Text): ParamsContentText
+  (content: Content.Photo): ParamsContentPhoto
 } = Function.pipe(
   Match.type<Content.Content>(),
   Match.tagsExhaustive({
-    Text: ({ text, linkPreview }) => ({
+    Text: ({ text, linkPreview }): ParamsContentText => ({
       ...paramsText(text),
       link_preview_options: Option.match(linkPreview, {
         onNone: () => ({ is_disabled: true }),
-        onSome: lp => lp.options(),
+        onSome: linkPreview => LinkPreview.options(linkPreview),
       }),
     }),
-    Photo: ({ caption, layout, spoiler }) => ({
-      // TODO: file
+    Photo: ({ file, caption, layout, spoiler }): ParamsContentPhoto => ({
       ...Option.match(caption, {
         onNone: () => ({}),
         onSome: (caption) => {
@@ -46,6 +48,7 @@ const paramsContent: {
           return { caption: text, caption_entities: entities, parse_mode }
         },
       }),
+      photo: file,
       show_caption_above_media: layout === 'caption-above',
       has_spoiler: spoiler,
     }),
@@ -93,6 +96,47 @@ const paramsOptions = (options: Send.Options): ParamsOptions => {
   }
 }
 
+type ParamsMarkup = PickMethodParams<SendMethod, 'reply_markup'>
+const paramsMarkup: (markup: Markup.Markup) => ParamsMarkup = Function.pipe(
+  Match.type<Markup.Markup>(),
+  Match.withReturnType<ParamsMarkup>(),
+  Match.tagsExhaustive({
+    InlineKeyboard: markup => ({
+      reply_markup: {
+        inline_keyboard: markup.rows, // TODO
+      },
+    }),
+    ReplyKeyboard: markup => ({
+      reply_markup: {
+        keyboard: markup.rows, // TODO
+        is_persistent: markup.persistent,
+        resize_keyboard: markup.resizable,
+        one_time_keyboard: markup.oneTime,
+        input_field_placeholder: Option.getOrUndefined(markup.inputPlaceholder),
+        selective: markup.selective,
+      },
+    }),
+    ReplyKeyboardRemove: markup => ({
+      reply_markup: {
+        remove_keyboard: true,
+        selective: markup.selective,
+      },
+    }),
+    ForceReply: markup => ({
+      reply_markup: {
+        force_reply: true,
+        input_field_placeholder: Option.getOrUndefined(markup.inputPlaceholder),
+        selective: markup.selective,
+      },
+    }),
+  }),
+)
+
+type PickMethodParams<
+  TMethod extends keyof BotApi.MethodParams,
+  TPick extends keyof BotApi.MethodParams[TMethod],
+> = Pick<BotApi.MethodParams[TMethod], TPick>
+
 type SendMethod = Extract<
   keyof BotApi.MethodParams,
   | 'sendMessage'
@@ -105,28 +149,25 @@ type SendMethod = Extract<
   | 'sendAnimation'
   | 'sendSticker'
   | 'sendDice'
-  | 'sendPaidMedia'
   | 'sendContact'
   | 'sendLocation'
   | 'sendVenue'
   | 'sendInvoice'
+  | 'sendPaidMedia'
 >
-
-type PickMethodParams<
-  TMethod extends keyof BotApi.MethodParams,
-  TPick extends keyof BotApi.MethodParams[TMethod],
-> = Pick<BotApi.MethodParams[TMethod], TPick>
 
 export const sendMessage = Effect.fnUntraced(
   function* (params: {
     content: Content.Content
     dialog: Dialog_.Dialog
-    options?: Options
+    options?: Send.Options
+    markup?: Markup.Markup
   }) {
     const api = yield* BotApi.BotApi
     const common = {
       ...paramsDialog(params.dialog),
       ...(params.options ? paramsOptions(params.options) : {}),
+      ...(params.markup ? paramsMarkup(params.markup) : {}),
     }
     return yield* Match.value(params.content).pipe(
       Match.tagsExhaustive({
