@@ -1,5 +1,5 @@
 import type * as Effect from 'effect/Effect'
-import type { BotApi } from './index.ts'
+import type * as BotApi from './BotApi.ts'
 import * as Context from 'effect/Context'
 
 export type Bot<E = never, R = never> = Effect.Effect<void, E, R | Update>

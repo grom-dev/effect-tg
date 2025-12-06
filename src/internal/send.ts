@@ -48,7 +48,7 @@ const paramsContent: {
           return { caption: text, caption_entities: entities, parse_mode }
         },
       }),
-      photo: file,
+      photo: file instanceof URL ? file.toString() : file,
       show_caption_above_media: layout === 'caption-above',
       has_spoiler: spoiler,
     }),
