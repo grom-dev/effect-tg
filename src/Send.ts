@@ -111,7 +111,7 @@ const Proto = {
 
   toJSON(this: MessageToSend) {
     return {
-      _id: '@grom.js/effect-tg/Send/MessageToSend',
+      _id: this[MessageToSendTypeId].description,
       content: this.content,
       options: this.options,
       markup: this.markup,
