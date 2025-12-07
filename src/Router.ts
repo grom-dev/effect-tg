@@ -1,5 +1,5 @@
 import type * as BotApi from './BotApi.ts'
-import { Data } from 'effect'
+import * as Data from 'effect/Data'
 import * as Effect from 'effect/Effect'
 import * as Option from 'effect/Option'
 

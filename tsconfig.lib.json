@@ -12,6 +12,7 @@
         "missingDiagnosticNextLine": "error",
         "diagnosticSeverity": {
           "deterministicKeys": "error",
+          "importFromBarrel": "error",
           "floatingEffect": "error"
         },
         "keyPatterns": [

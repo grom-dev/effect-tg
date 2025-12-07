@@ -1,5 +1,5 @@
 import type * as Option from 'effect/Option'
-import { Data } from 'effect'
+import * as Data from 'effect/Data'
 
 /**
  * Reply markup for the message.
