@@ -1,26 +1,25 @@
 import type * as HttpClient from '@effect/platform/HttpClient'
-import type { BotApiResponse, BotApiTransport } from '../BotApiTransport.ts'
 import type * as BotApiUrl from '../BotApiUrl.ts'
 import * as HttpBody from '@effect/platform/HttpBody'
 import * as Effect from 'effect/Effect'
-import { BotApiTransportError } from '../BotApiTransport.ts'
+import * as BotApiTransport from '../BotApiTransport.ts'
 
 export const make = (
   httpClient: HttpClient.HttpClient,
   botApiUrl: BotApiUrl.BotApiUrl.Service,
-): BotApiTransport.Service => ({
+): BotApiTransport.BotApiTransport.Service => ({
   sendRequest: (method, params) => (
     Effect.gen(function* () {
-      const url = botApiUrl.toMethod(method)
       // TODO: Serialize necessary parameters and handle file uploads.
       const body = yield* HttpBody.json(params)
-      const response = yield* httpClient.post(url, { body })
+      const response = yield* httpClient.post(botApiUrl.toMethod(method), { body })
       const responseJson = yield* response.json
-      return responseJson as BotApiResponse
+      // We trust Bot API and don't want to introduce overhead with validation.
+      return responseJson as BotApiTransport.BotApiResponse
     })
       .pipe(
-        Effect.catchAll(error => (
-          Effect.fail(new BotApiTransportError({ cause: error }))
+        Effect.catchAll(cause => (
+          Effect.fail(new BotApiTransport.BotApiTransportError({ cause }))
         )),
       )
   ),

@@ -31,8 +31,7 @@ export class InputFile extends Data.TaggedClass('InputFile')<{
  */
 const downloadRequest = Effect.fnUntraced(
   function* (fileId: FileId) {
-    const api = yield* BotApi.BotApi
-    const file = yield* api.getFile({ file_id: fileId })
+    const file = yield* BotApi.callMethod('getFile', { file_id: fileId })
     if (file.file_path == null) {
       return yield* Effect.die(new Error(`Bot API returned no file path for file "${fileId}".`))
     }

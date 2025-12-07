@@ -31,6 +31,7 @@
     "node": "22.x"
   },
   "scripts": {
+    "prepare": "effect-language-service patch",
     "gen:bot-api": "node ./scripts/gen-bot-api.ts",
     "typecheck": "tsc --build --noEmit tsconfig.json",
     "build": "rm -rf ./dist/ && tsc --project ./tsconfig.lib.json",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "6.2.0",
+    "@effect/language-service": "0.60.0",
     "@effect/platform-node": "0.100.0",
     "@grom.js/bot-api-spec": "0.4.1",
     "@types/node": "22.19.1",

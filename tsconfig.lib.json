@@ -1,9 +1,37 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.lib.tsbuildinfo",
     "target": "es2022",
     "lib": ["ES2022"],
     "moduleDetection": "force",
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "refactors": true,
+        "diagnostics": true,
+        "diagnosticsName": true,
+        "missingDiagnosticNextLine": "error",
+        "diagnosticSeverity": {
+          "deterministicKeys": "error",
+          "floatingEffect": "error"
+        },
+        "keyPatterns": [
+          {
+            "target": "service",
+            "pattern": "default",
+            "skipLeadingPath": ["src/"]
+          },
+          {
+            "target": "error",
+            "pattern": "default",
+            "skipLeadingPath": ["src/"]
+          }
+        ],
+        "namespaceImportPackages": [
+          "effect",
+          "@effect/*"
+        ]
+      }
+    ],
     "rootDir": "./src",
     "module": "node20",
     "moduleResolution": "node16",
@@ -24,9 +52,10 @@
     "emitDeclarationOnly": false,
     "noEmit": false,
     "outDir": "dist",
+    "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["./src/**/*.ts"]
 }
