@@ -37,6 +37,7 @@
     "deps": "taze --write --interactive --include-locked minor",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
+    "knip": "knip --config ./knip.config.ts",
     "release": "bumpp"
   },
   "peerDependencies": {
@@ -52,6 +53,7 @@
     "bumpp": "10.3.1",
     "eslint": "9.39.1",
     "eslint-plugin-format": "1.0.2",
+    "knip": "5.71.0",
     "taze": "19.9.0",
     "ts-morph": "27.0.2",
     "typescript": "5.9.3"
