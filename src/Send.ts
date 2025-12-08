@@ -79,12 +79,18 @@ export const sendMessage: (params: {
 
 // ─── MessageToSend ────────────────────────────────────────────────
 
+type MessageToSendEffect = Effect.Effect<
+  BotApi.Types.Message,
+  BotApi.BotApiError | BotApiTransport.BotApiTransportError,
+  BotApi.BotApi | Dialog
+>
+
 /**
  * A message prepared to be sent.
  */
 export interface MessageToSend extends
   Inspectable.Inspectable,
-  Effect.Effect<BotApi.Types.Message, BotApi.BotApiError, BotApi.BotApi | Dialog>
+  MessageToSendEffect
 {
   readonly [MessageToSendTypeId]: typeof MessageToSendTypeId
   readonly content: Content.Content
@@ -97,7 +103,7 @@ const Proto = {
   ...Effectable.CommitPrototype,
   ...Inspectable.BaseProto,
 
-  commit(this: MessageToSend) {
+  commit(this: MessageToSend): MessageToSendEffect {
     return Effect.flatMap(
       Dialog,
       dialog => sendMessage({
