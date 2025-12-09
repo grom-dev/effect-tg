@@ -8,3 +8,9 @@ export class Update extends Context.Tag('@grom.js/effect-tg/Bot/Update')<
   Update,
   BotApi.Types.Update
 >() {}
+
+export interface Middleware {
+  <E, R>(self: Bot<E, R>): Bot<any, any>
+}
+
+export const middleware: <M extends Middleware>(middleware: M) => M = mw => mw
