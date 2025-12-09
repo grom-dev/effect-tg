@@ -8,8 +8,7 @@
     "typeRoots": ["node_modules/@types"],
     "types": ["node"],
     "allowImportingTsExtensions": true,
-    "allowJs": true,
-    "checkJs": true,
+    "allowJs": false,
     "strict": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -25,7 +24,7 @@
     "skipLibCheck": true
   },
   "include": [
-    "./eslint.config.js",
+    "./eslint.config.ts",
     "./knip.config.ts",
     "./scripts/**/*.ts"
   ]
