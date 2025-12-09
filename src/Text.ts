@@ -1,6 +1,5 @@
 import type { TgxElement } from '@grom.js/tgx/types'
-import type { MethodParams, Types } from './BotApi.ts'
-import { html as tgxToHtml } from '@grom.js/tgx'
+import type { Types } from './BotApi.ts'
 import * as Data from 'effect/Data'
 
 /**
@@ -12,31 +11,32 @@ export type Text
     | Markdown
     | Tgx
 
-export class Plain extends Data.Class<{
+export class Plain extends Data.TaggedClass('Plain')<{
   text: string
   entities?: Array<Types.MessageEntity>
-}> {
-  sendParams(): SendParams {
-    return { text: this.text, entities: this.entities }
-  }
-}
+}> {}
 
-export class Html extends Data.Class<{ html: string }> {
-  sendParams(): SendParams {
-    return { text: this.html, parse_mode: 'HTML' }
-  }
-}
+export class Html extends Data.TaggedClass('Html')<{
+  html: string
+}> {}
 
-export class Markdown extends Data.Class<{ markdown: string }> {
-  sendParams(): SendParams {
-    return { text: this.markdown, parse_mode: 'MarkdownV2' }
-  }
-}
+export class Markdown extends Data.TaggedClass('Markdown')<{
+  markdown: string
+}> {}
 
-export class Tgx extends Data.Class<{ tgx: TgxElement }> {
-  sendParams(): SendParams {
-    return { text: tgxToHtml(this.tgx), parse_mode: 'HTML' }
-  }
-}
+export class Tgx extends Data.TaggedClass('Tgx')<{
+  tgx: TgxElement
+}> {}
 
-type SendParams = Pick<MethodParams['sendMessage'], 'text' | 'entities' | 'parse_mode'>
+// ———— Constructors ———————————————————————————————————————————————————————————
+
+export const plain = (
+  text: string,
+  entities?: Array<Types.MessageEntity>,
+): Plain => new Plain({ text, entities })
+
+export const html = (html: string): Html => new Html({ html })
+
+export const markdown = (markdown: string): Markdown => new Markdown({ markdown })
+
+export const tgx = (tgx: TgxElement): Tgx => new Tgx({ tgx })

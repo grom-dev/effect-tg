@@ -11,5 +11,8 @@ export default antfu({
 }, {
   rules: {
     'antfu/top-level-function': 'off',
+    'yoda': 'off',
+    'ts/no-namespace': 'off',
+    'ts/no-redeclare': 'off',
   },
 })

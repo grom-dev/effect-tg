@@ -1,23 +1,36 @@
-import type { BotApiTransport } from './BotApiTransport.ts'
 import type { MethodParams, MethodResults } from './internal/botApiMethods.gen.ts'
 import type { BotApiShape } from './internal/botApiShape.gen.ts'
 import type * as Types from './internal/botApiTypes.gen.ts'
 import * as Context from 'effect/Context'
 import * as Data from 'effect/Data'
+import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
+import * as BotApiTransport from './BotApiTransport.ts'
 import * as internal from './internal/botApi.ts'
 
 export type { MethodParams, MethodResults, Types }
 
 export class BotApi extends Context.Tag('@grom.js/effect-tg/BotApi')<
   BotApi,
-  BotApiShape
+  BotApi.Service
 >() {}
+
+export declare namespace BotApi {
+  export type Service = BotApiShape
+}
+
+export interface Method<
+  M extends keyof MethodParams,
+  E = BotApiError | BotApiTransport.BotApiTransportError,
+  R = never,
+> {
+  (params: MethodParams[M]): Effect.Effect<MethodResults[M], E, R>
+}
 
 /**
  * Error returned from the Bot API server in case of unsuccessful method call.
  */
-export class BotApiError extends Data.TaggedError('@grom.js/effect-tg/BotApiError')<{
+export class BotApiError extends Data.TaggedError('@grom.js/effect-tg/BotApi/BotApiError')<{
   code: number
   description: string
   parameters?: Types.ResponseParameters
@@ -27,8 +40,29 @@ export class BotApiError extends Data.TaggedError('@grom.js/effect-tg/BotApiErro
   }
 }
 
+export const make: (
+  transport: BotApiTransport.BotApiTransport.Service,
+) => BotApiShape = internal.make
+
 export const layer: Layer.Layer<
   BotApi,
   never,
-  BotApiTransport
-> = Layer.effect(BotApi, internal.make)
+  BotApiTransport.BotApiTransport
+> = Layer.effect(
+  BotApi,
+  Effect.andThen(BotApiTransport.BotApiTransport, internal.make),
+)
+
+export const callMethod: <M extends keyof MethodParams>(
+  method: M,
+  params: MethodParams[M],
+) => Effect.Effect<
+  MethodResults[M],
+  BotApiError | BotApiTransport.BotApiTransportError,
+  BotApi
+> = (
+  method: string,
+  params: unknown = undefined,
+) => BotApi.pipe(
+  Effect.flatMap((api: any) => api[method](params)),
+) as any

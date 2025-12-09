@@ -46,7 +46,7 @@ function genTypes(f: SourceFile): void {
 function genMethods(f: SourceFile): void {
   const opts: GenValueTypeOptions = {
     apiType: name => `Types.${name}`,
-    inputFile: 'InputFile',
+    inputFile: 'File.InputFile',
   }
   f.addImportDeclaration({
     moduleSpecifier: './botApiTypes.gen.ts',
@@ -54,9 +54,9 @@ function genMethods(f: SourceFile): void {
     namespaceImport: 'Types',
   })
   f.addImportDeclaration({
-    moduleSpecifier: '../InputFile.ts',
+    moduleSpecifier: '../File.ts',
     isTypeOnly: true,
-    namedImports: ['InputFile'],
+    namespaceImport: 'File',
   })
   const iParams = f.addInterface({
     name: 'MethodParams',
@@ -97,8 +97,8 @@ function genShape(f: SourceFile): void {
   f.addImportDeclarations([
     {
       isTypeOnly: true,
-      namedImports: ['BotApiMethod'],
-      moduleSpecifier: './botApiMethod.ts',
+      namespaceImport: 'BotApi',
+      moduleSpecifier: '../BotApi.ts',
     },
   ])
   f.addInterface({
@@ -110,7 +110,7 @@ function genShape(f: SourceFile): void {
       .map(({ name, description }) => ({
         name,
         docs: [description.markdown],
-        type: `BotApiMethod<'${name}'>`,
+        type: `BotApi.Method<'${name}'>`,
       })),
   })
 }

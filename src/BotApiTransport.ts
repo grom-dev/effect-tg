@@ -1,19 +1,24 @@
-import type * as Effect from 'effect/Effect'
 import type * as Types from './internal/botApiTypes.gen.ts'
+import * as HttpClient from '@effect/platform/HttpClient'
 import * as Context from 'effect/Context'
 import * as Data from 'effect/Data'
+import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
+import * as BotApiUrl from './BotApiUrl.ts'
 import * as internal from './internal/botApiTransport.ts'
 
 export class BotApiTransport extends Context.Tag('@grom.js/effect-tg/BotApiTransport')<
   BotApiTransport,
-  {
+  BotApiTransport.Service
+>() {}
+
+export declare namespace BotApiTransport {
+  export interface Service {
     sendRequest: (
       method: string,
       params: unknown,
     ) => Effect.Effect<BotApiResponse, BotApiTransportError>
   }
->() {
 }
 
 /**
@@ -34,22 +39,17 @@ export type BotApiResponse
 /**
  * Error caused by the transport when accessing Bot API.
  */
-export class BotApiTransportError extends Data.TaggedError('@grom.js/effect-tg/BotApiTransportError')<{
+export class BotApiTransportError extends Data.TaggedError('@grom.js/effect-tg/BotApiTransport/BotApiTransportError')<{
   cause: unknown
 }> {}
 
-export const layerWith = (options: {
-  makeUrl: (method: string) => URL
-}) => Layer.effect(BotApiTransport, internal.makeWith(options))
-
-export const layerProd = (token: string) => (
-  layerWith({
-    makeUrl: method => new URL(`https://api.telegram.org/bot${token}/${method}`),
-  })
-)
-
-export const layerTest = (token: string) => (
-  layerWith({
-    makeUrl: method => new URL(`https://api.telegram.org/bot${token}/test/${method}`),
-  })
+export const layer: Layer.Layer<
+  BotApiTransport,
+  never,
+  HttpClient.HttpClient | BotApiUrl.BotApiUrl
+> = Layer.effect(
+  BotApiTransport,
+  Effect.all([HttpClient.HttpClient, BotApiUrl.BotApiUrl]).pipe(
+    Effect.andThen(reqs => internal.make(...reqs)),
+  ),
 )
