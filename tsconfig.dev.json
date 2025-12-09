@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.dev.tsbuildinfo",
     "target": "esnext",
     "lib": ["ESNext"],
     "moduleDetection": "force",
@@ -26,8 +25,8 @@
     "skipLibCheck": true
   },
   "include": [
-    "./*.ts",
-    "./*.js",
-    "./scripts/*.ts"
+    "./eslint.config.js",
+    "./knip.config.ts",
+    "./scripts/**/*.ts"
   ]
 }
