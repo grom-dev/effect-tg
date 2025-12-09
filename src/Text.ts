@@ -27,3 +27,16 @@ export class Markdown extends Data.TaggedClass('Markdown')<{
 export class Tgx extends Data.TaggedClass('Tgx')<{
   tgx: TgxElement
 }> {}
+
+// ———— Constructors ———————————————————————————————————————————————————————————
+
+export const plain = (
+  text: string,
+  entities?: Array<Types.MessageEntity>,
+): Plain => new Plain({ text, entities })
+
+export const html = (html: string): Html => new Html({ html })
+
+export const markdown = (markdown: string): Markdown => new Markdown({ markdown })
+
+export const tgx = (tgx: TgxElement): Tgx => new Tgx({ tgx })

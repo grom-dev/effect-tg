@@ -6,14 +6,6 @@ import * as Effect from 'effect/Effect'
 import * as BotApi from './BotApi.ts'
 import * as BotApiUrl from './BotApiUrl.ts'
 
-/**
- * @see https://core.telegram.org/bots/api#sending-files
- */
-export type Sendable
-  = | FileId
-    | External
-    | InputFile
-
 export type FileId = string & Brand.Brand<'FileId'>
 export const FileId = Brand.nominal<FileId>()
 
