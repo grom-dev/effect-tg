@@ -21,7 +21,7 @@ const config: KnipConfig = {
     duplicates: 'error',
   },
   eslint: {
-    config: 'eslint.config.js',
+    config: 'eslint.config.ts',
   },
   typescript: {
     config: [
