@@ -43,19 +43,22 @@
     "release": "bumpp"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.93.1",
-    "@grom.js/tgx": "^0.5.2",
-    "effect": "^3.19.3"
+    "@effect/platform": "^0.94.0",
+    "@grom.js/tgx": "^0.5.0",
+    "effect": "^3.19.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "6.5.1",
-    "@effect/language-service": "0.60.0",
+    "@antfu/eslint-config": "7.0.1",
+    "@effect/language-service": "0.65.0",
+    "@effect/platform": "0.94.1",
     "@grom.js/bot-api-spec": "0.4.1",
-    "@types/node": "22.19.2",
-    "bumpp": "10.3.2",
-    "eslint": "9.39.1",
-    "eslint-plugin-format": "1.1.0",
-    "knip": "5.72.0",
+    "@grom.js/tgx": "0.5.2",
+    "@types/node": "22.19.6",
+    "bumpp": "10.4.0",
+    "effect": "3.19.14",
+    "eslint": "9.39.2",
+    "eslint-plugin-format": "1.3.1",
+    "knip": "5.81.0",
     "taze": "19.9.2",
     "ts-morph": "27.0.2",
     "typescript": "5.9.3"
