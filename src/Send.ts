@@ -3,6 +3,7 @@
  */
 
 import type * as BotApi from './BotApi.ts'
+import type * as BotApiError from './BotApiError.ts'
 import type * as BotApiTransport from './BotApiTransport.ts'
 import type * as Content from './Content.ts'
 import type * as Dialog_ from './Dialog.ts'
@@ -73,7 +74,7 @@ export const sendMessage: (params: {
   markup?: Markup.Markup
 }) => Effect.Effect<
   BotApi.Types.Message,
-  BotApi.BotApiError | BotApiTransport.BotApiTransportError,
+  BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
   BotApi.BotApi
 > = internal.sendMessage
 
@@ -81,7 +82,7 @@ export const sendMessage: (params: {
 
 type MessageToSendEffect = Effect.Effect<
   BotApi.Types.Message,
-  BotApi.BotApiError | BotApiTransport.BotApiTransportError,
+  BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
   BotApi.BotApi | Dialog
 >
 

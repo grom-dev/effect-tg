@@ -1,8 +1,8 @@
+import type * as BotApiError from './BotApiError.ts'
 import type { MethodParams, MethodResults } from './internal/botApiMethods.gen.ts'
 import type { BotApiShape } from './internal/botApiShape.gen.ts'
 import type * as Types from './internal/botApiTypes.gen.ts'
 import * as Context from 'effect/Context'
-import * as Data from 'effect/Data'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as BotApiTransport from './BotApiTransport.ts'
@@ -21,23 +21,10 @@ export declare namespace BotApi {
 
 export interface Method<
   M extends keyof MethodParams,
-  E = BotApiError | BotApiTransport.BotApiTransportError,
+  E = BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
   R = never,
 > {
   (params: MethodParams[M]): Effect.Effect<MethodResults[M], E, R>
-}
-
-/**
- * Error returned from the Bot API server in case of unsuccessful method call.
- */
-export class BotApiError extends Data.TaggedError('@grom.js/effect-tg/BotApi/BotApiError')<{
-  code: number
-  description: string
-  parameters?: Types.ResponseParameters
-}> {
-  override get message() {
-    return `(${this.code}) ${this.description}`
-  }
 }
 
 export const make: (
@@ -58,7 +45,7 @@ export const callMethod: <M extends keyof MethodParams>(
   params: MethodParams[M],
 ) => Effect.Effect<
   MethodResults[M],
-  BotApiError | BotApiTransport.BotApiTransportError,
+  BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
   BotApi
 > = (
   method: string,

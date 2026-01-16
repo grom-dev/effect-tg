@@ -1,4 +1,4 @@
-import type { BotApiError } from '../BotApi.ts'
+import type { BotApiError } from '../BotApiError.ts'
 import type { BotApiTransportError } from '../BotApiTransport.ts'
 import type { Runner } from '../Runner.ts'
 import * as Duration from 'effect/Duration'
@@ -29,7 +29,7 @@ export const makeSimple = (options?: {
               schedule: Schedule.spaced(Duration.seconds(3)),
               while: error => Match.value(error).pipe(
                 Match.tagsExhaustive({
-                  '@grom.js/effect-tg/BotApi/BotApiError': error => Effect.succeed(
+                  '@grom.js/effect-tg/BotApiError': error => Effect.succeed(
                     error.code >= 500 || (
                       error.code !== 401
                       && error.code !== 403

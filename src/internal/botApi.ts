@@ -1,6 +1,7 @@
+import type * as BotApi from '../BotApi.ts'
 import type * as BotApiTransport from '../BotApiTransport.ts'
 import * as Effect from 'effect/Effect'
-import * as BotApi from '../BotApi.ts'
+import * as BotApiError from '../BotApiError.ts'
 
 export const make = (
   transport: BotApiTransport.BotApiTransport.Service,
@@ -18,7 +19,7 @@ export const make = (
             return response.result
           }
           return yield* Effect.fail(
-            new BotApi.BotApiError({
+            new BotApiError.BotApiError({
               code: response.error_code,
               description: response.description,
               parameters: response.parameters,
