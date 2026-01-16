@@ -1,10 +1,15 @@
+import type * as HttpClient from '@effect/platform/HttpClient'
+import type * as HttpClientError from '@effect/platform/HttpClientError'
+import type * as HttpClientResponse from '@effect/platform/HttpClientResponse'
+import type * as Effect from 'effect/Effect'
 import type * as Stream from 'effect/Stream'
-import * as HttpClient from '@effect/platform/HttpClient'
+import type * as BotApi from './BotApi.ts'
+import type * as BotApiError from './BotApiError.ts'
+import type * as BotApiTransport from './BotApiTransport.ts'
+import type * as BotApiUrl from './BotApiUrl.ts'
 import * as Brand from 'effect/Brand'
 import * as Data from 'effect/Data'
-import * as Effect from 'effect/Effect'
-import * as BotApi from './BotApi.ts'
-import * as BotApiUrl from './BotApiUrl.ts'
+import * as internal from './internal/file.ts'
 
 export type FileId = string & Brand.Brand<'FileId'>
 export const FileId = Brand.nominal<FileId>()
@@ -19,27 +24,12 @@ export class InputFile extends Data.TaggedClass('InputFile')<{
 }> {}
 
 /**
- * @internal
+ * Downloads a file from the Bot API server.
+ *
+ * @see {@link https://core.telegram.org/bots/api#getfile Bot API • getFile}
  */
-const downloadRequest = Effect.fnUntraced(
-  function* (fileId: FileId) {
-    const file = yield* BotApi.callMethod('getFile', { file_id: fileId })
-    if (file.file_path == null) {
-      return yield* Effect.die(new Error(`Bot API returned no file path for file "${fileId}".`))
-    }
-    const url = yield* BotApiUrl.BotApiUrl
-    return yield* HttpClient.get(url.toFile(file.file_path))
-  },
-)
-
-export const download = (fileId: FileId) => (
-  downloadRequest(fileId).pipe(
-    Effect.flatMap(request => request.arrayBuffer),
-  )
-)
-
-export const downloadStream = (fileId: FileId) => (
-  downloadRequest(fileId).pipe(
-    Effect.andThen(request => request.stream),
-  )
-)
+export const get: (fileId: FileId) => Effect.Effect<
+  HttpClientResponse.HttpClientResponse,
+  BotApiError.BotApiError | BotApiTransport.BotApiTransportError | HttpClientError.HttpClientError,
+  BotApi.BotApi | BotApiUrl.BotApiUrl | HttpClient.HttpClient
+> = internal.get
