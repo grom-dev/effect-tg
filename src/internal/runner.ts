@@ -1,28 +1,34 @@
 import type { BotApiError } from '../BotApiError.ts'
 import type { BotApiTransportError } from '../BotApiTransport.ts'
 import type { Runner } from '../Runner.ts'
+import * as Chunk from 'effect/Chunk'
 import * as Duration from 'effect/Duration'
 import * as Effect from 'effect/Effect'
 import * as Match from 'effect/Match'
+import * as Ref from 'effect/Ref'
 import * as Schedule from 'effect/Schedule'
+import * as Stream from 'effect/Stream'
 import { Update } from '../Bot.ts'
 import { BotApi } from '../BotApi.ts'
 
-export const makeSimple = (options?: {
+export const make = (options?: {
   allowedUpdates?: string[]
+  concurrency?: number | 'unbounded'
 }): Runner<BotApiError | BotApiTransportError, BotApi> => ({
   run: Effect.fnUntraced(
     function* (bot) {
-      const { allowedUpdates } = options ?? {}
+      const { allowedUpdates, concurrency } = options ?? {}
       const api = yield* BotApi
-      let lastUpdateId: undefined | number
-      while (true) {
-        const [update] = yield* api
+      const offset = yield* Ref.make<number | undefined>(undefined)
+
+      const getUpdates = Effect.gen(function* () {
+        const lastUpdateId = yield* Ref.get(offset)
+        const updates = yield* api
           .getUpdates({
-            offset: lastUpdateId == null ? undefined : lastUpdateId + 1,
+            offset: lastUpdateId,
             allowed_updates: allowedUpdates,
             timeout: 30,
-            limit: 1,
+            limit: 100,
           })
           .pipe(
             Effect.retry({
@@ -41,17 +47,37 @@ export const makeSimple = (options?: {
               ),
             }),
           )
-        if (update) {
-          yield* Effect
+
+        if (updates.length > 0) {
+          const lastId = updates[updates.length - 1]!.update_id
+          yield* Ref.set(offset, lastId + 1)
+        }
+
+        return Chunk.fromIterable(updates)
+      })
+
+      return yield* Stream.repeatEffect(getUpdates).pipe(
+        Stream.mapConcatChunk(chunk => chunk),
+        Stream.mapEffect(
+          update => Effect
             .provideService(bot, Update, update)
             .pipe(
               Effect.catchAll(error => (
                 Effect.logError('Error in bot:', error)
               )),
-            )
-          lastUpdateId = update.update_id
-        }
-      }
+            ),
+          { concurrency: concurrency ?? 10 },
+        ),
+        Stream.runDrain,
+        Effect.andThen(Effect.never),
+      )
     },
   ),
+})
+
+export const makeSimple = (options?: {
+  allowedUpdates?: string[]
+}): Runner<BotApiError | BotApiTransportError, BotApi> => make({
+  ...options,
+  concurrency: 1,
 })
