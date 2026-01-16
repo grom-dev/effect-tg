@@ -1,5 +1,6 @@
 export * as Bot from './Bot.ts'
 export * as BotApi from './BotApi.ts'
+export * as BotApiError from './BotApiError.ts'
 export * as BotApiTransport from './BotApiTransport.ts'
 export * as BotApiUrl from './BotApiUrl.ts'
 export * as Content from './Content.ts'
