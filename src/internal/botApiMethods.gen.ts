@@ -49,7 +49,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -79,7 +79,7 @@ export interface MethodParams {
   forwardMessage: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be forwarded; required if the message is forwarded to a direct messages chat */
     direct_messages_topic_id?: number
@@ -91,6 +91,8 @@ export interface MethodParams {
     disable_notification?: boolean
     /** Protects the contents of the forwarded message from forwarding and saving */
     protect_content?: boolean
+    /** Unique identifier of the message effect to be added to the message; only available when forwarding to private chats */
+    message_effect_id?: string
     /** An object containing the parameters of the suggested post to send; for direct messages chats only */
     suggested_post_parameters?: Types.SuggestedPostParameters
     /** Message identifier in the chat specified in _from\_chat\_id_ */
@@ -99,7 +101,7 @@ export interface MethodParams {
   forwardMessages: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the messages will be forwarded; required if the messages are forwarded to a direct messages chat */
     direct_messages_topic_id?: number
@@ -115,7 +117,7 @@ export interface MethodParams {
   copyMessage: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -139,6 +141,8 @@ export interface MethodParams {
     protect_content?: boolean
     /** Pass _True_ to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
     allow_paid_broadcast?: boolean
+    /** Unique identifier of the message effect to be added to the message; only available when copying to private chats */
+    message_effect_id?: string
     /** An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
     suggested_post_parameters?: Types.SuggestedPostParameters
     /** Description of the message to reply to */
@@ -149,7 +153,7 @@ export interface MethodParams {
   copyMessages: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the messages will be sent; required if the messages are sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -169,7 +173,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -205,7 +209,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -245,7 +249,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -281,7 +285,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -331,7 +335,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -375,7 +379,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -409,7 +413,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -441,11 +445,11 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance. */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
-    /** The number of Telegram Stars that must be paid to buy access to the media; 1-10000 */
+    /** The number of Telegram Stars that must be paid to buy access to the media; 1-25000 */
     star_count: number
     /** An array describing the media to be sent; up to 10 items */
     media: Array<Types.InputPaidMedia>
@@ -477,7 +481,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the messages will be sent; required if the messages are sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -499,7 +503,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -535,7 +539,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -575,7 +579,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -607,7 +611,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). Polls can't be sent to channel direct messages chats. */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Poll question, 1-300 characters */
     question: string
@@ -673,7 +677,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -694,12 +698,26 @@ export interface MethodParams {
     /** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?: Types.InlineKeyboardMarkup | Types.ReplyKeyboardMarkup | Types.ReplyKeyboardRemove | Types.ForceReply
   }
+  sendMessageDraft: {
+    /** Unique identifier for the target private chat */
+    chat_id: number
+    /** Unique identifier for the target message thread */
+    message_thread_id?: number
+    /** Unique identifier of the message draft; must be non-zero. Changes of drafts with the same identifier are animated */
+    draft_id: number
+    /** Text of the message to be sent, 1-4096 characters after entities parsing */
+    text: string
+    /** Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
+    parse_mode?: string
+    /** An array of special entities that appear in message text, which can be specified instead of _parse\_mode_ */
+    entities?: Array<Types.MessageEntity>
+  }
   sendChatAction: {
     /** Unique identifier of the business connection on behalf of which the action will be sent */
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel chats and channel direct messages chats aren't supported. */
     chat_id: number | string
-    /** Unique identifier for the target message thread; for supergroups only */
+    /** Unique identifier for the target message thread or topic of a forum; for supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Type of action to broadcast. Choose one, depending on what the user is about to receive: _typing_ for [text messages](https://core.telegram.org/bots/api#sendmessage), _upload\_photo_ for [photos](https://core.telegram.org/bots/api#sendphoto), _record\_video_ or _upload\_video_ for [videos](https://core.telegram.org/bots/api#sendvideo), _record\_voice_ or _upload\_voice_ for [voice notes](https://core.telegram.org/bots/api#sendvoice), _upload\_document_ for [general files](https://core.telegram.org/bots/api#senddocument), _choose\_sticker_ for [stickers](https://core.telegram.org/bots/api#sendsticker), _find\_location_ for [location data](https://core.telegram.org/bots/api#sendlocation), _record\_video\_note_ or _upload\_video\_note_ for [video notes](https://core.telegram.org/bots/api#sendvideonote). */
     action: string
@@ -777,7 +795,7 @@ export interface MethodParams {
     can_delete_messages?: boolean
     /** Pass _True_ if the administrator can manage video chats */
     can_manage_video_chats?: boolean
-    /** Pass _True_ if the administrator can restrict, ban or unban chat members, or access supergroup statistics */
+    /** Pass _True_ if the administrator can restrict, ban or unban chat members, or access supergroup statistics. For backward compatibility, defaults to _True_ for promotions of channel administrators */
     can_restrict_members?: boolean
     /** Pass _True_ if the administrator can add new administrators with a subset of their own privileges or demote administrators that they have promoted, directly or indirectly (promoted by administrators that were appointed by him) */
     can_promote_members?: boolean
@@ -1145,7 +1163,7 @@ export interface MethodParams {
     user_id?: number
     /** Required if _user\_id_ is not specified. Unique identifier for the chat or username of the channel (in the format `@channelusername`) that will receive the gift. */
     chat_id?: number | string
-    /** Identifier of the gift */
+    /** Identifier of the gift; limited gifts can't be sent to channel chats */
     gift_id: string
     /** Pass _True_ to pay for the gift upgrade from the bot's balance, thereby making the upgrade free for the receiver */
     pay_for_upgrade?: boolean
@@ -1265,13 +1283,61 @@ export interface MethodParams {
     exclude_saved?: boolean
     /** Pass _True_ to exclude gifts that can be purchased an unlimited number of times */
     exclude_unlimited?: boolean
-    /** Pass _True_ to exclude gifts that can be purchased a limited number of times */
-    exclude_limited?: boolean
+    /** Pass _True_ to exclude gifts that can be purchased a limited number of times and can be upgraded to unique */
+    exclude_limited_upgradable?: boolean
+    /** Pass _True_ to exclude gifts that can be purchased a limited number of times and can't be upgraded to unique */
+    exclude_limited_non_upgradable?: boolean
+    /** Pass _True_ to exclude unique gifts */
+    exclude_unique?: boolean
+    /** Pass _True_ to exclude gifts that were assigned from the TON blockchain and can't be resold or transferred in Telegram */
+    exclude_from_blockchain?: boolean
+    /** Pass _True_ to sort results by gift price instead of send date. Sorting is applied before pagination. */
+    sort_by_price?: boolean
+    /** Offset of the first entry to return as received from the previous request; use empty string to get the first chunk of results */
+    offset?: string
+    /** The maximum number of gifts to be returned; 1-100. Defaults to 100 */
+    limit?: number
+  }
+  getUserGifts: {
+    /** Unique identifier of the user */
+    user_id: number
+    /** Pass _True_ to exclude gifts that can be purchased an unlimited number of times */
+    exclude_unlimited?: boolean
+    /** Pass _True_ to exclude gifts that can be purchased a limited number of times and can be upgraded to unique */
+    exclude_limited_upgradable?: boolean
+    /** Pass _True_ to exclude gifts that can be purchased a limited number of times and can't be upgraded to unique */
+    exclude_limited_non_upgradable?: boolean
+    /** Pass _True_ to exclude gifts that were assigned from the TON blockchain and can't be resold or transferred in Telegram */
+    exclude_from_blockchain?: boolean
     /** Pass _True_ to exclude unique gifts */
     exclude_unique?: boolean
     /** Pass _True_ to sort results by gift price instead of send date. Sorting is applied before pagination. */
     sort_by_price?: boolean
-    /** Offset of the first entry to return as received from the previous request; use empty string to get the first chunk of results */
+    /** Offset of the first entry to return as received from the previous request; use an empty string to get the first chunk of results */
+    offset?: string
+    /** The maximum number of gifts to be returned; 1-100. Defaults to 100 */
+    limit?: number
+  }
+  getChatGifts: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id: number | string
+    /** Pass _True_ to exclude gifts that aren't saved to the chat's profile page. Always _True_, unless the bot has the _can\_post\_messages_ administrator right in the channel. */
+    exclude_unsaved?: boolean
+    /** Pass _True_ to exclude gifts that are saved to the chat's profile page. Always _False_, unless the bot has the _can\_post\_messages_ administrator right in the channel. */
+    exclude_saved?: boolean
+    /** Pass _True_ to exclude gifts that can be purchased an unlimited number of times */
+    exclude_unlimited?: boolean
+    /** Pass _True_ to exclude gifts that can be purchased a limited number of times and can be upgraded to unique */
+    exclude_limited_upgradable?: boolean
+    /** Pass _True_ to exclude gifts that can be purchased a limited number of times and can't be upgraded to unique */
+    exclude_limited_non_upgradable?: boolean
+    /** Pass _True_ to exclude gifts that were assigned from the TON blockchain and can't be resold or transferred in Telegram */
+    exclude_from_blockchain?: boolean
+    /** Pass _True_ to exclude unique gifts */
+    exclude_unique?: boolean
+    /** Pass _True_ to sort results by gift price instead of send date. Sorting is applied before pagination. */
+    sort_by_price?: boolean
+    /** Offset of the first entry to return as received from the previous request; use an empty string to get the first chunk of results */
     offset?: string
     /** The maximum number of gifts to be returned; 1-100. Defaults to 100 */
     limit?: number
@@ -1317,6 +1383,20 @@ export interface MethodParams {
     caption_entities?: Array<Types.MessageEntity>
     /** An array of clickable areas to be shown on the story */
     areas?: Array<Types.StoryArea>
+    /** Pass _True_ to keep the story accessible after it expires */
+    post_to_chat_page?: boolean
+    /** Pass _True_ if the content of the story must be protected from forwarding and screenshotting */
+    protect_content?: boolean
+  }
+  repostStory: {
+    /** Unique identifier of the business connection */
+    business_connection_id: string
+    /** Unique identifier of the chat which posted the story that should be reposted */
+    from_chat_id: number
+    /** Unique identifier of the story that should be reposted */
+    from_story_id: number
+    /** Period after which the story is moved to the archive, in seconds; must be one of `6 * 3600`, `12 * 3600`, `86400`, or `2 * 86400` */
+    active_period: number
     /** Pass _True_ to keep the story accessible after it expires */
     post_to_chat_page?: boolean
     /** Pass _True_ if the content of the story must be protected from forwarding and screenshotting */
@@ -1501,7 +1581,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -1663,7 +1743,7 @@ export interface MethodParams {
   sendInvoice: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
@@ -1820,7 +1900,7 @@ export interface MethodParams {
     business_connection_id?: string
     /** Unique identifier for the target chat. Games can't be sent to channel direct messages chats and channel chats. */
     chat_id: number
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    /** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Short name of the game, serves as the unique identifier for the game. Set up your games via [@BotFather](https://t.me/botfather). */
     game_short_name: string
@@ -1893,6 +1973,7 @@ export interface MethodResults {
   sendPoll: Types.Message
   sendChecklist: Types.Message
   sendDice: Types.Message
+  sendMessageDraft: true
   sendChatAction: true
   setMessageReaction: true
   getUserProfilePhotos: Types.UserProfilePhotos
@@ -1975,10 +2056,13 @@ export interface MethodResults {
   getBusinessAccountStarBalance: Types.StarAmount
   transferBusinessAccountStars: true
   getBusinessAccountGifts: Types.OwnedGifts
+  getUserGifts: Types.OwnedGifts
+  getChatGifts: Types.OwnedGifts
   convertGiftToStars: true
   upgradeGift: true
   transferGift: true
   postStory: Types.Story
+  repostStory: Types.Story
   editStory: Types.Story
   deleteStory: true
   editMessageText: Types.Message | true

@@ -81,6 +81,8 @@ export interface BotApiShape {
   sendChecklist: BotApi.Method<'sendChecklist'>
   /** Use this method to send an animated emoji that will display a random value. On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned. */
   sendDice: BotApi.Method<'sendDice'>
+  /** Use this method to stream a partial message to a user while the message is being generated; supported only for bots with forum topic mode enabled. Returns _True_ on success. */
+  sendMessageDraft: BotApi.Method<'sendMessageDraft'>
   /**
    * Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns _True_ on success.
    *
@@ -169,15 +171,15 @@ export interface BotApiShape {
   getForumTopicIconStickers: BotApi.Method<'getForumTopicIconStickers'>
   /** Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the _can\_manage\_topics_ administrator rights. Returns information about the created topic as a [ForumTopic](https://core.telegram.org/bots/api#forumtopic) object. */
   createForumTopic: BotApi.Method<'createForumTopic'>
-  /** Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the _can\_manage\_topics_ administrator rights, unless it is the creator of the topic. Returns _True_ on success. */
+  /** Use this method to edit name and icon of a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the _can\_manage\_topics_ administrator rights, unless it is the creator of the topic. Returns _True_ on success. */
   editForumTopic: BotApi.Method<'editForumTopic'>
   /** Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the _can\_manage\_topics_ administrator rights, unless it is the creator of the topic. Returns _True_ on success. */
   closeForumTopic: BotApi.Method<'closeForumTopic'>
   /** Use this method to reopen a closed topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the _can\_manage\_topics_ administrator rights, unless it is the creator of the topic. Returns _True_ on success. */
   reopenForumTopic: BotApi.Method<'reopenForumTopic'>
-  /** Use this method to delete a forum topic along with all its messages in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the _can\_delete\_messages_ administrator rights. Returns _True_ on success. */
+  /** Use this method to delete a forum topic along with all its messages in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the _can\_delete\_messages_ administrator rights. Returns _True_ on success. */
   deleteForumTopic: BotApi.Method<'deleteForumTopic'>
-  /** Use this method to clear the list of pinned messages in a forum topic. The bot must be an administrator in the chat for this to work and must have the _can\_pin\_messages_ administrator right in the supergroup. Returns _True_ on success. */
+  /** Use this method to clear the list of pinned messages in a forum topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the _can\_pin\_messages_ administrator right in the supergroup. Returns _True_ on success. */
   unpinAllForumTopicMessages: BotApi.Method<'unpinAllForumTopicMessages'>
   /** Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the _can\_manage\_topics_ administrator rights. Returns _True_ on success. */
   editGeneralForumTopic: BotApi.Method<'editGeneralForumTopic'>
@@ -263,6 +265,10 @@ export interface BotApiShape {
   transferBusinessAccountStars: BotApi.Method<'transferBusinessAccountStars'>
   /** Returns the gifts received and owned by a managed business account. Requires the _can\_view\_gifts\_and\_stars_ business bot right. Returns [OwnedGifts](https://core.telegram.org/bots/api#ownedgifts) on success. */
   getBusinessAccountGifts: BotApi.Method<'getBusinessAccountGifts'>
+  /** Returns the gifts owned and hosted by a user. Returns [OwnedGifts](https://core.telegram.org/bots/api#ownedgifts) on success. */
+  getUserGifts: BotApi.Method<'getUserGifts'>
+  /** Returns the gifts owned by a chat. Returns [OwnedGifts](https://core.telegram.org/bots/api#ownedgifts) on success. */
+  getChatGifts: BotApi.Method<'getChatGifts'>
   /** Converts a given regular gift to Telegram Stars. Requires the _can\_convert\_gifts\_to\_stars_ business bot right. Returns _True_ on success. */
   convertGiftToStars: BotApi.Method<'convertGiftToStars'>
   /** Upgrades a given regular gift to a unique gift. Requires the _can\_transfer\_and\_upgrade\_gifts_ business bot right. Additionally requires the _can\_transfer\_stars_ business bot right if the upgrade is paid. Returns _True_ on success. */
@@ -271,6 +277,8 @@ export interface BotApiShape {
   transferGift: BotApi.Method<'transferGift'>
   /** Posts a story on behalf of a managed business account. Requires the _can\_manage\_stories_ business bot right. Returns [Story](https://core.telegram.org/bots/api#story) on success. */
   postStory: BotApi.Method<'postStory'>
+  /** Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the _can\_manage\_stories_ business bot right for both business accounts. Returns [Story](https://core.telegram.org/bots/api#story) on success. */
+  repostStory: BotApi.Method<'repostStory'>
   /** Edits a story previously posted by the bot on behalf of a managed business account. Requires the _can\_manage\_stories_ business bot right. Returns [Story](https://core.telegram.org/bots/api#story) on success. */
   editStory: BotApi.Method<'editStory'>
   /** Deletes a story previously posted by the bot on behalf of a managed business account. Requires the _can\_manage\_stories_ business bot right. Returns _True_ on success. */
