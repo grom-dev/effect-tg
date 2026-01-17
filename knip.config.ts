@@ -29,6 +29,7 @@ const config: KnipConfig = {
       'tsconfig.lib.json',
     ],
   },
+  ignoreBinaries: ['changelogithub'],
 }
 
 export default config
