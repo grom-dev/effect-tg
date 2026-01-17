@@ -12,20 +12,20 @@ importers:
         specifier: 7.0.1
         version: 7.0.1(@vue/compiler-sfc@3.5.24)(eslint-plugin-format@1.3.1(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       '@effect/language-service':
-        specifier: 0.65.0
-        version: 0.65.0
+        specifier: 0.67.0
+        version: 0.67.0
       '@effect/platform':
         specifier: 0.94.1
         version: 0.94.1(effect@3.19.14)
       '@grom.js/bot-api-spec':
-        specifier: 0.4.1
-        version: 0.4.1
+        specifier: 0.5.0
+        version: 0.5.0
       '@grom.js/tgx':
-        specifier: 0.5.2
-        version: 0.5.2
+        specifier: 0.5.3
+        version: 0.5.3
       '@types/node':
-        specifier: 22.19.6
-        version: 22.19.6
+        specifier: 22.19.7
+        version: 22.19.7
       bumpp:
         specifier: 10.4.0
         version: 10.4.0
@@ -40,7 +40,7 @@ importers:
         version: 1.3.1(eslint@9.39.2(jiti@2.6.1))
       knip:
         specifier: 5.81.0
-        version: 5.81.0(@types/node@22.19.6)(typescript@5.9.3)
+        version: 5.81.0(@types/node@22.19.7)(typescript@5.9.3)
       taze:
         specifier: 19.9.2
         version: 19.9.2
@@ -148,8 +148,8 @@ packages:
   '@dprint/toml@0.7.0':
     resolution: {integrity: sha512-eFaQTcfxKHB+YyTh83x7GEv+gDPuj9q5NFOTaoj5rZmQTbj6OgjjMxUicmS1R8zYcx8YAq5oA9J3YFa5U6x2gA==}
 
-  '@effect/language-service@0.65.0':
-    resolution: {integrity: sha512-eHcpLNCZa1XEDRrXLZqTdky6jAQojL6zQEW53Ba6vJL35j77tJTnV9BFkk34G3rxKoplNo39U0Mum3RfuH9rsg==}
+  '@effect/language-service@0.67.0':
+    resolution: {integrity: sha512-8yTlGnKbayq37sM523A98tZzxXmLaizAa/sNN2BpqnXz9aa0DgVN9gon5xmvWSb6jNbK8J6xNtOYrFFKSJRpIg==}
     hasBin: true
 
   '@effect/platform@0.94.1':
@@ -249,11 +249,12 @@ packages:
     resolution: {integrity: sha512-hZ2uC1jbf6JMSsF2ZklhRQqf6GLpYyux6DlzegnW/aFlpu6qJj5GO7ub7WOETCrEl6pl6DAX7RgTgj/fyG+6BQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@grom.js/bot-api-spec@0.4.1':
-    resolution: {integrity: sha512-DWMOpAfmE99QeyOWFSGK41lHTwF08tQElyE3H8igvTRCOUC+jSvNC9fkrY91NQOH+BdhBxRWnTubwi0yk59C+Q==}
+  '@grom.js/bot-api-spec@0.5.0':
+    resolution: {integrity: sha512-v5fVmN079629c73Wu5JuPbSrO30LWKG8B1hlwfzn/H8FNVFNEViCXAgG2//H7ifPR8C1cZDR6MLJOeakEoq2oA==}
+    engines: {node: '>=22.18'}
 
-  '@grom.js/tgx@0.5.2':
-    resolution: {integrity: sha512-dgdFzOvIz4oKCI70HI8PQNb2Mq0Z5CzR2Objbf4QYS+MEcBIEyMxnHRzgibVcjFIFx99xfZHZxROCLFlTILb0Q==}
+  '@grom.js/tgx@0.5.3':
+    resolution: {integrity: sha512-5nGC7KlhmKE6KSjFt0HRIN7qC74UF/2kGAHdKjM6Pi1E+ArgYKkkpizm+eMrPjZzX6OFUOefcgkpQAhEWDSjNQ==}
     engines: {node: 22.x}
 
   '@humanfs/core@0.19.1':
@@ -469,8 +470,8 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@22.19.6':
-    resolution: {integrity: sha512-qm+G8HuG6hOHQigsi7VGuLjUVu6TtBo/F05zvX04Mw2uCg9Dv0Qxy3Qw7j41SidlTcl5D/5yg0SEZqOB+EqZnQ==}
+  '@types/node@22.19.7':
+    resolution: {integrity: sha512-MciR4AKGHWl7xwxkBa6xUGxQJ4VBOmPTF7sL+iGzuahOFaO0jHCsuEfS80pan1ef4gWId1oWOweIhrDEYLuaOw==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
@@ -1906,7 +1907,7 @@ snapshots:
 
   '@dprint/toml@0.7.0': {}
 
-  '@effect/language-service@0.65.0': {}
+  '@effect/language-service@0.67.0': {}
 
   '@effect/platform@0.94.1(effect@3.19.14)':
     dependencies:
@@ -2035,9 +2036,9 @@ snapshots:
       '@eslint/core': 1.0.1
       levn: 0.4.1
 
-  '@grom.js/bot-api-spec@0.4.1': {}
+  '@grom.js/bot-api-spec@0.5.0': {}
 
-  '@grom.js/tgx@0.5.2': {}
+  '@grom.js/tgx@0.5.3': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -2202,7 +2203,7 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@22.19.6':
+  '@types/node@22.19.7':
     dependencies:
       undici-types: 6.21.0
 
@@ -3017,10 +3018,10 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  knip@5.81.0(@types/node@22.19.6)(typescript@5.9.3):
+  knip@5.81.0(@types/node@22.19.7)(typescript@5.9.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
-      '@types/node': 22.19.6
+      '@types/node': 22.19.7
       fast-glob: 3.3.3
       formatly: 0.3.0
       jiti: 2.6.1
