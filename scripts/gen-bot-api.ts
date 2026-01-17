@@ -1,4 +1,4 @@
-import type { ValueType } from '@grom.js/bot-api-spec'
+import type { ValueType } from '@grom.js/bot-api-spec/format'
 import type { SourceFile } from 'ts-morph'
 import { methods, types } from '@grom.js/bot-api-spec'
 import { Project, Writers } from 'ts-morph'
