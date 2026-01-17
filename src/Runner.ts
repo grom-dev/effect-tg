@@ -16,6 +16,12 @@ export interface Runner<E = never, R = never> {
 }
 
 /**
+ * Creates a runner that fetches updates by calling `BotApi.getUpdates`
+ * method and handles them concurrently.
+ */
+export const make = internal.make
+
+/**
  * Creates a simple runner that fetches updates by calling `BotApi.getUpdates`
  * method and handles them one by one.
  */
