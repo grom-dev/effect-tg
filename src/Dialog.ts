@@ -10,6 +10,7 @@ export type Dialog
     | PublicSupergroup
     | ForumTopic
     | ChannelDm
+    | PrivateThread
 
 export class UserId extends internal.PeerId({
   tag: 'UserId',
@@ -51,4 +52,9 @@ export class ForumTopic extends Data.TaggedClass('ForumTopic')<{
 export class ChannelDm extends Data.TaggedClass('ChannelDm')<{
   channel: ChannelId | PublicChannel
   userId: number
+}> {}
+
+export class PrivateThread extends Data.TaggedClass('PrivateThread')<{
+  user: UserId
+  threadId: number
 }> {}

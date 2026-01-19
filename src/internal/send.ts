@@ -214,6 +214,10 @@ const paramsDialog: (dialog: Dialog.Dialog) => ParamsDialog = Function.pipe(
       ),
       direct_messages_topic_id: userId,
     }),
+    PrivateThread: ({ user, threadId }) => ({
+      chat_id: user.dialogId,
+      message_thread_id: threadId,
+    }),
   }),
 )
 
