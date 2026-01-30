@@ -40,7 +40,9 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "knip": "knip --config ./knip.config.ts",
-    "release": "bumpp"
+    "release": "bumpp",
+    "test": "vitest run",
+    "test:type": "tsc --project tsconfig.test.json --noEmit"
   },
   "peerDependencies": {
     "@effect/platform": "^0.94.0",
@@ -61,6 +63,7 @@
     "knip": "5.81.0",
     "taze": "19.9.2",
     "ts-morph": "27.0.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "^4.0.18"
   }
 }
