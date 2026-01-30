@@ -19,12 +19,17 @@ export declare namespace BotApi {
   export type Service = BotApiShape
 }
 
+/** @internal */
+export type MethodArgs<M extends keyof MethodParams> = void extends MethodParams[M]
+  ? [params?: MethodParams[M]]
+  : [params: MethodParams[M]]
+
 export interface Method<
   M extends keyof MethodParams,
   E = BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
   R = never,
 > {
-  (params: MethodParams[M]): Effect.Effect<MethodResults[M], E, R>
+  (...args: MethodArgs<M>): Effect.Effect<MethodResults[M], E, R>
 }
 
 export const make: (
@@ -42,7 +47,7 @@ export const layer: Layer.Layer<
 
 export const callMethod: <M extends keyof MethodParams>(
   method: M,
-  params: MethodParams[M],
+  ...args: MethodArgs<M>
 ) => Effect.Effect<
   MethodResults[M],
   BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
