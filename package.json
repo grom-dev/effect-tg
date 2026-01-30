@@ -39,10 +39,9 @@
     "deps": "taze --write --interactive --include-locked minor",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
+    "test": "vitest run --typecheck",
     "knip": "knip --config ./knip.config.ts",
-    "release": "bumpp",
-    "test": "vitest run",
-    "test:type": "tsc --project tsconfig.test.json --noEmit"
+    "release": "bumpp"
   },
   "peerDependencies": {
     "@effect/platform": "^0.94.0",

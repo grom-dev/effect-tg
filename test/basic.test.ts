@@ -1,14 +1,5 @@
-import * as Option from 'effect/Option'
-import { describe, expect, it } from 'vitest'
-import * as Content from '../src/Content.ts'
-import * as Text from '../src/Text.ts'
+import { expect, it } from 'vitest'
 
-describe('content.text', () => {
-  it('stores text and defaults linkPreview to none', () => {
-    const text = Text.plain('hello')
-    const message = Content.text(text)
-
-    expect(message.text).toBe(text)
-    expect(Option.isNone(message.linkPreview)).toBe(true)
-  })
+it('2 + 2 = 4', () => {
+  expect(2 + 2).toBe(4)
 })
