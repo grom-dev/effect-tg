@@ -6,6 +6,15 @@ export default antfu({
     indent: 2,
     quotes: 'single',
     semi: false,
+    overrides: {
+      'style/operator-linebreak': ['error', 'before', {
+        overrides: {
+          '=': 'after',
+          '&&': 'after',
+          '||': 'after',
+        },
+      }],
+    },
   },
   markdown: false, // Disable linting of code blocks in Markdown.
 }, {

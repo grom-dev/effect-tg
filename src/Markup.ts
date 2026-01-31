@@ -4,11 +4,11 @@ import * as Data from 'effect/Data'
 /**
  * Reply markup for the message.
  */
-export type Markup
-  = | InlineKeyboard
-    | ReplyKeyboard
-    | ReplyKeyboardRemove
-    | ForceReply
+export type Markup =
+  | InlineKeyboard
+  | ReplyKeyboard
+  | ReplyKeyboardRemove
+  | ForceReply
 
 export class InlineKeyboard extends Data.TaggedClass('InlineKeyboard')<{
   rows: [] // TODO

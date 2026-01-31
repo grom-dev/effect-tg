@@ -28,13 +28,13 @@ export class BotApiError extends Data.TaggedError('@grom.js/effect-tg/BotApiErro
  */
 export const narrow: (error: BotApiError) => KnownError | BotApiError = internal.narrow
 
-export type KnownError
-  = | TooManyRequests
-    | BotBlockedByUser
-    | MessageNotModified
-    | ReplyMarkupTooLong
-    | QueryIdInvalid
-    | MediaGroupedInvalid
+export type KnownError =
+  | TooManyRequests
+  | BotBlockedByUser
+  | MessageNotModified
+  | ReplyMarkupTooLong
+  | QueryIdInvalid
+  | MediaGroupedInvalid
 
 /**
  * Flood limit exceeded. Need to wait `retryAfter` before retrying.

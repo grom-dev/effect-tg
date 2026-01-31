@@ -31,9 +31,9 @@ export const makeSimple = (options?: {
                 Match.tagsExhaustive({
                   '@grom.js/effect-tg/BotApiError': error => Effect.succeed(
                     error.code >= 500 || (
-                      error.code !== 401
-                      && error.code !== 403
-                      && error.code !== 404
+                      error.code !== 401 &&
+                      error.code !== 403 &&
+                      error.code !== 404
                     ),
                   ),
                   '@grom.js/effect-tg/BotApiTransport/BotApiTransportError': () => Effect.succeed(true),

@@ -1,16 +1,16 @@
 import * as Data from 'effect/Data'
 import * as internal from './internal/dialog.ts'
 
-export type Dialog
-  = | UserId
-    | GroupId
-    | ChannelId
-    | SupergroupId
-    | PublicChannel
-    | PublicSupergroup
-    | ForumTopic
-    | ChannelDm
-    | PrivateThread
+export type Dialog =
+  | UserId
+  | GroupId
+  | ChannelId
+  | SupergroupId
+  | PublicChannel
+  | PublicSupergroup
+  | ForumTopic
+  | ChannelDm
+  | PrivateThread
 
 export class UserId extends internal.PeerId({
   tag: 'UserId',

@@ -24,8 +24,8 @@ export declare namespace BotApiTransport {
 /**
  * @see https://core.telegram.org/bots/api#making-requests
  */
-export type BotApiResponse
-  = {
+export type BotApiResponse =
+  | {
     ok: true
     result: unknown
     description?: string

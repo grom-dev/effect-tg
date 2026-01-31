@@ -12,20 +12,20 @@ import * as Option from 'effect/Option'
  * @todo Invoices (fiat & stars)
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1_input_message_content.html TDLib • td_api.InputMessageContent}
  */
-export type Content
-  = | Text
-    | Photo
-    | Audio
-    | Document
-    | Video
-    | Animation
-    | Voice
-    | VideoNote
-    | Location
-    | Venue
-    | Contact
-    | Dice
-    | Sticker
+export type Content =
+  | Text
+  | Photo
+  | Audio
+  | Document
+  | Video
+  | Animation
+  | Voice
+  | VideoNote
+  | Location
+  | Venue
+  | Contact
+  | Dice
+  | Sticker
 
 /**
  * Content of a text message.

@@ -5,11 +5,11 @@ import * as Data from 'effect/Data'
 /**
  * Formatted text.
  */
-export type Text
-  = | Plain
-    | Html
-    | Markdown
-    | Tgx
+export type Text =
+  | Plain
+  | Html
+  | Markdown
+  | Tgx
 
 export class Plain extends Data.TaggedClass('Plain')<{
   text: string
