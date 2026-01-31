@@ -1,30 +1,29 @@
 import type * as BotApiError from './BotApiError.ts'
-import type { MethodParams, MethodResults } from './internal/botApiMethods.gen.ts'
-import type { BotApiShape } from './internal/botApiShape.gen.ts'
-import type * as Types from './internal/botApiTypes.gen.ts'
+import type {
+  MethodParams,
+  MethodResults,
+  BotApi as Service,
+  Types,
+} from './internal/botApi.gen.ts'
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as BotApiTransport from './BotApiTransport.ts'
 import * as internal from './internal/botApi.ts'
 
-export type { MethodParams, MethodResults, Types }
+export type { MethodParams, MethodResults, Service, Types }
 
 export class BotApi extends Context.Tag('@grom.js/effect-tg/BotApi')<
   BotApi,
-  BotApi.Service
+  Service
 >() {}
-
-export declare namespace BotApi {
-  export type Service = BotApiShape
-}
 
 /** @internal */
 export type MethodArgs<M extends keyof MethodParams> = void extends MethodParams[M]
   ? [params?: MethodParams[M]]
   : [params: MethodParams[M]]
 
-export interface Method<
+export interface BotApiMethod<
   M extends keyof MethodParams,
   E = BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
   R = never,
@@ -34,7 +33,7 @@ export interface Method<
 
 export const make: (
   transport: BotApiTransport.BotApiTransport.Service,
-) => BotApiShape = internal.make
+) => Service = internal.make
 
 export const layer: Layer.Layer<
   BotApi,

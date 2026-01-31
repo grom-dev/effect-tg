@@ -5,7 +5,7 @@ import * as BotApiError from '../BotApiError.ts'
 
 export const make = (
   transport: BotApiTransport.BotApiTransport.Service,
-): BotApi.BotApi.Service => (
+): BotApi.Service => (
   new Proxy({}, {
     get: (_target, prop) => {
       if (typeof prop !== 'string') {
@@ -28,5 +28,5 @@ export const make = (
         },
       )
     },
-  }) as BotApi.BotApi.Service
+  }) as BotApi.Service
 )

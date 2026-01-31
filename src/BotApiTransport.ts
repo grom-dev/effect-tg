@@ -1,4 +1,4 @@
-import type * as Types from './internal/botApiTypes.gen.ts'
+import type * as BotApi from './BotApi.ts'
 import * as HttpClient from '@effect/platform/HttpClient'
 import * as Context from 'effect/Context'
 import * as Data from 'effect/Data'
@@ -33,7 +33,7 @@ export type BotApiResponse =
     ok: false
     error_code: number
     description: string
-    parameters?: Types.ResponseParameters
+    parameters?: BotApi.Types.ResponseParameters
   }
 
 /**
