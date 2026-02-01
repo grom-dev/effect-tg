@@ -116,7 +116,14 @@ export const SupergroupId = Brand.refined<SupergroupId>(
   n => Brand.error(`Invalid supergroup or channel ID: ${n}`),
 )
 
+/**
+ * @alias SupergroupId
+ */
 export type ChannelId = SupergroupId
+
+/**
+ * @alias SupergroupId
+ */
 export const ChannelId = SupergroupId
 
 // =============================================================================
