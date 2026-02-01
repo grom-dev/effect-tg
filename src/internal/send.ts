@@ -190,33 +190,21 @@ const paramsDialog: (dialog: Dialog.Dialog) => ParamsDialog = Function.pipe(
   Match.type<Dialog.Dialog>(),
   Match.withReturnType<ParamsDialog>(),
   Match.tagsExhaustive({
-    UserId: ({ dialogId }) => ({ chat_id: dialogId }),
-    GroupId: ({ dialogId }) => ({ chat_id: dialogId }),
-    ChannelId: ({ dialogId }) => ({ chat_id: dialogId }),
-    SupergroupId: ({ dialogId }) => ({ chat_id: dialogId }),
-    PublicChannel: ({ username }) => ({ chat_id: username }),
-    PublicSupergroup: ({ username }) => ({ chat_id: username }),
-    ForumTopic: ({ forum, topicId }) => ({
-      chat_id: Match.value(forum).pipe(
-        Match.tagsExhaustive({
-          SupergroupId: ({ dialogId }) => dialogId,
-          PublicSupergroup: ({ username }) => username,
-        }),
-      ),
-      message_thread_id: topicId,
+    User: user => ({ chat_id: user.dialogId() }),
+    Group: group => ({ chat_id: group.dialogId() }),
+    Supergroup: supergroup => ({ chat_id: supergroup.dialogId() }),
+    Channel: channel => ({ chat_id: channel.dialogId() }),
+    PrivateTopic: topic => ({
+      chat_id: topic.user.dialogId(),
+      message_thread_id: topic.topicId,
     }),
-    ChannelDm: ({ channel, userId }) => ({
-      chat_id: Match.value(channel).pipe(
-        Match.tagsExhaustive({
-          ChannelId: ({ dialogId }) => dialogId,
-          PublicChannel: ({ username }) => username,
-        }),
-      ),
-      direct_messages_topic_id: userId,
+    ForumTopic: topic => ({
+      chat_id: topic.supergroup.dialogId(),
+      message_thread_id: topic.topicId,
     }),
-    PrivateThread: ({ user, threadId }) => ({
-      chat_id: user.dialogId,
-      message_thread_id: threadId,
+    ChannelDm: dm => ({
+      chat_id: dm.channel.dialogId(),
+      direct_messages_topic_id: dm.topicId,
     }),
   }),
 )
