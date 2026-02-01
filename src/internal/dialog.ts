@@ -23,7 +23,7 @@ export const decodeDialogId = (dialogId: number): Option.Option<
     if (-1997852516352 <= dialogId && dialogId <= -1000000000001) {
       return Option.some({ peer: 'supergroup', id: -(dialogId + 1000000000000) as Dialog.SupergroupId })
     }
-    if (-2002147483649 <= dialogId && dialogId <= -4000000000000) {
+    if (-4000000000000 <= dialogId && dialogId <= -2002147483649) {
       return Option.some({ peer: 'monoforum', id: -(dialogId + 1000000000000) })
     }
     if (-2002147483648 <= dialogId && dialogId <= -1997852516353) {
