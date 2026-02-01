@@ -27,8 +27,8 @@ export class InputFile extends Data.TaggedClass('InputFile')<{
  *
  * @see {@link https://core.telegram.org/bots/api#getfile Bot API • getFile}
  */
-export const get: (fileId: FileId) => Effect.Effect<
+export const download: (fileId: FileId) => Effect.Effect<
   HttpClientResponse.HttpClientResponse,
   BotApiError.BotApiError | HttpClientError.HttpClientError,
   BotApi.BotApi | BotApiUrl.BotApiUrl | HttpClient.HttpClient
-> = internal.get
+> = internal.download

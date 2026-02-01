@@ -4,7 +4,7 @@ import * as Effect from 'effect/Effect'
 import * as BotApi from '../BotApi.ts'
 import * as BotApiUrl from '../BotApiUrl.ts'
 
-export const get = Effect.fnUntraced(
+export const download = Effect.fnUntraced(
   function* (fileId: FileId) {
     const file = yield* BotApi.callMethod('getFile', { file_id: fileId })
     if (file.file_path == null) {
