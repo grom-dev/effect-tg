@@ -6,7 +6,7 @@ import type * as BotApi from './BotApi.ts'
 import type * as BotApiError from './BotApiError.ts'
 import type * as BotApiTransport from './BotApiTransport.ts'
 import type * as Content from './Content.ts'
-import type * as Dialog_ from './Dialog.ts'
+import type * as Dialog from './Dialog.ts'
 import type * as Markup from './Markup.ts'
 import * as Context from 'effect/Context'
 import * as Data from 'effect/Data'
@@ -14,62 +14,19 @@ import * as Effect from 'effect/Effect'
 import * as Effectable from 'effect/Effectable'
 import * as Function from 'effect/Function'
 import * as Inspectable from 'effect/Inspectable'
-import * as Pipeable from 'effect/Pipeable'
 import * as internal from './internal/send.ts'
 
-// ─── Type ID ──────────────────────────────────────────────────────
-
-const MessageToSendTypeId: unique symbol = Symbol.for('@grom.js/effect-tg/Send/MessageToSend')
-
-// ─── Services ─────────────────────────────────────────────────────
+// =============================================================================
+// Send Methods
+// =============================================================================
 
 /**
- * Service providing the target dialog for sending messages.
- */
-export class Dialog extends Context.Tag('@grom.js/effect-tg/Send/Dialog')<
-  Dialog,
-  Dialog_.Dialog
->() {}
-
-// ─── Options ──────────────────────────────────────────────────────
-
-/**
- * Options for sending a message.
- *
- * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1message_send_options.html td.td_api.messageSendOptions}
- */
-export class Options extends Data.Class<{
-  disableNotification?: boolean
-  protectContent?: boolean
-  allowPaidBroadcast?: boolean
-}> {}
-
-// ─── Direct Send ──────────────────────────────────────────────────
-
-/**
- * Sends a message directly with explicit parameters.
- *
- * Prefer {@linkcode message} for more composability.
- *
- * Example:
- * ```ts
- * yield* Send.sendMessage({
- *   content: new Content.Text({
- *     text,
- *     linkPreview: Option.none(),
- *   }),
- *   dialog: new Dialog.UserId(userId),
- *   options: new Send.Options({
- *     protectContent: true,
- *   }),
- * })
- * ```
- *
- * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1send_message.html td.td_api.sendMessage}
+ * Sends a message by calling the appropriate `send*` Bot API method
+ * and passing the required parameters.
  */
 export const sendMessage: (params: {
   content: Content.Content
-  dialog: Dialog_.Dialog
+  dialog: Dialog.Dialog | Dialog.DialogId
   options?: Options
   markup?: Markup.Markup
 }) => Effect.Effect<
@@ -78,40 +35,45 @@ export const sendMessage: (params: {
   BotApi.BotApi
 > = internal.sendMessage
 
-// ─── MessageToSend ────────────────────────────────────────────────
+// =============================================================================
+// MessageToSend
+// =============================================================================
 
-type MessageToSendEffect = Effect.Effect<
-  BotApi.Types.Message,
-  BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
-  BotApi.BotApi | Dialog
->
+export const MessageToSendTypeId: unique symbol = Symbol.for('@grom.js/effect-tg/Send/MessageToSend')
+
+export type MessageToSendTypeId = typeof MessageToSendTypeId
 
 /**
- * A message prepared to be sent.
+ * Message prepared to be sent.
  */
 export interface MessageToSend extends
   Inspectable.Inspectable,
-  MessageToSendEffect
+  Effect.Effect<
+    BotApi.Types.Message,
+    BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
+    BotApi.BotApi | TargetDialog
+  >
 {
   readonly [MessageToSendTypeId]: typeof MessageToSendTypeId
   readonly content: Content.Content
-  readonly options: Options
-  readonly markup: Markup.Markup | undefined
+  readonly markup?: Markup.Markup
+  readonly options?: Options
 }
 
-const Proto = {
-  [MessageToSendTypeId]: MessageToSendTypeId,
-  ...Effectable.CommitPrototype,
+const MessageToSendProto = {
   ...Inspectable.BaseProto,
+  ...Effectable.CommitPrototype,
 
-  commit(this: MessageToSend): MessageToSendEffect {
+  [MessageToSendTypeId]: MessageToSendTypeId,
+
+  commit(this: MessageToSend) {
     return Effect.flatMap(
-      Dialog,
+      TargetDialog,
       dialog => sendMessage({
         dialog,
         content: this.content,
-        options: this.options,
         markup: this.markup,
+        options: this.options,
       }),
     )
   },
@@ -120,190 +82,58 @@ const Proto = {
     return {
       _id: this[MessageToSendTypeId].description,
       content: this.content,
-      options: this.options,
       markup: this.markup,
+      options: this.options,
     }
-  },
-
-  pipe() {
-    // eslint-disable-next-line prefer-rest-params
-    return Pipeable.pipeArguments(this, arguments)
   },
 }
 
-const make = (args: {
-  content: Content.Content
-  options?: Options
+/**
+ * Creates a message prepared to be sent with the specified content
+ * and optional parameters.
+ */
+export const message = (content: Content.Content, params?: {
   markup?: Markup.Markup
+  options?: Options
 }): MessageToSend => {
-  const self = Object.create(Proto)
-  self.content = args.content
-  self.options = args.options
-  self.markup = args.markup
+  const self = Object.create(MessageToSendProto)
+  self.content = content
+  self.markup = params?.markup
+  self.options = params?.options
   return self
 }
 
-// ─── Constructors ─────────────────────────────────────────────────
+// =============================================================================
+// TargetDialog
+// =============================================================================
 
 /**
- * Creates a message to send with the given content.
- *
- * Example:
- * ```ts
- * yield* Send.message(content).pipe(
- *   Send.withProtection,
- *   Send.to(dialog),
- * )
- * ```
+ * Target dialog for sending messages.
  */
-export const message = (
-  content: Content.Content,
-): MessageToSend => make({ content })
+export class TargetDialog extends Context.Tag('@grom.js/effect-tg/Send/TargetDialog')<
+  TargetDialog,
+  Dialog.Dialog | Dialog.DialogId
+>() {}
 
-// ─── Dialog Provider ──────────────────────────────────────────────
-
+/**
+ * Provides the target dialog for sending messages.
+ */
 export const to: {
-  /**
-   * Provides the target dialog for sending messages.
-   *
-   * Example:
-   * ```ts
-   * // Per-message
-   * yield* Send.message(content).pipe(
-   *   Send.withProtection,
-   *   Send.to(dialog),
-   * )
-   *
-   * // For entire handler (multiple sends)
-   * const handler = Effect.gen(function* () {
-   *   yield* Send.message(content1)
-   *   yield* Send.message(content2)
-   * }).pipe(Send.to(dialog))
-   * ```
-   */
-  (dialog: Dialog_.Dialog): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, Exclude<R, Dialog>>
-  <A, E, R>(effect: Effect.Effect<A, E, R>, dialog: Dialog_.Dialog): Effect.Effect<A, E, Exclude<R, Dialog>>
+  (dialog: Dialog.Dialog): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, Exclude<R, TargetDialog>>
+  <A, E, R>(effect: Effect.Effect<A, E, R>, dialog: Dialog.Dialog): Effect.Effect<A, E, Exclude<R, TargetDialog>>
 } = Function.dual(2, <A, E, R>(
   effect: Effect.Effect<A, E, R>,
-  dialog: Dialog_.Dialog,
-): Effect.Effect<A, E, Exclude<R, Dialog>> => (
-  Effect.provideService(effect, Dialog, dialog)
+  dialog: Dialog.Dialog,
+): Effect.Effect<A, E, Exclude<R, TargetDialog>> => (
+  Effect.provideService(effect, TargetDialog, dialog)
 ))
 
-// ─── Options Combinators ──────────────────────────────────────────
-
-/**
- * Modifies the options for sending a message by merging with existing options.
- *
- * Example:
- * ```ts
- * yield* Send.message(content).pipe(
- *   Send.withOptions({
- *     disableNotification: true,
- *     protectContent: true,
- *   }),
- *   Send.to(dialog),
- * )
- * ```
- *
- * Available shortcuts:
- * - {@linkcode withoutNotification}
- * - {@linkcode withNotification}
- * - {@linkcode withoutContentProtection}
- * - {@linkcode withContentProtection}
- * - {@linkcode withoutPaidBroadcast}
- * - {@linkcode withPaidBroadcast}
- */
-export const withOptions: {
-  (options: Options): (self: MessageToSend) => MessageToSend
-  (self: MessageToSend, options: Options): MessageToSend
-} = Function.dual(2, (
-  self: MessageToSend,
-  options: Options,
-): MessageToSend => (
-  make(
-    {
-      content: self.content,
-      options: new Options({
-        ...self.options,
-        ...options,
-      }),
-      markup: self.markup,
-    },
-  )
-))
-
-/**
- * Disables notification for the message.
- *
- * Shortcut for `withOptions({ disableNotification: true })`.
- */
-export const withoutNotification: (
-  self: MessageToSend,
-) => MessageToSend = withOptions({ disableNotification: true })
-
-/**
- * Enables notification for the message.
- *
- * Shortcut for `withOptions({ disableNotification: false })`.
- */
-export const withNotification: (
-  self: MessageToSend,
-) => MessageToSend = withOptions({ disableNotification: false })
-
-/**
- * Allows message content to be saved and forwarded.
- *
- * Shortcut for `withOptions({ protectContent: false })`.
- */
-export const withoutContentProtection: (
-  self: MessageToSend,
-) => MessageToSend = withOptions({ protectContent: false })
-
-/**
- * Protects message content from saving and forwarding.
- *
- * Shortcut for `withOptions({ protectContent: true })`.
- */
-export const withContentProtection: (
-  self: MessageToSend,
-) => MessageToSend = withOptions({ protectContent: true })
-
-/**
- * Disallows paid broadcast for the message.
- *
- * Shortcut for `withOptions({ allowPaidBroadcast: false })`.
- */
-export const withoutPaidBroadcast: (
-  self: MessageToSend,
-) => MessageToSend = withOptions({ allowPaidBroadcast: false })
-
-/**
- * Allows paid broadcast for the message.
- *
- * Shortcut for `withOptions({ allowPaidBroadcast: true })`.
- */
-export const withPaidBroadcast: (
-  self: MessageToSend,
-) => MessageToSend = withOptions({ allowPaidBroadcast: true })
-
-// ─── Markup Combinators ──────────────────────────────────────────
+// =============================================================================
+// Reply Markup
+// =============================================================================
 
 /**
  * Sets the reply markup for the message.
- *
- * Example:
- * ```ts
- * yield* Send.message(content).pipe(
- *   Send.withMarkup(
- *     new Markup.ForceReply({
- *       selective: false,
- *       inputPlaceholder: Option.some("effect-tg or grammY?"),
- *     }),
- *   ),
- *   Send.to(dialog),
- * )
- * ```
  */
 export const withMarkup: {
   (markup: Markup.Markup): (self: MessageToSend) => MessageToSend
@@ -312,10 +142,9 @@ export const withMarkup: {
   self: MessageToSend,
   markup: Markup.Markup,
 ): MessageToSend => (
-  make({
-    content: self.content,
-    options: self.options,
+  message(self.content, {
     markup,
+    options: self.options,
   })
 ))
 
@@ -324,8 +153,92 @@ export const withMarkup: {
  */
 export const withoutMarkup: (
   self: MessageToSend,
-) => MessageToSend = self => make({
-  content: self.content,
-  options: self.options,
+) => MessageToSend = self => message(self.content, {
   markup: undefined,
+  options: self.options,
 })
+
+// =============================================================================
+// Send Options
+// =============================================================================
+
+/**
+ * Options for sending a message.
+ */
+export class Options extends Data.Class<{
+  disableNotification?: boolean
+  protectContent?: boolean
+  allowPaidBroadcast?: boolean
+}> {}
+
+export const options = (args: {
+  disableNotification?: boolean
+  protectContent?: boolean
+  allowPaidBroadcast?: boolean
+}): Options => new Options(args)
+
+/**
+ * Modifies the options for sending a message by merging with existing options.
+ *
+ * Available shortcuts:
+ * - {@linkcode withNotification} / {@linkcode withoutNotification}
+ * - {@linkcode withContentProtection} / {@linkcode withoutContentProtection}
+ * - {@linkcode withPaidBroadcast} / {@linkcode withoutPaidBroadcast}
+ */
+export const withOptions: {
+  (options: Options): (self: MessageToSend) => MessageToSend
+  (self: MessageToSend, options: Options): MessageToSend
+} = Function.dual(2, (
+  self: MessageToSend,
+  options: Options,
+): MessageToSend => (
+  message(self.content, {
+    markup: self.markup,
+    options: new Options({
+      ...self.options,
+      ...options,
+    }),
+  })
+))
+
+/**
+ * Disables notification for the message.
+ */
+export const withoutNotification: (
+  self: MessageToSend,
+) => MessageToSend = withOptions({ disableNotification: true })
+
+/**
+ * Enables notification for the message.
+ */
+export const withNotification: (
+  self: MessageToSend,
+) => MessageToSend = withOptions({ disableNotification: false })
+
+/**
+ * Allows message content to be saved and forwarded.
+ */
+export const withoutContentProtection: (
+  self: MessageToSend,
+) => MessageToSend = withOptions({ protectContent: false })
+
+/**
+ * Protects message content from saving and forwarding.
+ */
+export const withContentProtection: (
+  self: MessageToSend,
+) => MessageToSend = withOptions({ protectContent: true })
+
+/**
+ * Disallows paid broadcast for the message.
+ */
+export const withoutPaidBroadcast: (
+  self: MessageToSend,
+) => MessageToSend = withOptions({ allowPaidBroadcast: false })
+
+/**
+ * Allows paid broadcast for the message.
+ */
+export const withPaidBroadcast: (
+  self: MessageToSend,
+) => MessageToSend = withOptions({ allowPaidBroadcast: true })
