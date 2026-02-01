@@ -18,22 +18,31 @@ export class BotApi extends Context.Tag('@grom.js/effect-tg/BotApi')<
   Service
 >() {}
 
-/** @internal */
-export type MethodArgs<M extends keyof MethodParams> = void extends MethodParams[M]
-  ? [params?: MethodParams[M]]
-  : [params: MethodParams[M]]
-
-export interface BotApiMethod<
-  M extends keyof MethodParams,
-  E = BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
-  R = never,
-> {
-  (...args: MethodArgs<M>): Effect.Effect<MethodResults[M], E, R>
+export interface BotApiMethod<TMethod extends keyof MethodParams> {
+  (...args: MethodArgs<TMethod>): Effect.Effect<
+    MethodResults[TMethod],
+    BotApiError.BotApiError,
+    never
+  >
 }
 
-export const make: (
-  transport: BotApiTransport.BotApiTransport.Service,
-) => Service = internal.make
+export const callMethod: <TMethod extends keyof MethodParams>(
+  method: TMethod,
+  ...args: MethodArgs<TMethod>
+) => Effect.Effect<
+  MethodResults[TMethod],
+  BotApiError.BotApiError,
+  BotApi
+> = (
+  method: string,
+  params: unknown = undefined,
+) => BotApi.pipe(
+  Effect.flatMap(api => (api as any)[method](params)),
+) as any
+
+export const make: (args: {
+  transport: BotApiTransport.Service
+}) => Service = internal.make
 
 export const layer: Layer.Layer<
   BotApi,
@@ -41,19 +50,13 @@ export const layer: Layer.Layer<
   BotApiTransport.BotApiTransport
 > = Layer.effect(
   BotApi,
-  Effect.andThen(BotApiTransport.BotApiTransport, internal.make),
+  Effect.andThen(
+    BotApiTransport.BotApiTransport,
+    transport => internal.make({ transport }),
+  ),
 )
 
-export const callMethod: <M extends keyof MethodParams>(
-  method: M,
-  ...args: MethodArgs<M>
-) => Effect.Effect<
-  MethodResults[M],
-  BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
-  BotApi
-> = (
-  method: string,
-  params: unknown = undefined,
-) => BotApi.pipe(
-  Effect.flatMap((api: any) => api[method](params)),
-) as any
+type MethodArgs<TMethod extends keyof MethodParams> =
+  void extends MethodParams[TMethod]
+    ? [params?: MethodParams[TMethod]]
+    : [params: MethodParams[TMethod]]

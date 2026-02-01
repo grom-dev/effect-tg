@@ -1,81 +1,127 @@
-import type * as Duration from 'effect/Duration'
-import type * as BotApi from './BotApi.ts'
+import type * as HttpBody from '@effect/platform/HttpBody'
+import type * as HttpClientError from '@effect/platform/HttpClientError'
+import type * as BotApiTransport from './BotApiTransport.ts'
 import * as Data from 'effect/Data'
+import * as Duration from 'effect/Duration'
+import * as Match from 'effect/Match'
+import * as Option from 'effect/Option'
+import * as Predicate from 'effect/Predicate'
+import * as Dialog from './Dialog.ts'
 import * as internal from './internal/botApiError.ts'
 
+export const TypeId = '@grom.js/effect-tg/BotApiError'
+
+export type TypeId = typeof TypeId
+
+export const isBotApiError = (u: unknown): u is BotApiError => Predicate.hasProperty(u, TypeId)
+
+export type BotApiError =
+  | TransportError
+  | MethodFailed
+  | GroupUpgraded
+  | RateLimited
+  | InternalServerError
+
 /**
- * Error returned from the Bot API server in case of unsuccessful method call.
+ * Error caused by the transport when accessing Bot API.
  */
-export class BotApiError extends Data.TaggedError('@grom.js/effect-tg/BotApiError')<{
-  code: number
-  description: string
-  parameters?: BotApi.Types.ResponseParameters
+export class TransportError extends Data.TaggedError('TransportError')<{
+  cause:
+    | HttpClientError.HttpClientError
+    | HttpBody.HttpBodyError
 }> {
+  readonly [TypeId]: TypeId = TypeId
+
   override get message() {
-    return `(${this.code}) ${this.description}`
+    return Match.value(this.cause).pipe(
+      Match.tagsExhaustive({
+        RequestError: e => e.message,
+        ResponseError: e => e.message,
+        HttpBodyError: e => Match.value(e.reason).pipe(
+          Match.tagsExhaustive({
+            SchemaError: e => e.error.message,
+            JsonError: e => `JsonError: ${e.error}`,
+          }),
+        ),
+      }),
+    )
   }
 }
 
-/**
- * Attempts to narrow a {@link BotApiError} to a more specific {@link KnownError}.
- *
- * **Warning!** Error types are detected based on the error code and message
- * returned from the Bot API, which are not guaranteed to be the same in
- * the future. If they change, this function may not determine error type
- * correctly.
- *
- * @see {@link https://github.com/tdlib/telegram-bot-api telegram-bot-api source code}
- */
-export const narrow: (error: BotApiError) => KnownError | BotApiError = internal.narrow
+export class MethodFailed extends Data.TaggedError('MethodFailed')<{
+  response: FailureResponse
+  possibleReason: MethodFailureReason
+}> {
+  readonly [TypeId]: TypeId = TypeId
 
-export type KnownError =
-  | TooManyRequests
-  | BotBlockedByUser
-  | MessageNotModified
-  | ReplyMarkupTooLong
-  | QueryIdInvalid
-  | MediaGroupedInvalid
+  override get message() {
+    return `(${this.response.error_code}) ${this.response.description}`
+  }
+}
 
-/**
- * Flood limit exceeded. Need to wait `retryAfter` before retrying.
- */
-export class TooManyRequests extends Data.TaggedError('@grom.js/effect-tg/BotApiError/TooManyRequests')<{
-  cause: BotApiError
+export class GroupUpgraded extends Data.TaggedError('GroupUpgraded')<{
+  response: FailureResponse
+  supergroup: Dialog.Supergroup
+}> {
+  readonly [TypeId]: TypeId = TypeId
+
+  override get message() {
+    return `Group has been upgraded to a supergroup with ID ${this.supergroup.id}.`
+  }
+}
+
+export class RateLimited extends Data.TaggedError('RateLimited')<{
+  response: FailureResponse
   retryAfter: Duration.Duration
-}> {}
+}> {
+  readonly [TypeId]: TypeId = TypeId
 
-/**
- * Bot was blocked by the user.
- */
-export class BotBlockedByUser extends Data.TaggedError('@grom.js/effect-tg/BotApiError/BotBlockedByUser')<{
-  cause: BotApiError
-}> {}
+  override get message() {
+    return `Flood limit exceeded. Should wait for ${Duration.format(this.retryAfter)} before retrying.`
+  }
+}
 
-/**
- * Message was not modified as its content and reply markup
- * are exactly the same as the current one.
- */
-export class MessageNotModified extends Data.TaggedError('@grom.js/effect-tg/BotApiError/MessageNotModified')<{
-  cause: BotApiError
-}> {}
+export class InternalServerError extends Data.TaggedError('InternalServerError')<{
+  response: FailureResponse
+}> {
+  readonly [TypeId]: TypeId = TypeId
+}
 
-/**
- * Message reply markup is too long.
- */
-export class ReplyMarkupTooLong extends Data.TaggedError('@grom.js/effect-tg/BotApiError/ReplyMarkupTooLong')<{
-  cause: BotApiError
-}> {}
+export const fromResponse = (response: FailureResponse): BotApiError => {
+  if (response.error_code === 429 && response.parameters?.retry_after != null) {
+    return new RateLimited({
+      response,
+      retryAfter: Duration.seconds(response.parameters.retry_after),
+    })
+  }
+  if (response.error_code === 400 && response.parameters?.migrate_to_chat_id != null) {
+    return new GroupUpgraded({
+      response,
+      supergroup: Dialog.supergroup(
+        Option.getOrThrow(
+          Dialog.decodePeerId('supergroup', response.parameters.migrate_to_chat_id),
+        ),
+      ),
+    })
+  }
+  if (response.error_code >= 500) {
+    return new InternalServerError({ response })
+  }
+  return new MethodFailed({
+    response,
+    possibleReason: internal.guessReason({
+      code: response.error_code,
+      description: response.description,
+    }),
+  })
+}
 
-/**
- * Query has expired, or ID is invalid.
- */
-export class QueryIdInvalid extends Data.TaggedError('@grom.js/effect-tg/BotApiError/QueryIdInvalid')<{
-  cause: BotApiError
-}> {}
+export type MethodFailureReason =
+  | 'Unknown'
+  | 'BotBlockedByUser'
+  | 'MessageNotModified'
+  | 'ReplyMarkupTooLong'
+  | 'QueryIdInvalid'
+  | 'MediaGroupedInvalid'
 
-/**
- * Invalid combination of media types in the media group.
- */
-export class MediaGroupedInvalid extends Data.TaggedError('@grom.js/effect-tg/BotApiError/MediaGroupedInvalid')<{
-  cause: BotApiError
-}> {}
+type FailureResponse = Extract<BotApiTransport.BotApiResponse, { ok: false }>

@@ -4,7 +4,6 @@
 
 import type * as BotApi from './BotApi.ts'
 import type * as BotApiError from './BotApiError.ts'
-import type * as BotApiTransport from './BotApiTransport.ts'
 import type * as Content from './Content.ts'
 import type * as Dialog from './Dialog.ts'
 import type * as Markup from './Markup.ts'
@@ -31,7 +30,7 @@ export const sendMessage: (params: {
   markup?: Markup.Markup
 }) => Effect.Effect<
   BotApi.Types.Message,
-  BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
+  BotApiError.BotApiError,
   BotApi.BotApi
 > = internal.sendMessage
 
@@ -50,7 +49,7 @@ export interface MessageToSend extends
   Inspectable.Inspectable,
   Effect.Effect<
     BotApi.Types.Message,
-    BotApiError.BotApiError | BotApiTransport.BotApiTransportError,
+    BotApiError.BotApiError,
     BotApi.BotApi | TargetDialog
   >
 {

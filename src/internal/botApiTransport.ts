@@ -1,10 +1,11 @@
 import type * as HttpClient from '@effect/platform/HttpClient'
+import type * as BotApiTransport from '../BotApiTransport.ts'
 import type * as BotApiUrl from '../BotApiUrl.ts'
 import * as HttpBody from '@effect/platform/HttpBody'
 import * as Chunk from 'effect/Chunk'
 import * as Effect from 'effect/Effect'
 import * as Stream from 'effect/Stream'
-import * as BotApiTransport from '../BotApiTransport.ts'
+import * as BotApiError from '../BotApiError.ts'
 import * as File from '../File.ts'
 
 interface ExtractedFile {
@@ -13,7 +14,8 @@ interface ExtractedFile {
 }
 
 /**
- * Recursively checks whether a value contains {@linkcode File.InputFile} instances.
+ * Recursively checks whether a value contains
+ * {@linkcode File.InputFile InputFile} instances.
  */
 const hasInputFile = (value: unknown): boolean => {
   if (value instanceof File.InputFile) {
@@ -51,8 +53,9 @@ const cloneAndExtract = (
 }
 
 /**
- * Deep clones params, replacing {@linkcode InputFile} instances with
- * `attach://{id}` strings and collecting them into the files array.
+ * Clones parameters deeply, replacing {@linkcode File.InputFile InputFile}
+ * instances with `attach://{id}` strings and collecting them into
+ * the files array.
  */
 const extractFiles = (params: unknown): {
   params: Record<string, unknown>
@@ -100,10 +103,13 @@ const makeHttpBody = Effect.fnUntraced(function* (params: unknown) {
   return HttpBody.formData(formData)
 })
 
-export const make = (
-  httpClient: HttpClient.HttpClient,
-  botApiUrl: BotApiUrl.BotApiUrl.Service,
-): BotApiTransport.BotApiTransport.Service => ({
+export const make = ({
+  httpClient,
+  botApiUrl,
+}: {
+  httpClient: HttpClient.HttpClient
+  botApiUrl: BotApiUrl.Service
+}): BotApiTransport.Service => ({
   sendRequest: (method, params) => (
     Effect.gen(function* () {
       const body = yield* makeHttpBody(params)
@@ -111,11 +117,10 @@ export const make = (
       const responseJson = yield* response.json
       // We trust Bot API and don't want to introduce overhead with validation.
       return responseJson as BotApiTransport.BotApiResponse
-    })
-      .pipe(
-        Effect.catchAll(cause => (
-          Effect.fail(new BotApiTransport.BotApiTransportError({ cause }))
-        )),
-      )
+    }).pipe(
+      Effect.catchAll(cause => (
+        Effect.fail(new BotApiError.TransportError({ cause }))
+      )),
+    )
   ),
 })

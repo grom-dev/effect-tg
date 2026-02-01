@@ -20,11 +20,6 @@
             "target": "service",
             "pattern": "default",
             "skipLeadingPath": ["src/"]
-          },
-          {
-            "target": "error",
-            "pattern": "default",
-            "skipLeadingPath": ["src/"]
           }
         ],
         "namespaceImportPackages": [

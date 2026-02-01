@@ -1,7 +1,7 @@
 import type * as BotApi from './BotApi.ts'
+import type * as BotApiError from './BotApiError.ts'
 import * as HttpClient from '@effect/platform/HttpClient'
 import * as Context from 'effect/Context'
-import * as Data from 'effect/Data'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as BotApiUrl from './BotApiUrl.ts'
@@ -9,16 +9,14 @@ import * as internal from './internal/botApiTransport.ts'
 
 export class BotApiTransport extends Context.Tag('@grom.js/effect-tg/BotApiTransport')<
   BotApiTransport,
-  BotApiTransport.Service
+  Service
 >() {}
 
-export declare namespace BotApiTransport {
-  export interface Service {
-    sendRequest: (
-      method: string,
-      params: unknown,
-    ) => Effect.Effect<BotApiResponse, BotApiTransportError>
-  }
+export interface Service {
+  sendRequest: (
+    method: string,
+    params: unknown,
+  ) => Effect.Effect<BotApiResponse, BotApiError.TransportError>
 }
 
 /**
@@ -36,12 +34,10 @@ export type BotApiResponse =
     parameters?: BotApi.Types.ResponseParameters
   }
 
-/**
- * Error caused by the transport when accessing Bot API.
- */
-export class BotApiTransportError extends Data.TaggedError('@grom.js/effect-tg/BotApiTransport/BotApiTransportError')<{
-  cause: unknown
-}> {}
+export const make: (options: {
+  httpClient: HttpClient.HttpClient
+  botApiUrl: BotApiUrl.Service
+}) => Service = internal.make
 
 export const layer: Layer.Layer<
   BotApiTransport,
@@ -50,6 +46,8 @@ export const layer: Layer.Layer<
 > = Layer.effect(
   BotApiTransport,
   Effect.all([HttpClient.HttpClient, BotApiUrl.BotApiUrl]).pipe(
-    Effect.andThen(reqs => internal.make(...reqs)),
+    Effect.andThen(([httpClient, botApiUrl]) => (
+      internal.make({ httpClient, botApiUrl })),
+    ),
   ),
 )

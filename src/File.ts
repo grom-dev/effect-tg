@@ -5,7 +5,6 @@ import type * as Effect from 'effect/Effect'
 import type * as Stream from 'effect/Stream'
 import type * as BotApi from './BotApi.ts'
 import type * as BotApiError from './BotApiError.ts'
-import type * as BotApiTransport from './BotApiTransport.ts'
 import type * as BotApiUrl from './BotApiUrl.ts'
 import * as Brand from 'effect/Brand'
 import * as Data from 'effect/Data'
@@ -30,6 +29,6 @@ export class InputFile extends Data.TaggedClass('InputFile')<{
  */
 export const get: (fileId: FileId) => Effect.Effect<
   HttpClientResponse.HttpClientResponse,
-  BotApiError.BotApiError | BotApiTransport.BotApiTransportError | HttpClientError.HttpClientError,
+  BotApiError.BotApiError | HttpClientError.HttpClientError,
   BotApi.BotApi | BotApiUrl.BotApiUrl | HttpClient.HttpClient
 > = internal.get

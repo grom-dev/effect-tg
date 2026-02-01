@@ -3,9 +3,11 @@ import type * as BotApiTransport from '../BotApiTransport.ts'
 import * as Effect from 'effect/Effect'
 import * as BotApiError from '../BotApiError.ts'
 
-export const make = (
-  transport: BotApiTransport.BotApiTransport.Service,
-): BotApi.Service => (
+export const make = ({
+  transport,
+}: {
+  transport: BotApiTransport.Service
+}): BotApi.Service => (
   new Proxy({}, {
     get: (_target, prop) => {
       if (typeof prop !== 'string') {
@@ -18,13 +20,7 @@ export const make = (
           if (response.ok) {
             return response.result
           }
-          return yield* Effect.fail(
-            new BotApiError.BotApiError({
-              code: response.error_code,
-              description: response.description,
-              parameters: response.parameters,
-            }),
-          )
+          return yield* Effect.fail(BotApiError.fromResponse(response))
         },
       )
     },
