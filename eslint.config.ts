@@ -24,5 +24,8 @@ export default antfu({
     'yoda': 'off',
     'ts/no-namespace': 'off',
     'ts/no-redeclare': 'off',
+    'test/prefer-lowercase-title': ['error', {
+      ignore: ['describe'],
+    }],
   },
 })
