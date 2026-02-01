@@ -16,10 +16,12 @@ interface ExtractedFile {
  * Recursively checks whether a value contains {@linkcode File.InputFile} instances.
  */
 const hasInputFile = (value: unknown): boolean => {
-  if (value instanceof File.InputFile)
+  if (value instanceof File.InputFile) {
     return true
-  if (Array.isArray(value))
+  }
+  if (Array.isArray(value)) {
     return value.some(hasInputFile)
+  }
   if (typeof value === 'object' && value !== null) {
     return Object.values(value).some(hasInputFile)
   }
@@ -81,8 +83,9 @@ const makeHttpBody = Effect.fnUntraced(function* (params: unknown) {
   const { params: processedParams, files } = extractFiles(params)
   const formData = new FormData()
   for (const [key, value] of Object.entries(processedParams)) {
-    if (value == null)
+    if (value == null) {
       continue
+    }
     const serialized = typeof value === 'string' ? value : JSON.stringify(value)
     formData.append(key, serialized)
   }

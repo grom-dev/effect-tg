@@ -19,6 +19,7 @@ export default antfu({
   markdown: false, // Disable linting of code blocks in Markdown.
 }, {
   rules: {
+    'curly': ['error', 'all'],
     'antfu/top-level-function': 'off',
     'yoda': 'off',
     'ts/no-namespace': 'off',
