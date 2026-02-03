@@ -103,7 +103,7 @@ Failed `BotApi` method calls result in `BotApiError`, which is a union of tagged
 
 - `TransportError` — HTTP or network failure. `cause` property contains the original error from `HttpClient`.
 - `RateLimited` — bot has exceeded flood limit. `retryAfter` property contains the duration to wait before retry.
-- `GroupUpgraded` — group has been migrated to supergroup. `supergroup` property contains the new ID.
+- `GroupUpgraded` — group has been migrated to supergroup. `supergroup` property contains an object with the new ID.
 - `MethodFailed` — response was unsuccessful, but the exact reason could not be determined. `possibleReason` property contains common failure reasons as string literals, determined by error code and description, which are subject to change.
 - `InternalServerError` — Bot API server failed with 5xx error code.
 
