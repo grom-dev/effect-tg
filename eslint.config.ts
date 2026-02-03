@@ -2,10 +2,12 @@ import antfu from '@antfu/eslint-config'
 
 export default antfu({
   formatters: true,
+  markdown: true,
   stylistic: {
     indent: 2,
     quotes: 'single',
     semi: false,
+    jsx: false,
     overrides: {
       'style/operator-linebreak': ['error', 'before', {
         overrides: {
@@ -16,7 +18,6 @@ export default antfu({
       }],
     },
   },
-  markdown: false, // Disable linting of code blocks in Markdown.
 }, {
   rules: {
     'curly': ['error', 'all'],

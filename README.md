@@ -48,7 +48,7 @@ const program = Effect.gen(function* () {
 })
 ```
 
-Alternatively, you can use `BotApi.callMethod` to call any method by name.
+Alternatively, you can use `BotApi.callMethod` function to call any method by name.
 
 **Example:** Calling Bot API methods using `BotApi.callMethod`.
 
@@ -65,7 +65,7 @@ const program = Effect.gen(function* () {
 })
 ```
 
-### Setup
+### Configuration
 
 `BotApi` has a layered architecture:
 
@@ -103,16 +103,52 @@ const BotApiLive = BotApi.layer.pipe(
 
 ### Error handling
 
-_TODO: refine this_
+When call to Bot API method fails for any reason, effects will fail with `BotApiError` type.
 
-- `TransportError` — HTTP or network failure
-- `MethodFailed` — Bot API returned an error
-- `RateLimited` — flood limit exceeded; includes `retryAfter` duration
-- `GroupUpgraded` — group migrated to supergroup; includes new chat ID
-- `InternalServerError` — Bot API server error (5xx)
+`BotApiError` is a union type of tagged errors with additional information for handling the error:
+
+- `TransportError` — HTTP or network failure.
+  - `.cause` — original error from `HttpClient`.
+- `RateLimited` — bot has exceeded flood limit.
+  - `.retryAfter` — duration to wait before the request can be retried.
+- `GroupUpgraded` — group has been migrated to supergroup.
+  - `.supergroup` — `Dialog.Supergroup` instance of the new supergroup.
+- `MethodFailed` — response was unsuccessful, but the exact reason could not be determined.
+  - `.possibleReason` — union of string literals representing most common reasons for methods failure. It's determined by error code and description, and is subject to change.
+- `InternalServerError` — Bot API server failed with 5xx HTTP status code.
+
+All errors except `TransportError` also have `response` property, which contains the original response from Bot API.
+
+**Example:** Handling Bot API failures.
 
 ```ts
-// TODO: example
+import { BotApi } from '@grom.js/effect-tg'
+import { Duration, Effect, Match } from 'effect'
+
+const program = BotApi.callMethod('doSomething').pipe(
+  Effect.matchEffect({
+    onSuccess: result => Effect.logInfo('Got result:', result),
+    onFailure: e => Match.value(e).pipe(
+      Match.tagsExhaustive({
+        TransportError: ({ message }) =>
+          Effect.logError(`Probably network issue: ${message}`),
+        RateLimited: ({ retryAfter }) =>
+          Effect.logError(`Try again in ${Duration.format(retryAfter)}`),
+        GroupUpgraded: ({ supergroup }) =>
+          Effect.logError(`Group now has a new ID: ${supergroup.id}`),
+        MethodFailed: ({ possibleReason, response }) =>
+          Match.value(possibleReason).pipe(
+            Match.when('BotBlockedByUser', () =>
+              Effect.logError('I was blocked...')),
+            Match.orElse(() =>
+              Effect.logError(`Unsuccessful response: ${response.description}`)),
+          ),
+        InternalServerError: () =>
+          Effect.logError('Not much we can do about it.'),
+      }),
+    ),
+  }),
+)
 ```
 
 ### Types
@@ -262,21 +298,21 @@ Benefits of using JSX:
 
 `Text.tgx` function accepts a JSX element and returns an instance of `Text.Tgx`, which can then be used as a content of a message.
 
-<details>
-<summary>How it works?</summary>
-
-JSX is just syntactic sugar transformed by the compiler.
-Result of compilation depends on the JSX runtime.
-`effect-tg` relies on JSX runtime from `@grom.js/tgx` that converts JSX elements to `TgxElement` instances.
-When `Send.sendMessage` encounters an instance of `Text.Tgx`, it converts inner `TgxElement`s to the parameters for `send*` methods.
-
-</details>
-
 **Example:** Using JSX to created formatted text.
 
 ```tsx
 // TODO: come up with some interesting example to showcase JSX benefits
 ```
+
+<details>
+<summary>How it works?</summary>
+
+JSX is just syntactic sugar transformed by the compiler.
+Result of transformation depends on the JSX runtime.
+`effect-tg` relies on JSX runtime from `@grom.js/tgx`, which transforms JSX elements to `TgxElement` instances.
+When `Send.sendMessage` encounters an instance of `Text.Tgx`, it converts inner `TgxElement`s to the parameters for a `send*` method.
+
+</details>
 
 To enable JSX support:
 
