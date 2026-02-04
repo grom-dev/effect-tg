@@ -10,6 +10,7 @@ import type {
 import * as HttpClient from '@effect/platform/HttpClient'
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
+import * as Function from 'effect/Function'
 import * as Layer from 'effect/Layer'
 import * as Redacted from 'effect/Redacted'
 import * as BotApiTransport from './BotApiTransport.ts'
@@ -67,109 +68,57 @@ type MethodArgs<TMethod extends keyof MethodParams> =
     : [params: MethodParams[TMethod]]
 
 /**
- * Options for configuring `BotApi` via {@link layerConfig}.
+ * Constructs a `BotApi` layer from the given configuration.
  */
-export interface LayerConfigOptions {
+export const layerConfig = (options: {
   /**
-   * Bot token configuration.
+   * Bot API token from [@BotFather](https://t.me/BotFather).
    */
   readonly token: Config.Config<Redacted.Redacted>
 
   /**
-   * The environment to use for constructing Bot API URLs.
+   * Target Bot API environment:
    *
-   * - `'prod'` — production environment (default).
-   * - `'test'` — [test environment](https://core.telegram.org/bots/features#dedicated-test-environment).
+   * - `prod` — production environment
+   * - `test` — [test environment](https://core.telegram.org/bots/features#dedicated-test-environment)
    *
    * @default 'prod'
    */
   readonly environment?: 'prod' | 'test'
 
   /**
-   * Transforms the `BotApiTransport.Service` before it's used by `BotApi`.
+   * A function to transform the underlying `BotApiTransport` before
+   * it's used to call Bot API methods.
    *
-   * Useful for adding logging, retries, or other middleware.
-   *
-   * @example
-   * ```ts
-   * BotApi.layerConfig({
-   *   token: Config.redacted('BOT_TOKEN'),
-   *   transformTransport: transport => ({
-   *     sendRequest: (method, params) =>
-   *       Effect.tap(
-   *         transport.sendRequest(method, params),
-   *         () => Effect.logDebug(`Called ${method}`),
-   *       ),
-   *   }),
-   * })
-   * ```
+   * Useful for:
+   * - Adding custom middleware (logging, metrics, caching)
+   * - Adding custom retry logic or error handling
+   * - Integrating with monitoring or debugging tools
    */
-  readonly transformTransport?: (
-    transport: BotApiTransport.Service,
-  ) => BotApiTransport.Service
-}
-
-/**
- * Creates a `BotApi` layer from configuration.
- *
- * This is a convenience function for quickly constructing a `BotApi` layer
- * with common configuration options. For more control, use the individual
- * layers: {@link layer}, {@link BotApiTransport.layer}, and {@link BotApiUrl}.
- *
- * @example
- * ```ts
- * import { FetchHttpClient } from '@effect/platform'
- * import { BotApi } from '@grom.js/effect-tg'
- * import { Config, Layer } from 'effect'
- *
- * const BotApiLive = BotApi.layerConfig({
- *   token: Config.redacted('BOT_TOKEN'),
- * }).pipe(Layer.provide(FetchHttpClient.layer))
- *
- * // With test environment
- * const BotApiTest = BotApi.layerConfig({
- *   token: Config.redacted('BOT_TOKEN'),
- *   environment: 'test',
- * }).pipe(Layer.provide(FetchHttpClient.layer))
- * ```
- */
-export const layerConfig: (
-  options: LayerConfigOptions,
-) => Layer.Layer<BotApi, ConfigError.ConfigError, HttpClient.HttpClient> = (
-  options,
-) => {
+  readonly transformTransport?: (transport: BotApiTransport.Service) => BotApiTransport.Service
+}): Layer.Layer<BotApi, ConfigError.ConfigError, HttpClient.HttpClient> => {
   const {
     token,
     environment = 'prod',
     transformTransport,
   } = options
-
-  return Layer.unwrapEffect(
-    Effect.gen(function* () {
-      const rawToken = yield* token
-      const tokenString = Redacted.value(rawToken)
-
-      const botApiUrl: BotApiUrl.Service = environment === 'prod'
-        ? BotApiUrl.makeProd(tokenString)
-        : BotApiUrl.makeTest(tokenString)
-
-      const BotApiUrlLayer = Layer.succeed(BotApiUrl.BotApiUrl, botApiUrl)
-
-      const TransportLayer = transformTransport
-        ? Layer.effect(
-            BotApiTransport.BotApiTransport,
-            Effect.gen(function* () {
-              const httpClient = yield* HttpClient.HttpClient
-              const baseTransport = BotApiTransport.make({ httpClient, botApiUrl })
-              return transformTransport(baseTransport)
-            }),
-          )
-        : BotApiTransport.layer.pipe(Layer.provide(BotApiUrlLayer))
-
-      return layer.pipe(
-        Layer.provide(TransportLayer),
-        Layer.provide(BotApiUrlLayer),
-      )
-    }),
+  return Layer.provide(
+    layer,
+    Layer.effect(
+      BotApiTransport.BotApiTransport,
+      Effect.all([
+        HttpClient.HttpClient,
+        token.pipe(
+          Effect.map(token => (
+            environment === 'prod'
+              ? BotApiUrl.makeProd(Redacted.value(token))
+              : BotApiUrl.makeTest(Redacted.value(token))
+          )),
+        ),
+      ]).pipe(
+        Effect.map(([httpClient, botApiUrl]) => BotApiTransport.make({ httpClient, botApiUrl })),
+        Effect.map(transformTransport ?? Function.identity),
+      ),
+    ),
   )
 }
