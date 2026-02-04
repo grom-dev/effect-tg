@@ -1,3 +1,4 @@
+import type * as Config from 'effect/Config'
 import type * as ConfigError from 'effect/ConfigError'
 import type * as BotApiError from './BotApiError.ts'
 import type {
@@ -7,7 +8,6 @@ import type {
   Types,
 } from './internal/botApi.gen.ts'
 import * as HttpClient from '@effect/platform/HttpClient'
-import * as Config from 'effect/Config'
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
@@ -72,21 +72,18 @@ type MethodArgs<TMethod extends keyof MethodParams> =
 export interface LayerConfigOptions {
   /**
    * Bot token configuration.
-   *
-   * @default Config.redacted('TELEGRAM_BOT_TOKEN')
    */
-  readonly token?: Config.Config<Redacted.Redacted>
+  readonly token: Config.Config<Redacted.Redacted>
 
   /**
    * The environment to use for constructing Bot API URLs.
    *
    * - `'prod'` — production environment (default).
    * - `'test'` — [test environment](https://core.telegram.org/bots/features#dedicated-test-environment).
-   * - Custom `BotApiUrl.Service` — for local Bot API server or other custom setups.
    *
    * @default 'prod'
    */
-  readonly environment?: 'prod' | 'test' | BotApiUrl.Service
+  readonly environment?: 'prod' | 'test'
 
   /**
    * Transforms the `BotApiTransport.Service` before it's used by `BotApi`.
@@ -96,6 +93,7 @@ export interface LayerConfigOptions {
    * @example
    * ```ts
    * BotApi.layerConfig({
+   *   token: Config.redacted('BOT_TOKEN'),
    *   transformTransport: transport => ({
    *     sendRequest: (method, params) =>
    *       Effect.tap(
@@ -122,27 +120,26 @@ export interface LayerConfigOptions {
  * ```ts
  * import { FetchHttpClient } from '@effect/platform'
  * import { BotApi } from '@grom.js/effect-tg'
- * import { Effect, Layer } from 'effect'
+ * import { Config, Layer } from 'effect'
  *
- * // Basic usage with token from TELEGRAM_BOT_TOKEN env var
- * const BotApiLive = BotApi.layerConfig().pipe(
- *   Layer.provide(FetchHttpClient.layer),
- * )
+ * const BotApiLive = BotApi.layerConfig({
+ *   token: Config.redacted('BOT_TOKEN'),
+ * }).pipe(Layer.provide(FetchHttpClient.layer))
  *
- * // Custom token and test environment
+ * // With test environment
  * const BotApiTest = BotApi.layerConfig({
- *   token: Config.redacted('MY_TEST_BOT_TOKEN'),
+ *   token: Config.redacted('BOT_TOKEN'),
  *   environment: 'test',
  * }).pipe(Layer.provide(FetchHttpClient.layer))
  * ```
  */
 export const layerConfig: (
-  options?: LayerConfigOptions,
+  options: LayerConfigOptions,
 ) => Layer.Layer<BotApi, ConfigError.ConfigError, HttpClient.HttpClient> = (
-  options = {},
+  options,
 ) => {
   const {
-    token = Config.redacted('TELEGRAM_BOT_TOKEN'),
+    token,
     environment = 'prod',
     transformTransport,
   } = options
@@ -152,12 +149,9 @@ export const layerConfig: (
       const rawToken = yield* token
       const tokenString = Redacted.value(rawToken)
 
-      const botApiUrl: BotApiUrl.Service =
-        typeof environment === 'string'
-          ? environment === 'prod'
-            ? BotApiUrl.makeProd(tokenString)
-            : BotApiUrl.makeTest(tokenString)
-          : environment
+      const botApiUrl: BotApiUrl.Service = environment === 'prod'
+        ? BotApiUrl.makeProd(tokenString)
+        : BotApiUrl.makeTest(tokenString)
 
       const BotApiUrlLayer = Layer.succeed(BotApiUrl.BotApiUrl, botApiUrl)
 

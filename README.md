@@ -85,16 +85,15 @@ import { FetchHttpClient } from '@effect/platform'
 import { BotApi } from '@grom.js/effect-tg'
 import { Config, Effect, Layer } from 'effect'
 
-// Basic usage - reads token from TELEGRAM_BOT_TOKEN env var
-const BotApiLive = BotApi.layerConfig().pipe(
-  Layer.provide(FetchHttpClient.layer),
-)
+// Basic usage
+const BotApiLive = BotApi.layerConfig({
+  token: Config.redacted('BOT_TOKEN'),
+}).pipe(Layer.provide(FetchHttpClient.layer))
 
-// With options
+// With test environment and transport middleware
 const BotApiTest = BotApi.layerConfig({
-  // Custom token config (default: Config.redacted('TELEGRAM_BOT_TOKEN'))
-  token: Config.redacted('MY_BOT_TOKEN'),
-  // Environment: 'prod' (default), 'test', or custom BotApiUrl.Service
+  token: Config.redacted('BOT_TOKEN'),
+  // Environment: 'prod' (default) or 'test'
   environment: 'test',
   // Optional transport middleware for logging, retries, etc.
   transformTransport: transport => ({

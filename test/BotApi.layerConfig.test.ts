@@ -1,5 +1,4 @@
 import type * as HttpClientRequest from '@effect/platform/HttpClientRequest'
-import type { BotApiUrl } from '../src/index.ts'
 import * as HttpClient from '@effect/platform/HttpClient'
 import * as HttpClientResponse from '@effect/platform/HttpClientResponse'
 import * as Config from 'effect/Config'
@@ -24,32 +23,7 @@ describe('BotApi.layerConfig', () => {
     HttpClient.make(handler)
 
   describe('token option', () => {
-    it('should use TELEGRAM_BOT_TOKEN by default', async () => {
-      let capturedUrl: URL | undefined
-
-      const mockClient = makeTestClient((request) => {
-        capturedUrl = new URL(request.url)
-        return Effect.succeed(mockResponse({ ok: true, result: {} }))
-      })
-
-      const program = Effect.gen(function* () {
-        const api = yield* BotApi.BotApi
-        yield* api.getMe()
-      })
-
-      await program.pipe(
-        Effect.provide(BotApi.layerConfig()),
-        Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
-        Effect.withConfigProvider(
-          ConfigProvider.fromMap(new Map([['TELEGRAM_BOT_TOKEN', 'test-token-123']])),
-        ),
-        Effect.runPromise,
-      )
-
-      expect(capturedUrl?.pathname).toBe('/bottest-token-123/getMe')
-    })
-
-    it('should use custom token config', async () => {
+    it('should use provided token config', async () => {
       let capturedUrl: URL | undefined
 
       const mockClient = makeTestClient((request) => {
@@ -65,17 +39,17 @@ describe('BotApi.layerConfig', () => {
       await program.pipe(
         Effect.provide(
           BotApi.layerConfig({
-            token: Config.redacted('CUSTOM_BOT_TOKEN'),
+            token: Config.redacted('BOT_TOKEN'),
           }),
         ),
         Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
         Effect.withConfigProvider(
-          ConfigProvider.fromMap(new Map([['CUSTOM_BOT_TOKEN', 'custom-token-456']])),
+          ConfigProvider.fromMap(new Map([['BOT_TOKEN', 'test-token-123']])),
         ),
         Effect.runPromise,
       )
 
-      expect(capturedUrl?.pathname).toBe('/botcustom-token-456/getMe')
+      expect(capturedUrl?.pathname).toBe('/bottest-token-123/getMe')
     })
 
     it('should fail with ConfigError when token is missing', async () => {
@@ -89,7 +63,7 @@ describe('BotApi.layerConfig', () => {
       })
 
       const exit = await program.pipe(
-        Effect.provide(BotApi.layerConfig()),
+        Effect.provide(BotApi.layerConfig({ token: Config.redacted('MISSING_TOKEN') })),
         Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
         Effect.withConfigProvider(ConfigProvider.fromMap(new Map())),
         Effect.exit,
@@ -115,11 +89,8 @@ describe('BotApi.layerConfig', () => {
       })
 
       await program.pipe(
-        Effect.provide(BotApi.layerConfig()),
+        Effect.provide(BotApi.layerConfig({ token: Config.succeed(Redacted.make('my-token')) })),
         Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
-        Effect.withConfigProvider(
-          ConfigProvider.fromMap(new Map([['TELEGRAM_BOT_TOKEN', 'my-token']])),
-        ),
         Effect.runPromise,
       )
 
@@ -141,53 +112,16 @@ describe('BotApi.layerConfig', () => {
       })
 
       await program.pipe(
-        Effect.provide(BotApi.layerConfig({ environment: 'test' })),
+        Effect.provide(BotApi.layerConfig({
+          token: Config.succeed(Redacted.make('my-token')),
+          environment: 'test',
+        })),
         Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
-        Effect.withConfigProvider(
-          ConfigProvider.fromMap(new Map([['TELEGRAM_BOT_TOKEN', 'my-token']])),
-        ),
         Effect.runPromise,
       )
 
       expect(capturedUrl?.hostname).toBe('api.telegram.org')
       expect(capturedUrl?.pathname).toBe('/botmy-token/test/getMe')
-    })
-
-    it('should use custom BotApiUrl.Service when provided', async () => {
-      let capturedUrl: URL | undefined
-
-      const mockClient = makeTestClient((request) => {
-        capturedUrl = new URL(request.url)
-        return Effect.succeed(mockResponse({ ok: true, result: {} }))
-      })
-
-      const customBotApiUrl: BotApiUrl.Service = {
-        toMethod: method => new URL(`http://localhost:8081/bot/method/${method}`),
-        toFile: filePath => new URL(`http://localhost:8081/bot/file/${filePath}`),
-      }
-
-      const program = Effect.gen(function* () {
-        const api = yield* BotApi.BotApi
-        yield* api.getMe()
-      })
-
-      await program.pipe(
-        Effect.provide(
-          BotApi.layerConfig({
-            // Token is still needed for config resolution but won't be used
-            // if custom environment is provided
-            environment: customBotApiUrl,
-          }),
-        ),
-        Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
-        Effect.withConfigProvider(
-          ConfigProvider.fromMap(new Map([['TELEGRAM_BOT_TOKEN', 'ignored']])),
-        ),
-        Effect.runPromise,
-      )
-
-      expect(capturedUrl?.hostname).toBe('localhost')
-      expect(capturedUrl?.pathname).toBe('/bot/method/getMe')
     })
   })
 
@@ -208,6 +142,7 @@ describe('BotApi.layerConfig', () => {
       await program.pipe(
         Effect.provide(
           BotApi.layerConfig({
+            token: Config.succeed(Redacted.make('my-token')),
             transformTransport: transport => ({
               sendRequest: (method, params) => {
                 methodCalls.push(method)
@@ -217,9 +152,6 @@ describe('BotApi.layerConfig', () => {
           }),
         ),
         Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
-        Effect.withConfigProvider(
-          ConfigProvider.fromMap(new Map([['TELEGRAM_BOT_TOKEN', 'my-token']])),
-        ),
         Effect.runPromise,
       )
 
@@ -246,6 +178,7 @@ describe('BotApi.layerConfig', () => {
       await program.pipe(
         Effect.provide(
           BotApi.layerConfig({
+            token: Config.succeed(Redacted.make('my-token')),
             transformTransport: transport => ({
               sendRequest: (method, params) =>
                 Effect.tap(
@@ -259,9 +192,6 @@ describe('BotApi.layerConfig', () => {
           }),
         ),
         Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
-        Effect.withConfigProvider(
-          ConfigProvider.fromMap(new Map([['TELEGRAM_BOT_TOKEN', 'my-token']])),
-        ),
         Effect.runPromise,
       )
 
