@@ -1,3 +1,4 @@
+import type * as ConfigError from 'effect/ConfigError'
 import type * as BotApiError from './BotApiError.ts'
 import type {
   MethodParams,
@@ -7,7 +8,6 @@ import type {
 } from './internal/botApi.gen.ts'
 import * as HttpClient from '@effect/platform/HttpClient'
 import * as Config from 'effect/Config'
-import type * as ConfigError from 'effect/ConfigError'
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
@@ -152,8 +152,8 @@ export const layerConfig: (
       const rawToken = yield* token
       const tokenString = Redacted.value(rawToken)
 
-      const botApiUrl: BotApiUrl.Service
-        = typeof environment === 'string'
+      const botApiUrl: BotApiUrl.Service =
+        typeof environment === 'string'
           ? environment === 'prod'
             ? BotApiUrl.makeProd(tokenString)
             : BotApiUrl.makeTest(tokenString)

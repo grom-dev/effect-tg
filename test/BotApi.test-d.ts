@@ -1,4 +1,5 @@
-import type { Effect } from 'effect'
+import type { HttpClient } from '@effect/platform'
+import type { ConfigError, Effect, Layer } from 'effect'
 import type { BotApiError } from '../src/index.ts'
 import { describe, expectTypeOf, it } from 'vitest'
 import { BotApi } from '../src/index.ts'
@@ -19,6 +20,26 @@ describe('BotApi', () => {
         .toEqualTypeOf<Effect.Effect<Array<BotApi.Types.Update>, BotApiError.BotApiError, BotApi.BotApi>>()
       expectTypeOf(BotApi.callMethod('sendMessage', { chat_id: 123, text: 'hi' }))
         .toEqualTypeOf<Effect.Effect<BotApi.Types.Message, BotApiError.BotApiError, BotApi.BotApi>>()
+    })
+  })
+
+  describe('layerConfig', () => {
+    it('should return Layer with correct types', () => {
+      expectTypeOf(BotApi.layerConfig()).toEqualTypeOf<
+        Layer.Layer<BotApi.BotApi, ConfigError.ConfigError, HttpClient.HttpClient>
+      >()
+    })
+    it('should accept empty options', () => {
+      BotApi.layerConfig()
+      BotApi.layerConfig({})
+    })
+    it('should accept all options', () => {
+      // Just checking it compiles with all options
+      BotApi.layerConfig({
+        token: undefined,
+        environment: 'prod',
+        transformTransport: t => t,
+      })
     })
   })
 })
