@@ -97,9 +97,7 @@ const BotApiLive = BotApi.layer.pipe(
   Layer.provide(
     Layer.effect(
       BotApiUrl.BotApiUrl,
-      Config.redacted('BOT_API_TOKEN').pipe(
-        Effect.map(token => BotApiUrl.makeProd(Redacted.value(token))),
-      ),
+      Effect.map(Config.string('BOT_API_TOKEN'), BotApiUrl.makeProd)
     ),
   ),
   Layer.provide(FetchHttpClient.layer),
