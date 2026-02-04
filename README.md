@@ -83,15 +83,22 @@ This design enables:
 ```ts
 import { FetchHttpClient } from '@effect/platform'
 import { BotApi, BotApiTransport, BotApiUrl } from '@grom.js/effect-tg'
-import { Effect, Layer } from 'effect'
+import { Config, Effect, Layer } from 'effect'
 
+// Use a shortcut to construct BotApi
+const BotApiLive = Layer.provide(
+  BotApi.layerConfig({ token: Config.redacted('BOT_TOKEN') }),
+  FetchHttpClient.layer
+)
+
+// Or provide all layers manually
 const BotApiLive = BotApi.layer.pipe(
   Layer.provide(BotApiTransport.layer),
   Layer.provide(
-    Layer.succeed(
+    Layer.effect(
       BotApiUrl.BotApiUrl,
-      BotApiUrl.makeProd('YOUR_BOT_TOKEN')
-    )
+      Effect.map(Config.string('BOT_API_TOKEN'), BotApiUrl.makeProd)
+    ),
   ),
   Layer.provide(FetchHttpClient.layer),
 )
