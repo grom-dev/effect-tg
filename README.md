@@ -78,7 +78,36 @@ This design enables:
 - **Testability**: Mock implementation of `BotApiTransport` or `HttpClient` to test your bot.
 - **Portability:** Provide different `BotApiUrl` to run a bot on test environment or with local Bot API server.
 
-**Example:** Constructing `BotApi` layer.
+**Example:** Quick configuration with `layerConfig`.
+
+```ts
+import { FetchHttpClient } from '@effect/platform'
+import { BotApi } from '@grom.js/effect-tg'
+import { Config, Effect, Layer } from 'effect'
+
+// Basic usage - reads token from TELEGRAM_BOT_TOKEN env var
+const BotApiLive = BotApi.layerConfig().pipe(
+  Layer.provide(FetchHttpClient.layer),
+)
+
+// With options
+const BotApiTest = BotApi.layerConfig({
+  // Custom token config (default: Config.redacted('TELEGRAM_BOT_TOKEN'))
+  token: Config.redacted('MY_BOT_TOKEN'),
+  // Environment: 'prod' (default), 'test', or custom BotApiUrl.Service
+  environment: 'test',
+  // Optional transport middleware for logging, retries, etc.
+  transformTransport: transport => ({
+    sendRequest: (method, params) =>
+      Effect.tap(
+        transport.sendRequest(method, params),
+        () => Effect.logDebug(`Called ${method}`),
+      ),
+  }),
+}).pipe(Layer.provide(FetchHttpClient.layer))
+```
+
+**Example:** Manual layer construction for full control.
 
 ```ts
 import { FetchHttpClient } from '@effect/platform'
