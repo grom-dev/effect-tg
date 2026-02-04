@@ -78,48 +78,29 @@ This design enables:
 - **Testability**: Mock implementation of `BotApiTransport` or `HttpClient` to test your bot.
 - **Portability:** Provide different `BotApiUrl` to run a bot on test environment or with local Bot API server.
 
-**Example:** Quick configuration with `layerConfig`.
-
-```ts
-import { FetchHttpClient } from '@effect/platform'
-import { BotApi } from '@grom.js/effect-tg'
-import { Config, Effect, Layer } from 'effect'
-
-// Basic usage
-const BotApiLive = BotApi.layerConfig({
-  token: Config.redacted('BOT_TOKEN'),
-}).pipe(Layer.provide(FetchHttpClient.layer))
-
-// With test environment and transport middleware
-const BotApiTest = BotApi.layerConfig({
-  token: Config.redacted('BOT_TOKEN'),
-  // Environment: 'prod' (default) or 'test'
-  environment: 'test',
-  // Optional transport middleware for logging, retries, etc.
-  transformTransport: transport => ({
-    sendRequest: (method, params) =>
-      Effect.tap(
-        transport.sendRequest(method, params),
-        () => Effect.logDebug(`Called ${method}`),
-      ),
-  }),
-}).pipe(Layer.provide(FetchHttpClient.layer))
-```
-
-**Example:** Manual layer construction for full control.
+**Example:** Constructing `BotApi` layer.
 
 ```ts
 import { FetchHttpClient } from '@effect/platform'
 import { BotApi, BotApiTransport, BotApiUrl } from '@grom.js/effect-tg'
-import { Effect, Layer } from 'effect'
+import { Config, Effect, Layer } from 'effect'
 
+// Use a shortcut to construct BotApi
+const BotApiLive = Layer.provide(
+  BotApi.layerConfig({ token: Config.redacted('BOT_TOKEN') }),
+  FetchHttpClient.layer
+)
+
+// Or provide all layers manually
 const BotApiLive = BotApi.layer.pipe(
   Layer.provide(BotApiTransport.layer),
   Layer.provide(
-    Layer.succeed(
+    Layer.effect(
       BotApiUrl.BotApiUrl,
-      BotApiUrl.makeProd('YOUR_BOT_TOKEN')
-    )
+      Config.redacted('BOT_API_TOKEN').pipe(
+        Effect.map(token => BotApiUrl.makeProd(Redacted.value(token))),
+      ),
+    ),
   ),
   Layer.provide(FetchHttpClient.layer),
 )
