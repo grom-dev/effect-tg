@@ -60,13 +60,6 @@ export interface MessageToSend extends
   readonly markup?: Markup.Markup
   readonly reply?: Reply.Reply
   readonly options?: Options
-
-  clone: (override?: {
-    content?: Content.Content
-    markup?: Markup.Markup
-    reply?: Reply.Reply
-    options?: Options
-  }) => MessageToSend
 }
 
 const MessageToSendProto = {
@@ -96,20 +89,6 @@ const MessageToSendProto = {
       reply: this.reply,
       options: this.options,
     }
-  },
-
-  clone(this: MessageToSend, override?: {
-    content?: Content.Content
-    markup?: Markup.Markup
-    reply?: Reply.Reply
-    options?: Options
-  }): MessageToSend {
-    const self = Object.create(MessageToSendProto)
-    self.content = override?.content ?? this.content
-    self.markup = override?.markup ?? this.markup
-    self.reply = override?.reply ?? this.reply
-    self.options = override?.options ?? this.options
-    return self
   },
 }
 
@@ -168,14 +147,21 @@ export const withMarkup: {
 } = Function.dual(2, (
   self: MessageToSend,
   markup: Markup.Markup,
-): MessageToSend => self.clone({ markup }))
+): MessageToSend => message(self.content, {
+  markup,
+  reply: self.reply,
+  options: self.options,
+}))
 
 /**
  * Removes the reply markup from the message.
  */
 export const withoutMarkup: (
   self: MessageToSend,
-) => MessageToSend = self => self.clone({ markup: undefined })
+) => MessageToSend = self => message(self.content, {
+  reply: self.reply,
+  options: self.options,
+})
 
 // =============================================================================
 // Reply Options
@@ -190,14 +176,21 @@ export const withReply: {
 } = Function.dual(2, (
   self: MessageToSend,
   reply: Reply.Reply,
-): MessageToSend => self.clone({ reply }))
+): MessageToSend => message(self.content, {
+  markup: self.markup,
+  reply,
+  options: self.options,
+}))
 
 /**
  * Removes the reply options from the message.
  */
 export const withoutReply: (
   self: MessageToSend,
-) => MessageToSend = self => self.clone({ reply: undefined })
+) => MessageToSend = self => message(self.content, {
+  markup: self.markup,
+  options: self.options,
+})
 
 // =============================================================================
 // Send Options
@@ -232,7 +225,9 @@ export const withOptions: {
 } = Function.dual(2, (
   self: MessageToSend,
   options: Options,
-): MessageToSend => self.clone({
+): MessageToSend => message(self.content, {
+  markup: self.markup,
+  reply: self.reply,
   options: new Options({
     ...self.options,
     ...options,
