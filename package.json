@@ -55,6 +55,7 @@
     "@grom.js/bot-api-spec": "0.6.2",
     "@grom.js/tgx": "0.5.3",
     "@types/node": "22.19.10",
+    "@vitest/coverage-v8": "4.0.18",
     "bumpp": "10.4.1",
     "effect": "3.19.16",
     "eslint": "9.39.2",
