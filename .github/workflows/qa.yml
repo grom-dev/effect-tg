@@ -73,6 +73,8 @@ jobs:
         with:
           directory: ./coverage/
           files: ./coverage/coverage-final.json
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: grom-dev/effect-tg
 
   knip:
     name: Knip
