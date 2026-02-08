@@ -1,7 +1,8 @@
 # effect-tg
 
-[![Effectful](https://img.shields.io/badge/Effectful-%23000?style=flat&logo=effect&logoColor=%23fff)](https://effect.website/)
-[![npm](https://img.shields.io/npm/v/%40grom.js%2Feffect-tg?style=flat&logo=npm&logoColor=%23BB443E&logoSize=auto&label=%C2%A0&labelColor=%23fff&color=%23BB443E)](https://www.npmjs.com/package/@grom.js/effect-tg)
+[![Effectful](https://img.shields.io/badge/Effectful-%23fff?style=flat&logo=effect&logoColor=%23fff&logoSize=auto&color=%23000)](https://effect.website/)
+[![npm](https://img.shields.io/npm/v/%40grom.js%2Feffect-tg?style=flat&logo=npm&logoColor=%23BB443E&logoSize=auto&label=Latest&labelColor=%23fff&color=%23BB443E)](https://www.npmjs.com/package/@grom.js/effect-tg)
+[![codecov](https://img.shields.io/codecov/c/github/grom-dev/effect-tg?style=flat&logo=codecov&logoColor=%23fff&logoSize=auto&label=Coverage&labelColor=%23f07&color=%23fff)](https://codecov.io/gh/grom-dev/effect-tg)
 
 Effectful library for crafting Telegram bots.
 
