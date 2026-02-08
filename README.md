@@ -67,7 +67,7 @@ const program = Effect.gen(function* () {
 `BotApi` has a layered architecture:
 
 ```
-┌• BotApi — typed interface that delegates calls to `BotApiTransport`.
+┌• BotApi — typed interface that delegates calls to BotApiTransport.
 └─┬• BotApiTransport — serializes parameters, sends HTTP requests, parses responses.
   ├──• BotApiUrl — constructs endpoint URLs to methods and files.
   └──• HttpClient — performs HTTP requests.
@@ -79,29 +79,25 @@ This design enables:
 - **Testability**: Mock implementation of `BotApiTransport` or `HttpClient` to test your bot.
 - **Portability:** Provide different `BotApiUrl` to run a bot on test environment or with local Bot API server.
 
-**Example:** Constructing `BotApi` layer.
+**Example:** Constructing `BotApi` layer with method call tracing.
 
 ```ts
 import { FetchHttpClient } from '@effect/platform'
-import { BotApi, BotApiTransport, BotApiUrl } from '@grom.js/effect-tg'
+import { BotApi } from '@grom.js/effect-tg'
 import { Config, Effect, Layer } from 'effect'
 
-// Use a shortcut to construct BotApi
 const BotApiLive = Layer.provide(
-  BotApi.layerConfig({ token: Config.redacted('BOT_TOKEN') }),
+  BotApi.layerConfig({
+    token: Config.redacted('BOT_TOKEN'),
+    environment: 'prod',
+    transformTransport: transport => ({
+      sendRequest: (method, params) =>
+        transport.sendRequest(method, params).pipe(
+          Effect.withSpan(method),
+        ),
+    }),
+  }),
   FetchHttpClient.layer
-)
-
-// Or provide all layers manually
-const BotApiLive = BotApi.layer.pipe(
-  Layer.provide(BotApiTransport.layer),
-  Layer.provide(
-    Layer.effect(
-      BotApiUrl.BotApiUrl,
-      Effect.map(Config.string('BOT_API_TOKEN'), BotApiUrl.makeProd)
-    ),
-  ),
-  Layer.provide(FetchHttpClient.layer),
 )
 ```
 
