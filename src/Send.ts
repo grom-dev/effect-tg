@@ -7,6 +7,7 @@ import type * as BotApiError from './BotApiError.ts'
 import type * as Content from './Content.ts'
 import type * as Dialog from './Dialog.ts'
 import type * as Markup from './Markup.ts'
+import type * as Reply from './Reply.ts'
 import * as Context from 'effect/Context'
 import * as Data from 'effect/Data'
 import * as Effect from 'effect/Effect'
@@ -26,8 +27,9 @@ import * as internal from './internal/send.ts'
 export const sendMessage: (params: {
   content: Content.Content
   dialog: Dialog.Dialog | Dialog.DialogId
-  options?: Options
   markup?: Markup.Markup
+  reply?: Reply.Reply
+  options?: Options
 }) => Effect.Effect<
   BotApi.Types.Message,
   BotApiError.BotApiError,
@@ -56,6 +58,7 @@ export interface MessageToSend extends
   readonly [MessageToSendTypeId]: typeof MessageToSendTypeId
   readonly content: Content.Content
   readonly markup?: Markup.Markup
+  readonly reply?: Reply.Reply
   readonly options?: Options
 }
 
@@ -72,6 +75,7 @@ const MessageToSendProto = {
         dialog,
         content: this.content,
         markup: this.markup,
+        reply: this.reply,
         options: this.options,
       }),
     )
@@ -82,6 +86,7 @@ const MessageToSendProto = {
       _id: this[MessageToSendTypeId].description,
       content: this.content,
       markup: this.markup,
+      reply: this.reply,
       options: this.options,
     }
   },
@@ -93,11 +98,13 @@ const MessageToSendProto = {
  */
 export const message = (content: Content.Content, params?: {
   markup?: Markup.Markup
+  reply?: Reply.Reply
   options?: Options
 }): MessageToSend => {
   const self = Object.create(MessageToSendProto)
   self.content = content
   self.markup = params?.markup
+  self.reply = params?.reply
   self.options = params?.options
   return self
 }
@@ -140,12 +147,11 @@ export const withMarkup: {
 } = Function.dual(2, (
   self: MessageToSend,
   markup: Markup.Markup,
-): MessageToSend => (
-  message(self.content, {
-    markup,
-    options: self.options,
-  })
-))
+): MessageToSend => message(self.content, {
+  markup,
+  reply: self.reply,
+  options: self.options,
+}))
 
 /**
  * Removes the reply markup from the message.
@@ -153,7 +159,36 @@ export const withMarkup: {
 export const withoutMarkup: (
   self: MessageToSend,
 ) => MessageToSend = self => message(self.content, {
-  markup: undefined,
+  reply: self.reply,
+  options: self.options,
+})
+
+// =============================================================================
+// Reply Options
+// =============================================================================
+
+/**
+ * Sets the information about the message to reply to.
+ */
+export const withReply: {
+  (reply: Reply.Reply): (self: MessageToSend) => MessageToSend
+  (self: MessageToSend, reply: Reply.Reply): MessageToSend
+} = Function.dual(2, (
+  self: MessageToSend,
+  reply: Reply.Reply,
+): MessageToSend => message(self.content, {
+  markup: self.markup,
+  reply,
+  options: self.options,
+}))
+
+/**
+ * Removes the reply options from the message.
+ */
+export const withoutReply: (
+  self: MessageToSend,
+) => MessageToSend = self => message(self.content, {
+  markup: self.markup,
   options: self.options,
 })
 
@@ -190,15 +225,14 @@ export const withOptions: {
 } = Function.dual(2, (
   self: MessageToSend,
   options: Options,
-): MessageToSend => (
-  message(self.content, {
-    markup: self.markup,
-    options: new Options({
-      ...self.options,
-      ...options,
-    }),
-  })
-))
+): MessageToSend => message(self.content, {
+  markup: self.markup,
+  reply: self.reply,
+  options: new Options({
+    ...self.options,
+    ...options,
+  }),
+}))
 
 /**
  * Disables notification for the message.

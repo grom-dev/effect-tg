@@ -1,6 +1,7 @@
 import type * as Content from '../Content.ts'
 import type * as Dialog from '../Dialog.ts'
 import type * as Markup from '../Markup.ts'
+import type * as Reply from '../Reply.ts'
 import type * as Send from '../Send.ts'
 import type * as Text from '../Text.ts'
 import * as Tgx from '@grom.js/tgx'
@@ -312,6 +313,26 @@ const paramsMarkup: (
 )
 
 // =============================================================================
+// Parameters (Reply Options)
+// =============================================================================
+
+type ParamsReply = PickMethodParams<SendMethod, 'reply_parameters'>
+
+const paramsReply = (
+  reply: Reply.Reply,
+): ParamsReply => ({
+  reply_parameters: {
+    chat_id: Match.value(reply.dialog).pipe(
+      Match.when(Match.number, id => id),
+      Match.orElse(peer => peer.dialogId()),
+    ),
+    message_id: reply.messageId,
+    checklist_task_id: Option.getOrUndefined(reply.taskId),
+    allow_sending_without_reply: reply.optional,
+  },
+})
+
+// =============================================================================
 // Parameters (Send Options)
 // =============================================================================
 
@@ -333,6 +354,7 @@ export const sendMessage = Effect.fnUntraced(function* (params: {
   content: Content.Content
   dialog: Dialog.Dialog | Dialog.DialogId
   markup?: Markup.Markup
+  reply?: Reply.Reply
   options?: Send.Options
 }) {
   return yield* BotApi.callMethod(
@@ -340,8 +362,9 @@ export const sendMessage = Effect.fnUntraced(function* (params: {
     {
       ...paramsContent(params.content),
       ...paramsDialog(params.dialog),
-      ...(params.options ? paramsOptions(params.options) : {}),
       ...(params.markup ? paramsMarkup(params.markup) : {}),
+      ...(params.reply ? paramsReply(params.reply) : {}),
+      ...(params.options ? paramsOptions(params.options) : {}),
     },
   )
 })
