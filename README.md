@@ -105,11 +105,15 @@ const BotApiLive = Layer.provide(
 
 Failed `BotApi` method calls result in `BotApiError`, which is a union of tagged errors with additional information:
 
-- `TransportError` — HTTP or network failure. `cause` property contains the original error from `HttpClient`.
-- `RateLimited` — bot has exceeded flood limit. `retryAfter` property contains the duration to wait before retry.
-- `GroupUpgraded` — group has been migrated to supergroup. `supergroup` property contains an object with the new ID.
-- `MethodFailed` — response was unsuccessful, but the exact reason could not be determined. `possibleReason` property contains common failure reasons as string literals, determined by error code and description, which are subject to change.
-- `InternalServerError` — Bot API server failed with 5xx error code.
+- `TransportError` — HTTP or network failure.
+  - `cause` — original error from `HttpClient`.
+- `RateLimited` — bot has exceeded the flood limit.
+  - `retryAfter` — duration to wait before the next attempt.
+- `GroupUpgraded` — group has been migrated to a supergroup.
+  - `supergroup` — object containing the ID of the new supergroup.
+- `MethodFailed` — response was unsuccessful, but the exact reason could not be determined.
+  - `possibleReason` — string literal representing one of the common failure reasons. It is determined by the error code and description of the Bot API response, which are subject to change.
+- `InternalServerError` — Bot API server failed with a 5xx error code.
 
 All errors except `TransportError` also have `response` property that contains the original response from Bot API.
 
