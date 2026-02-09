@@ -197,69 +197,136 @@ To send a message, you need:
 
 - **Content** — content of the message to be sent.
 - **Dialog** — target chat and thread where the message will be sent.
-- **Reply** — (optional) information about the message being replied to.
 - **Markup** — (optional) markup for replying to the message.
+- **Reply** — (optional) information about the message being replied to.
 - **Options** — (optional) additional options for sending the message.
-
-_TODO: add subsections explaining each of these parts_
 
 `Send.sendMessage` function accepts mentioned parameters and returns an `Effect` that sends a message, automatically choosing the appropriate method based on the content type.
 
 **Example:** Sending messages using `Send.sendMessage`.
 
 ```ts
-// TODO: come up with a couple of short examples using different feautes;
+import { Content, Dialog, File, Reply, Send, Text } from '@grom.js/effect-tg'
+import { Effect } from 'effect'
+
+const program = Effect.gen(function* () {
+  // Send a text message
+  yield* Send.sendMessage({
+    content: Content.text(Text.plain('Hello!')),
+    dialog: Dialog.user(123456789),
+  })
+
+  // Send a photo with caption to a forum topic
+  yield* Send.sendMessage({
+    content: Content.photo(File.External(new URL('https://example.com/image.jpg')), {
+      caption: Text.plain('Check this out!'),
+    }),
+    dialog: Dialog.supergroup(987654321).topic(42),
+  })
+
+  // Reply to a message
+  const sent = yield* Send.sendMessage({
+    content: Content.dice('🎲'),
+    dialog: Dialog.user(123456789),
+  })
+  yield* Send.sendMessage({
+    content: Content.text(Text.plain('Good luck!')),
+    dialog: Dialog.user(123456789),
+    reply: Reply.toMessage(sent),
+  })
+})
 ```
+
+#### Content
+
+`Content` module provides constructors for every supported content type:
+
+| Constructor            | Bot API method  | Description                                         |
+| ---------------------- | --------------- | --------------------------------------------------- |
+| `Content.text`         | `sendMessage`   | Text with optional link preview                     |
+| `Content.photo`        | `sendPhoto`     | Photo with optional caption and spoiler             |
+| `Content.video`        | `sendVideo`     | Video with optional caption, spoiler, and streaming |
+| `Content.animation`    | `sendAnimation` | GIF or video without sound                          |
+| `Content.audio`        | `sendAudio`     | Audio file with optional metadata                   |
+| `Content.voice`        | `sendVoice`     | Voice note                                          |
+| `Content.videoNote`    | `sendVideoNote` | Round video                                         |
+| `Content.document`     | `sendDocument`  | File of any type                                    |
+| `Content.sticker`      | `sendSticker`   | Sticker                                             |
+| `Content.location`     | `sendLocation`  | Static location                                     |
+| `Content.liveLocation` | `sendLocation`  | Live location with updates                          |
+| `Content.venue`        | `sendVenue`     | Venue with address                                  |
+| `Content.contact`      | `sendContact`   | Phone contact                                       |
+| `Content.dice`         | `sendDice`      | Animated emoji                                      |
+
+#### Dialog
+
+`Dialog` module provides constructors for all target types:
+
+- `Dialog.user(id)` — private chat with a user.
+- `Dialog.group(id)` — group chat.
+- `Dialog.supergroup(id)` — supergroup chat.
+- `Dialog.channel(id)` — channel.
+
+To target a specific thread or topic, chain a method on the peer:
+
+- `Dialog.user(id).topic(topicId)` — topic in a private chat.
+- `Dialog.supergroup(id).topic(topicId)` — topic in a forum supergroup.
+- `Dialog.channel(id).directMessages(topicId)` — channel direct messages.
+
+`Dialog.ofMessage` extracts the dialog from an incoming `Message` object.
+
+#### Reply
+
+`Reply` module provides two ways to create a reply reference:
+
+- `Reply.make({ dialog, messageId })` — reply to a message by ID in a specific dialog.
+- `Reply.toMessage(message)` — reply to a `Message` object, extracting the dialog and ID automatically.
+
+Both accept an optional `optional` flag — when `true`, the message will be sent even if the referenced message is not found.
 
 ### Prepared messages
 
-_TODO: explain that it contains content, markup, and options, but dialog should be provided; explain benefits_
-_TODO: explain that it's pipeable_
+`Send.message` creates a reusable `MessageToSend` that bundles content, markup, reply, and options — everything except the target dialog. This lets you define a message template once and send it to different dialogs later.
 
-Create reusable message templates with `Send.message`:
+`MessageToSend` is pipeable: you can chain modifiers on it and provide the target dialog with `Send.to`.
+
+**Example:** Creating and sending prepared messages.
 
 ```ts
-// TODO: more interesting and useful examples
+import { Content, Dialog, Send, Text } from '@grom.js/effect-tg'
+import { pipe } from 'effect'
 
-import { Content, Send, Text } from '@grom.js/effect-tg'
-import { Effect } from 'effect'
-
-// Create a prepared message
+// Define a reusable message
 const welcomeMessage = Send.message(
   Content.text(Text.html('<b>Welcome!</b> Thanks for joining.')),
 )
 
-// Send to a specific dialog
+// Send to a specific user
 const program = welcomeMessage.pipe(
+  Send.to(Dialog.user(123456789)),
+)
+
+// Send a silent, protected message
+const secretMessage = pipe(
+  Send.message(Content.text(Text.plain('Secret message!'))),
+  Send.withoutNotification,
+  Send.withContentProtection,
   Send.to(Dialog.user(123456789)),
 )
 ```
 
 ### Composing options
 
-_TODO: refine this section_
+Chain modifiers on a `MessageToSend` to customize its behavior:
 
-Chain modifiers to customize message behavior:
+- `Send.withMarkup` / `Send.withoutMarkup` — set or remove reply keyboard / inline buttons.
+- `Send.withReply` / `Send.withoutReply` — set or remove the message being replied to.
+- `Send.withNotification` / `Send.withoutNotification` — enable or disable notification sound.
+- `Send.withContentProtection` / `Send.withoutContentProtection` — prevent or allow forwarding and saving.
+- `Send.withPaidBroadcast` / `Send.withoutPaidBroadcast` — enable or disable paid broadcast mode.
+- `Send.withOptions` — merge arbitrary options at once.
 
-```ts
-import { Content, Send, Text } from '@grom.js/effect-tg'
-import { pipe } from 'effect'
-
-const content = Content.text(Text.plain('Secret message! 🤫'))
-
-const silentProtectedMessage = pipe(
-  Send.message(),
-  Send.withoutNotification,
-  Send.withContentProtection,
-)
-```
-
-Available modifiers:
-
-- `withMarkup` / `withoutMarkup` — reply keyboard or inline buttons
-- `withNotification` / `withoutNotification` — enable/disable notification
-- `withContentProtection` / `withoutContentProtection` — prevent forwarding/saving
-- `withPaidBroadcast` / `withoutPaidBroadcast` — paid broadcast mode
+All dual modifiers (`withMarkup`, `withReply`, `withOptions`) support both data-first and data-last calling conventions.
 
 ### Text formatting
 
@@ -293,10 +360,58 @@ Benefits of using JSX:
 
 `Text.tgx` function accepts a JSX element and returns an instance of `Text.Tgx`, which can then be used as a content of a message.
 
-**Example:** Using JSX to created formatted text.
+**Example:** Composing reusable messages with JSX.
 
 ```tsx
-// TODO: come up with some interesting example to showcase JSX benefits
+import type { PropsWithChildren } from '@grom.js/tgx/types'
+import { Content, Dialog, Send, Text } from '@grom.js/effect-tg'
+import { pipe } from 'effect'
+
+// Reusable component for a key-value field
+const Field = (props: PropsWithChildren<{ label: string }>) => (
+  <><b>{props.label}:</b> {props.children}{'\n'}</>
+)
+
+// Component that renders a deploy summary
+const DeploySummary = (props: {
+  service: string
+  version: string
+  env: string
+  author: string
+  url: string
+}) => (
+  <>
+    <emoji id="5445284980978621387" alt="🚀" /> <b>Deploy to <i>{props.env}</i></b>
+    {'\n\n'}
+    <Field label="Service"><code>{props.service}</code></Field>
+    <Field label="Version"><code>{props.version}</code></Field>
+    <Field label="Author">{props.author}</Field>
+    {'\n'}
+    <a href={props.url}>View in dashboard</a>
+    {'\n\n'}
+    <blockquote expandable>
+      Changelog:{'\n'}
+      - Fix rate limiting on /api/submit{'\n'}
+      - Add retry logic for webhook delivery{'\n'}
+      - Update dependencies
+    </blockquote>
+  </>
+)
+
+// Compose the final message
+const deployNotification = pipe(
+  Send.message(Content.text(Text.tgx(
+    <DeploySummary
+      service="billing-api"
+      version="2.14.0"
+      env="production"
+      author="Alice"
+      url="https://deploy.example.com/runs/4821"
+    />,
+  ))),
+  Send.withoutNotification,
+  Send.to(Dialog.channel(123456789)),
+)
 ```
 
 <details>
