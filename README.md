@@ -342,7 +342,12 @@ const reply = Markup.replyKeyboard(
 
 ### Prepared messages
 
-`Send.message` creates a `MessageToSend` — a reusable Effect that bundles content, markup, reply, and options. Chain modifiers to customize it, then call `Send.to(dialog)` to provide the target. The message is sent when the resulting Effect runs.
+`Send.message` creates a `MessageToSend` — prepared message that bundles content, markup, reply, and options.
+
+`MessageToSend` is also an `Effect`, which means:
+
+- It can be piped to chain modifiers that customize markup, reply, and options.
+- It can be executed to send the message. To be sent, `Send.TargetDialog` service should be provided.
 
 **Example:** Creating and sending prepared messages.
 
