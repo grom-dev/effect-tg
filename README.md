@@ -226,31 +226,29 @@ const program = Effect.gen(function* () {
     ]),
   })
 
-  // Silently reply with a dice
+  // Reply with a dice
   const roll = yield* Send.sendMessage({
     content: Content.dice('🎲'),
     dialog: Dialog.user(382713),
     reply: Reply.toMessage(greeting),
-    options: Send.options({ disableNotification: true })
   })
 
-  // React to the roll — reply to the dice message
   const rolled = roll.dice!.value
-  yield* Send.sendMessage({
-    content: Content.text(
-      rolled === 6
-        ? Text.html('<b>JACKPOT!</b> You are officially <i>the luckiest person alive</i>.')
-        : Text.plain(`You rolled ${rolled}. Disappointing. I expected more from you.`),
-    ),
-    dialog: Dialog.user(382713),
-    reply: Reply.toMessage(roll),
-  })
-
-  // Log the result to a channel direct messages topic
-  yield* Send.sendMessage({
-    content: Content.text(Text.plain(`User 382713 rolled ${rolled}.`)),
-    dialog: Dialog.channel(100200).directMessages(42),
-  })
+  if (rolled === 6) {
+    // DM channel
+    yield* Send.sendMessage({
+      content: Content.text(Text.plain(`User 382713 rolled ${rolled}.`)),
+      dialog: Dialog.channel(100200).directMessages(42),
+    })
+  }
+  else {
+    // Send silently
+    yield* Send.sendMessage({
+      content: Content.text(Text.plain(`You rolled ${rolled}. Disappointing.`)),
+      dialog: Dialog.user(382713),
+      options: Send.options({ disableNotification: true })
+    })
+  }
 })
 ```
 
@@ -323,7 +321,7 @@ Constructors like `Dialog.user`, `Dialog.channel`, etc. validate and encode IDs 
 - `Markup.replyKeyboardRemove()` — hide a previously shown reply keyboard.
 - `Markup.forceReply()` — forces Telegram client to reply to the message.
 
-**Example:** Creating inline and reply keyboards.
+**Example:** Creating reply markups.
 
 ```ts
 import { Markup } from '@grom.js/effect-tg'
@@ -333,10 +331,13 @@ const inline = Markup.inlineKeyboard([
   [Markup.InlineButton.url('Source code', 'https://github.com/grom-dev/effect-tg')],
 ])
 
-const reply = Markup.replyKeyboard([
-  ['Option A', 'Option B'],
-  [Markup.ReplyButton.requestContact('Share phone')],
-], { oneTime: true })
+const reply = Markup.replyKeyboard(
+  [
+    ['Option A', 'Option B'],
+    [Markup.ReplyButton.requestContact('Share phone')],
+  ],
+  { oneTime: true, resizable: true }
+)
 ```
 
 ### Prepared messages
@@ -347,25 +348,32 @@ const reply = Markup.replyKeyboard([
 
 ```ts
 import { Content, Dialog, Send, Text } from '@grom.js/effect-tg'
-import { Effect, pipe } from 'effect'
+import { Effect } from 'effect'
 
 // Reusable template
 const welcomeMessage = Send.message(
-  Content.text(Text.html('<b>Welcome!</b> Thanks for joining.')),
+  Content.text(Text.html('<b>Welcome!</b> Thanks for joining.'))
+).pipe(
+  Send.withMarkup(
+    Markup.replyKeyboard([
+      [Markup.ReplyButton.text('Effect?')],
+      [Markup.ReplyButton.text('Die.')],
+    ]),
+  ),
 )
 
 // Send to different dialogs
-const program = Effect.gen(function* () {
+const greet1 = Effect.gen(function* () {
   yield* welcomeMessage.pipe(Send.to(Dialog.user(123)))
   yield* welcomeMessage.pipe(Send.to(Dialog.channel(321)))
 })
 
-// With modifiers: silent, protected
-const secretMessage = pipe(
-  Send.message(Content.text(Text.plain('Secret message!'))),
-  Send.withoutNotification,
-  Send.withContentProtection,
-  Send.to(Dialog.user(123456789)),
+// Send to the same dialog with different options
+const greet2 = Effect.gen(function* () {
+  yield* welcomeMessage.pipe(Send.withoutNotification)
+  yield* welcomeMessage.pipe(Send.withContentProtection)
+}).pipe(
+  Send.to(Dialog.supergroup(4).topic(2)),
 )
 ```
 
