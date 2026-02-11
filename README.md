@@ -1,8 +1,9 @@
 # effect-tg
 
-[![Effectful](https://img.shields.io/badge/Effectful-%23fff?style=flat&logo=effect&logoColor=%23fff&logoSize=auto&color=%23000)](https://effect.website/)
+[![Effectful](https://img.shields.io/badge/Yes.-%23fff?style=flat&logo=effect&logoColor=%23000&logoSize=auto&label=Effect%3F&labelColor=%23fff&color=%23000)](https://effect.website/)
+[![Bot API](https://img.shields.io/badge/v9.4-%23fff?style=flat&logo=telegram&logoColor=%2325A3E1&logoSize=auto&label=Bot%20API&labelColor=%23fff&color=%2325A3E1)](https://core.telegram.org/bots/api)
 [![npm](https://img.shields.io/npm/v/%40grom.js%2Feffect-tg?style=flat&logo=npm&logoColor=%23BB443E&logoSize=auto&label=Latest&labelColor=%23fff&color=%23BB443E)](https://www.npmjs.com/package/@grom.js/effect-tg)
-[![codecov](https://img.shields.io/codecov/c/github/grom-dev/effect-tg?style=flat&logo=codecov&logoColor=%23fff&logoSize=auto&label=Coverage&labelColor=%23f07&color=%23fff)](https://codecov.io/gh/grom-dev/effect-tg)
+[![codecov](https://img.shields.io/codecov/c/github/grom-dev/effect-tg?style=flat&logo=codecov&logoColor=%23f07&label=Coverage&labelColor=%23fff&color=%23f07)](https://codecov.io/gh/grom-dev/effect-tg)
 
 Effectful library for crafting Telegram bots.
 
