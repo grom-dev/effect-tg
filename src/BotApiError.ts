@@ -99,7 +99,7 @@ export const fromResponse = (response: FailureResponse): BotApiError => {
       response,
       supergroup: Dialog.supergroup(
         Option.getOrThrow(
-          Dialog.decodePeerId('supergroup', response.parameters.migrate_to_chat_id),
+          Dialog.decodePeerId('channel', response.parameters.migrate_to_chat_id),
         ),
       ),
     })
