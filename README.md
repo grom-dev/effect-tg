@@ -350,7 +350,7 @@ Text.markdown('*Bold* and _italic_.')
 
 #### JSX syntax
 
-`Text` module also allows to compose formatted text using JSX syntax, with JSX runtime implemented by [`@grom.js/tgx`](https://github.com/grom-dev/tgx).
+`Text` module also allows to compose formatted text with JSX.
 
 Benefits of using JSX:
 
@@ -420,7 +420,7 @@ const deployNotification = pipe(
 
 JSX is just syntactic sugar transformed by the compiler.
 Result of transformation depends on the JSX runtime.
-`effect-tg` relies on JSX runtime from `@grom.js/tgx`, which transforms JSX elements to `TgxElement` instances.
+`effect-tg` relies on JSX runtime from [`@grom.js/tgx`](https://github.com/grom-dev/tgx), which transforms JSX elements to `TgxElement` instances.
 When `Send.sendMessage` encounters an instance of `Text.Tgx`, it converts inner `TgxElement`s to the parameters for a `send*` method.
 
 </details>
@@ -428,10 +428,13 @@ When `Send.sendMessage` encounters an instance of `Text.Tgx`, it converts inner 
 To enable JSX support:
 
 1. Install `@grom.js/tgx` package:
+
    ```sh
    npm install @grom.js/tgx
    ```
+
 2. Update your `tsconfig.json`:
+
    ```json
    {
      "compilerOptions": {
