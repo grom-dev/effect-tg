@@ -193,7 +193,7 @@ Bot API exposes multiple methods for sending a message, each corresponding to a 
 To send a message, you need:
 
 - **Content** — content of the message to be sent.
-- **Dialog** — target chat and thread where the message will be sent.
+- **Dialog** — target chat and topic where the message will be sent.
 - **Markup** — (optional) markup for replying to the message.
 - **Reply** — (optional) information about the message being replied to.
 - **Options** — (optional) additional options for sending the message.
@@ -203,35 +203,7 @@ To send a message, you need:
 **Example:** Sending messages using `Send.sendMessage`.
 
 ```ts
-import { Content, Dialog, File, Reply, Send, Text } from '@grom.js/effect-tg'
-import { Effect } from 'effect'
-
-const program = Effect.gen(function* () {
-  // Send a text message
-  yield* Send.sendMessage({
-    content: Content.text(Text.plain('Hello!')),
-    dialog: Dialog.user(123456789),
-  })
-
-  // Send a photo with caption to a forum topic
-  yield* Send.sendMessage({
-    content: Content.photo(File.External(new URL('https://example.com/image.jpg')), {
-      caption: Text.plain('Check this out!'),
-    }),
-    dialog: Dialog.supergroup(987654321).topic(42),
-  })
-
-  // Reply to a message
-  const sent = yield* Send.sendMessage({
-    content: Content.dice('🎲'),
-    dialog: Dialog.user(123456789),
-  })
-  yield* Send.sendMessage({
-    content: Content.text(Text.plain('Good luck!')),
-    dialog: Dialog.user(123456789),
-    reply: Reply.toMessage(sent),
-  })
-})
+// TODO: variety of examples
 ```
 
 #### Content
@@ -257,20 +229,28 @@ const program = Effect.gen(function* () {
 
 #### Dialog
 
-`Dialog` module provides constructors for all target types:
+`Dialog` module provides constructors for all target chats:
 
 - `Dialog.user(id)` — private chat with a user.
 - `Dialog.group(id)` — group chat.
 - `Dialog.supergroup(id)` — supergroup chat.
 - `Dialog.channel(id)` — channel.
 
-To target a specific thread or topic, chain a method on the peer:
+To target a specific topic, chain a method on the peer:
 
 - `Dialog.user(id).topic(topicId)` — topic in a private chat.
 - `Dialog.supergroup(id).topic(topicId)` — topic in a forum supergroup.
 - `Dialog.channel(id).directMessages(topicId)` — channel direct messages.
 
 `Dialog.ofMessage` extracts the dialog from an incoming `Message` object.
+
+**Dialog ID vs peer ID**
+
+Bot API uses a single integer (`chat_id`) that [encodes both peer type and ID](https://core.telegram.org/api/bots/ids): user 1:1; group = `-id`; supergroup/channel = `-(id + 1000000000000)`. Some responses return dialog IDs, others peer IDs — wrong format causes errors.
+
+**Branded types**
+
+`UserId`, `GroupId`, `SupergroupId`, `ChannelId`, `DialogId` prevent mixing. `SupergroupId` and `ChannelId` are the same type (supergroups are a special kind of channel; both share the same ID space). Use `Dialog.decodePeerId`, `Dialog.encodePeerId`, `Dialog.decodeDialogId` to convert.
 
 #### Reply
 
@@ -281,35 +261,67 @@ To target a specific thread or topic, chain a method on the peer:
 
 Both accept an optional `optional` flag — when `true`, the message will be sent even if the referenced message is not found.
 
+#### Markup
+
+`Markup` module provides reply markup types and constructors:
+
+- `inlineKeyboard(rows)` — buttons attached to the message (callback, URL, web app, etc.).
+- `replyKeyboard(rows, options?)` — custom keyboard replacing the default; options include `oneTime`, `resizable`, `selective`, `inputPlaceholder`.
+- `replyKeyboardRemove` — hide a reply keyboard.
+- `forceReply` — show a reply input field.
+
+Use `InlineButton` and `ReplyButton` builders to create button rows. Example:
+
+```ts
+import { InlineButton, inlineKeyboard, ReplyButton, replyKeyboard } from '@grom.js/effect-tg'
+
+// Inline keyboard: URL and callback buttons
+const inline = inlineKeyboard([
+  [InlineButton.url('Open', 'https://example.com'), InlineButton.callback('Tap me', 'action_1')],
+])
+
+// Reply keyboard: simple buttons
+const reply = replyKeyboard([
+  ['Option A', 'Option B'],
+  [ReplyButton.requestContact('Share phone')],
+], { oneTime: true })
+```
+
 ### Prepared messages
 
-`Send.message` creates a reusable `MessageToSend` that bundles content, markup, reply, and options — everything except the target dialog. This lets you define a message template once and send it to different dialogs later.
+`Send.message` creates a `MessageToSend` — a reusable Effect that bundles content, markup, reply, and options. It does not send until you run it.
 
-`MessageToSend` is pipeable: you can chain modifiers on it and provide the target dialog with `Send.to`.
+Flow:
+
+1. `Send.message(content)` creates a `MessageToSend` (an Effect that requires `TargetDialog`).
+2. Chain modifiers (`Send.withMarkup`, `Send.withoutNotification`, etc.) to customize.
+3. `Send.to(dialog)` provides the target and returns a plain Effect; the message sends when that Effect runs (e.g. `yield*` in a generator, `Effect.runPromise`, or as part of a larger program).
 
 **Example:** Creating and sending prepared messages.
 
 ```ts
 import { Content, Dialog, Send, Text } from '@grom.js/effect-tg'
-import { pipe } from 'effect'
+import { Effect, pipe } from 'effect'
 
-// Define a reusable message
+// Reusable template
 const welcomeMessage = Send.message(
   Content.text(Text.html('<b>Welcome!</b> Thanks for joining.')),
 )
 
-// Send to a specific user
-const program = welcomeMessage.pipe(
-  Send.to(Dialog.user(123456789)),
-)
+// Send to different dialogs — runs the Effect to perform the API call
+const program = Effect.gen(function* () {
+  yield* welcomeMessage.pipe(Send.to(Dialog.user(123456789)))
+  yield* welcomeMessage.pipe(Send.to(Dialog.user(987654321)))
+})
 
-// Send a silent, protected message
+// With modifiers: silent, protected
 const secretMessage = pipe(
   Send.message(Content.text(Text.plain('Secret message!'))),
   Send.withoutNotification,
   Send.withContentProtection,
   Send.to(Dialog.user(123456789)),
 )
+// Use yield* secretMessage or Effect.runPromise(secretMessage) to send
 ```
 
 ### Composing options
