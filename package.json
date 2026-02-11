@@ -49,12 +49,12 @@
     "effect": "^3.19.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "7.3.0",
-    "@effect/language-service": "0.73.0",
-    "@effect/platform": "0.94.3",
-    "@grom.js/bot-api-spec": "0.6.2",
+    "@antfu/eslint-config": "7.4.3",
+    "@effect/language-service": "0.73.1",
+    "@effect/platform": "0.94.4",
+    "@grom.js/bot-api-spec": "0.7.1",
     "@grom.js/tgx": "0.5.3",
-    "@types/node": "22.19.10",
+    "@types/node": "22.19.11",
     "@vitest/coverage-v8": "4.0.18",
     "bumpp": "10.4.1",
     "effect": "3.19.16",
