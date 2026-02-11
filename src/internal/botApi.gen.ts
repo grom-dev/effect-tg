@@ -96,6 +96,8 @@ export interface BotApi {
   setMessageReaction: BotApiMethod<'setMessageReaction'>
   /** Use this method to get a list of profile pictures for a user. Returns a [UserProfilePhotos](https://core.telegram.org/bots/api#userprofilephotos) object. */
   getUserProfilePhotos: BotApiMethod<'getUserProfilePhotos'>
+  /** Use this method to get a list of profile audios for a user. Returns a [UserProfileAudios](https://core.telegram.org/bots/api#userprofileaudios) object. */
+  getUserProfileAudios: BotApiMethod<'getUserProfileAudios'>
   /** Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method [requestEmojiStatusAccess](https://core.telegram.org/bots/webapps#initializing-mini-apps). Returns _True_ on success. */
   setUserEmojiStatus: BotApiMethod<'setUserEmojiStatus'>
   /**
@@ -170,7 +172,7 @@ export interface BotApi {
   deleteChatStickerSet: BotApiMethod<'deleteChatStickerSet'>
   /** Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of [Sticker](https://core.telegram.org/bots/api#sticker) objects. */
   getForumTopicIconStickers: BotApiMethod<'getForumTopicIconStickers'>
-  /** Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the _can\_manage\_topics_ administrator rights. Returns information about the created topic as a [ForumTopic](https://core.telegram.org/bots/api#forumtopic) object. */
+  /** Use this method to create a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the _can\_manage\_topics_ administrator right. Returns information about the created topic as a [ForumTopic](https://core.telegram.org/bots/api#forumtopic) object. */
   createForumTopic: BotApiMethod<'createForumTopic'>
   /** Use this method to edit name and icon of a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the _can\_manage\_topics_ administrator rights, unless it is the creator of the topic. Returns _True_ on success. */
   editForumTopic: BotApiMethod<'editForumTopic'>
@@ -222,6 +224,10 @@ export interface BotApi {
   setMyShortDescription: BotApiMethod<'setMyShortDescription'>
   /** Use this method to get the current bot short description for the given user language. Returns [BotShortDescription](https://core.telegram.org/bots/api#botshortdescription) on success. */
   getMyShortDescription: BotApiMethod<'getMyShortDescription'>
+  /** Changes the profile photo of the bot. Returns _True_ on success. */
+  setMyProfilePhoto: BotApiMethod<'setMyProfilePhoto'>
+  /** Removes the profile photo of the bot. Requires no parameters. Returns _True_ on success. */
+  removeMyProfilePhoto: BotApiMethod<'removeMyProfilePhoto'>
   /** Use this method to change the bot's menu button in a private chat, or the default menu button. Returns _True_ on success. */
   setChatMenuButton: BotApiMethod<'setChatMenuButton'>
   /** Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns [MenuButton](https://core.telegram.org/bots/api#menubutton) on success. */
@@ -515,6 +521,8 @@ export declare namespace Types {
     has_main_web_app?: boolean
     /** _True_, if the bot has forum topic mode enabled in private chats. Returned only in [getMe](https://core.telegram.org/bots/api#getme). */
     has_topics_enabled?: boolean
+    /** _True_, if the bot allows users to create and delete topics in private chats. Returned only in [getMe](https://core.telegram.org/bots/api#getme). */
+    allows_users_to_create_topics?: boolean
   }
 
   /** This object represents a chat. */
@@ -522,7 +530,7 @@ export declare namespace Types {
     /** Unique identifier for this chat. */
     id: number
     /** Type of the chat, can be either “private”, “group”, “supergroup” or “channel” */
-    type: string
+    type: 'private' | 'group' | 'supergroup' | 'channel'
     /** Title, for supergroups, channels and group chats */
     title?: string
     /** Username, for private chats, supergroups and channels if available */
@@ -542,7 +550,7 @@ export declare namespace Types {
     /** Unique identifier for this chat. */
     id: number
     /** Type of the chat, can be either “private”, “group”, “supergroup” or “channel” */
-    type: string
+    type: 'private' | 'group' | 'supergroup' | 'channel'
     /** Title, for supergroups, channels and group chats */
     title?: string
     /** Username, for private chats, supergroups and channels if available */
@@ -635,6 +643,8 @@ export declare namespace Types {
     location?: Types.ChatLocation
     /** For private chats, the rating of the user if any */
     rating?: Types.UserRating
+    /** For private chats, the first audio added to the profile of the user */
+    first_profile_audio?: Types.Audio
     /** The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews */
     unique_gift_colors?: Types.UniqueGiftColors
     /** The number of Telegram Stars a general user have to pay to send a message to the chat */
@@ -751,6 +761,10 @@ export declare namespace Types {
     new_chat_members?: Array<Types.User>
     /** A member was removed from the group, information about them (this member may be the bot itself) */
     left_chat_member?: Types.User
+    /** Service message: chat owner has left */
+    chat_owner_left?: Types.ChatOwnerLeft
+    /** Service message: chat owner has changed */
+    chat_owner_changed?: Types.ChatOwnerChanged
     /** A chat title was changed to this value */
     new_chat_title?: string
     /** A chat photo was change to this value */
@@ -864,7 +878,7 @@ export declare namespace Types {
     /** Unique message identifier inside the chat */
     message_id: number
     /** Always 0. The field can be used to differentiate regular and inaccessible messages. */
-    date: number
+    date: 0
   }
 
   /**
@@ -878,7 +892,7 @@ export declare namespace Types {
   /** This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc. */
   export interface MessageEntity {
     /** Type of the entity. Currently, can be “mention” (`@username`), “hashtag” (`#hashtag` or `#hashtag@chatusername`), “cashtag” (`$USD` or `$USD@chatusername`), “bot\_command” (`/start@jobs_bot`), “url” (`https://telegram.org`), “email” (`do-not-reply@telegram.org`), “phone\_number” (`+1-212-555-0123`), “bold” (**bold text**), “italic” (_italic text_), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable\_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text\_link” (for clickable text URLs), “text\_mention” (for users [without usernames](https://telegram.org/blog/edit#new-mentions)), “custom\_emoji” (for inline custom emoji stickers) */
-    type: string
+    type: 'mention' | 'hashtag' | 'cashtag' | 'bot_command' | 'url' | 'email' | 'phone_number' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler' | 'blockquote' | 'expandable_blockquote' | 'code' | 'pre' | 'text_link' | 'text_mention' | 'custom_emoji'
     /** Offset in [UTF-16 code units](https://core.telegram.org/api/entities#entity-length) to the start of the entity */
     offset: number
     /** Length of the entity in [UTF-16 code units](https://core.telegram.org/api/entities#entity-length) */
@@ -970,7 +984,7 @@ export declare namespace Types {
     /** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, and _custom\_emoji_ entities. The message will fail to send if the quote isn't found in the original message. */
     quote?: string
     /** Mode for parsing entities in the quote. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    quote_parse_mode?: string
+    quote_parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the quote. It can be specified instead of _quote\_parse\_mode_. */
     quote_entities?: Array<Types.MessageEntity>
     /** Position of the quote in the original message in UTF-16 code units */
@@ -992,7 +1006,7 @@ export declare namespace Types {
   /** The message was originally sent by a known user. */
   export interface MessageOriginUser {
     /** Type of the message origin, always “user” */
-    type: string
+    type: 'user'
     /** Date the message was sent originally in Unix time */
     date: number
     /** User that sent the message originally */
@@ -1002,7 +1016,7 @@ export declare namespace Types {
   /** The message was originally sent by an unknown user. */
   export interface MessageOriginHiddenUser {
     /** Type of the message origin, always “hidden\_user” */
-    type: string
+    type: 'hidden_user'
     /** Date the message was sent originally in Unix time */
     date: number
     /** Name of the user that sent the message originally */
@@ -1012,7 +1026,7 @@ export declare namespace Types {
   /** The message was originally sent on behalf of a chat to a group chat. */
   export interface MessageOriginChat {
     /** Type of the message origin, always “chat” */
-    type: string
+    type: 'chat'
     /** Date the message was sent originally in Unix time */
     date: number
     /** Chat that sent the message originally */
@@ -1024,7 +1038,7 @@ export declare namespace Types {
   /** The message was originally sent to a channel chat. */
   export interface MessageOriginChannel {
     /** Type of the message origin, always “channel” */
-    type: string
+    type: 'channel'
     /** Date the message was sent originally in Unix time */
     date: number
     /** Channel chat to which the message was originally sent */
@@ -1117,6 +1131,22 @@ export declare namespace Types {
     id: number
   }
 
+  /** This object represents a video file of a specific quality. */
+  export interface VideoQuality {
+    /** Identifier for this file, which can be used to download or reuse the file */
+    file_id: string
+    /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
+    file_unique_id: string
+    /** Video width */
+    width: number
+    /** Video height */
+    height: number
+    /** Codec that was used to encode the video, for example, “h264”, “h265”, or “av01” */
+    codec: 'h264' | 'h265' | 'av01'
+    /** File size in bytes. */
+    file_size?: number
+  }
+
   /** This object represents a video file. */
   export interface Video {
     /** Identifier for this file, which can be used to download or reuse the file */
@@ -1135,6 +1165,8 @@ export declare namespace Types {
     cover?: Array<Types.PhotoSize>
     /** Timestamp in seconds from which the video will play in the message */
     start_timestamp?: number
+    /** List of available qualities of the video */
+    qualities?: Array<Types.VideoQuality>
     /** Original filename as defined by the sender */
     file_name?: string
     /** MIME type of the file as defined by the sender */
@@ -1193,7 +1225,7 @@ export declare namespace Types {
   /** The paid media isn't available before the payment. */
   export interface PaidMediaPreview {
     /** Type of the paid media, always “preview” */
-    type: string
+    type: 'preview'
     /** Media width as defined by the sender */
     width?: number
     /** Media height as defined by the sender */
@@ -1205,7 +1237,7 @@ export declare namespace Types {
   /** The paid media is a photo. */
   export interface PaidMediaPhoto {
     /** Type of the paid media, always “photo” */
-    type: string
+    type: 'photo'
     /** The photo */
     photo: Array<Types.PhotoSize>
   }
@@ -1213,7 +1245,7 @@ export declare namespace Types {
   /** The paid media is a video. */
   export interface PaidMediaVideo {
     /** Type of the paid media, always “video” */
-    type: string
+    type: 'video'
     /** The video */
     video: Types.Video
   }
@@ -1235,7 +1267,7 @@ export declare namespace Types {
   /** This object represents an animated emoji that displays a random value. */
   export interface Dice {
     /** Emoji on which the dice throw animation is based */
-    emoji: string
+    emoji: '🎲' | '🎯' | '🎳' | '🏀' | '⚽' | '🎰'
     /** Value of the dice, 1-6 for “![🎲](//telegram.org/img/emoji/40/F09F8EB2.png)”, “![🎯](//telegram.org/img/emoji/40/F09F8EAF.png)” and “![🎳](//telegram.org/img/emoji/40/F09F8EB3.png)” base emoji, 1-5 for “![🏀](//telegram.org/img/emoji/40/F09F8F80.png)” and “![⚽](//telegram.org/img/emoji/40/E29ABD.png)” base emoji, 1-64 for “![🎰](//telegram.org/img/emoji/40/F09F8EB0.png)” base emoji */
     value: number
   }
@@ -1255,7 +1287,7 @@ export declare namespace Types {
     /** Option text, 1-100 characters */
     text: string
     /** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Currently, only custom emoji entities are allowed */
-    text_parse_mode?: string
+    text_parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the poll option text. It can be specified instead of _text\_parse\_mode_ */
     text_entities?: Array<Types.MessageEntity>
   }
@@ -1289,7 +1321,7 @@ export declare namespace Types {
     /** _True_, if the poll is anonymous */
     is_anonymous: boolean
     /** Poll type, currently can be “regular” or “quiz” */
-    type: string
+    type: 'regular' | 'quiz'
     /** _True_, if the poll allows multiple answers */
     allows_multiple_answers: boolean
     /** 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot. */
@@ -1341,7 +1373,7 @@ export declare namespace Types {
     /** Text of the task; 1-100 characters after entities parsing */
     text: string
     /** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the text, which can be specified instead of parse\_mode. Currently, only _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, and _custom\_emoji_ entities are allowed. */
     text_entities?: Array<Types.MessageEntity>
   }
@@ -1351,7 +1383,7 @@ export declare namespace Types {
     /** Title of the checklist; 1-255 characters after entities parsing */
     title: string
     /** Mode for parsing entities in the title. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the title, which can be specified instead of parse\_mode. Currently, only _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, and _custom\_emoji_ entities are allowed. */
     title_entities?: Array<Types.MessageEntity>
     /** List of 1-30 tasks in the checklist */
@@ -1456,7 +1488,7 @@ export declare namespace Types {
   /** The background is filled using the selected color. */
   export interface BackgroundFillSolid {
     /** Type of the background fill, always “solid” */
-    type: string
+    type: 'solid'
     /** The color of the background fill in the RGB24 format */
     color: number
   }
@@ -1464,7 +1496,7 @@ export declare namespace Types {
   /** The background is a gradient fill. */
   export interface BackgroundFillGradient {
     /** Type of the background fill, always “gradient” */
-    type: string
+    type: 'gradient'
     /** Top color of the gradient in the RGB24 format */
     top_color: number
     /** Bottom color of the gradient in the RGB24 format */
@@ -1476,7 +1508,7 @@ export declare namespace Types {
   /** The background is a freeform gradient that rotates after every message in the chat. */
   export interface BackgroundFillFreeformGradient {
     /** Type of the background fill, always “freeform\_gradient” */
-    type: string
+    type: 'freeform_gradient'
     /** A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format */
     colors: Array<number>
   }
@@ -1494,7 +1526,7 @@ export declare namespace Types {
   /** The background is automatically filled based on the selected colors. */
   export interface BackgroundTypeFill {
     /** Type of the background, always “fill” */
-    type: string
+    type: 'fill'
     /** The background fill */
     fill: Types.BackgroundFill
     /** Dimming of the background in dark themes, as a percentage; 0-100 */
@@ -1504,7 +1536,7 @@ export declare namespace Types {
   /** The background is a wallpaper in the JPEG format. */
   export interface BackgroundTypeWallpaper {
     /** Type of the background, always “wallpaper” */
-    type: string
+    type: 'wallpaper'
     /** Document with the wallpaper */
     document: Types.Document
     /** Dimming of the background in dark themes, as a percentage; 0-100 */
@@ -1518,7 +1550,7 @@ export declare namespace Types {
   /** The background is a .PNG or .TGV (gzipped subset of SVG with MIME type “application/x-tgwallpattern”) pattern to be combined with the background fill chosen by the user. */
   export interface BackgroundTypePattern {
     /** Type of the background, always “pattern” */
-    type: string
+    type: 'pattern'
     /** Document with the pattern */
     document: Types.Document
     /** The background fill that is combined with the pattern */
@@ -1534,7 +1566,7 @@ export declare namespace Types {
   /** The background is taken directly from a built-in chat theme. */
   export interface BackgroundTypeChatTheme {
     /** Type of the background, always “chat\_theme” */
-    type: string
+    type: 'chat_theme'
     /** Name of the chat theme, which is usually an emoji */
     theme_name: string
   }
@@ -1694,7 +1726,7 @@ export declare namespace Types {
     /** Message containing the suggested post. Note that the [Message](https://core.telegram.org/bots/api#message) object in this field will not contain the _reply\_to\_message_ field even if it itself is a reply. */
     suggested_post_message?: Types.Message
     /** Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins */
-    currency: string
+    currency: 'XTR' | 'TON'
     /** The amount of the currency that was received by the channel in nanotoncoins; for payments in toncoins only */
     amount?: number
     /** The amount of Telegram Stars that was received by the channel; for payments in Telegram Stars only */
@@ -1706,7 +1738,7 @@ export declare namespace Types {
     /** Message containing the suggested post. Note that the [Message](https://core.telegram.org/bots/api#message) object in this field will not contain the _reply\_to\_message_ field even if it itself is a reply. */
     suggested_post_message?: Types.Message
     /** Reason for the refund. Currently, one of “post\_deleted” if the post was deleted within 24 hours of being posted or removed from scheduled messages without being posted, or “payment\_refunded” if the payer refunded their payment. */
-    reason: string
+    reason: 'post_deleted' | 'payment_refunded'
   }
 
   /** This object represents a service message about the creation of a scheduled giveaway. */
@@ -1794,7 +1826,7 @@ export declare namespace Types {
   /** Describes the price of a suggested post. */
   export interface SuggestedPostPrice {
     /** Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for toncoins */
-    currency: string
+    currency: 'XTR' | 'TON'
     /** The amount of the currency that will be paid for the post in the _smallest units_ of the currency, i.e. Telegram Stars or nanotoncoins. Currently, price in Telegram Stars must be between 5 and 100000, and price in nanotoncoins must be between 10000000 and 10000000000000. */
     amount: number
   }
@@ -1802,7 +1834,7 @@ export declare namespace Types {
   /** Contains information about a suggested post. */
   export interface SuggestedPostInfo {
     /** State of the suggested post. Currently, it can be one of “pending”, “approved”, “declined”. */
-    state: string
+    state: 'pending' | 'approved' | 'declined'
     /** Proposed price of the post. If the field is omitted, then the post is unpaid. */
     price?: Types.SuggestedPostPrice
     /** Proposed send date of the post. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user or administrator who approves it. */
@@ -1833,6 +1865,14 @@ export declare namespace Types {
     photos: Array<Array<Types.PhotoSize>>
   }
 
+  /** This object represents the audios displayed on a user's profile. */
+  export interface UserProfileAudios {
+    /** Total number of profile audios for the target user */
+    total_count: number
+    /** Requested profile audios */
+    audios: Array<Types.Audio>
+  }
+
   /**
    * This object represents a file ready to be downloaded. The file can be downloaded via the link `https://api.telegram.org/file/bot<token>/<file_path>`. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling [getFile](https://core.telegram.org/bots/api#getfile).
    *
@@ -1858,7 +1898,7 @@ export declare namespace Types {
   /** This object represents a [custom keyboard](https://core.telegram.org/bots/features#keyboards) with reply options (see [Introduction to bots](https://core.telegram.org/bots/features#keyboards) for details and examples). Not supported in channels and for messages sent on behalf of a Telegram Business account. */
   export interface ReplyKeyboardMarkup {
     /** Array of button rows, each represented by an Array of [KeyboardButton](https://core.telegram.org/bots/api#keyboardbutton) objects */
-    keyboard: Array<Array<Types.KeyboardButton>>
+    keyboard: Array<Array<string | Types.KeyboardButton>>
     /** Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to _false_, in which case the custom keyboard can be hidden and opened with a keyboard icon. */
     is_persistent?: boolean
     /** Requests clients to resize the keyboard vertically for optimal fit (e.g., make the keyboard smaller if there are just two rows of buttons). Defaults to _false_, in which case the custom keyboard is always of the same height as the app's standard keyboard. */
@@ -1875,14 +1915,14 @@ export declare namespace Types {
     selective?: boolean
   }
 
-  /**
-   * This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, _String_ can be used instead of this object to specify the button text.
-   *
-   * **Note:** _request\_users_ and _request\_chat_ options will only work in Telegram versions released after 3 February, 2023. Older clients will display _unsupported message_.
-   */
+  /** This object represents one button of the reply keyboard. At most one of the fields other than _text_, _icon\_custom\_emoji\_id_, and _style_ must be used to specify the type of the button. For simple text buttons, _String_ can be used instead of this object to specify the button text. */
   export interface KeyboardButton {
-    /** Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed */
+    /** Text of the button. If none of the fields other than _text_, _icon\_custom\_emoji\_id_, and _style_ are used, it will be sent as a message when the button is pressed */
     text: string
+    /** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on [Fragment](https://fragment.com/) or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
+    icon_custom_emoji_id?: string
+    /** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
+    style?: 'danger' | 'success' | 'primary'
     /** If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a “users\_shared” service message. Available in private chats only. */
     request_users?: Types.KeyboardButtonRequestUsers
     /** If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a “chat\_shared” service message. Available in private chats only. */
@@ -1944,7 +1984,7 @@ export declare namespace Types {
   /** This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed. */
   export interface KeyboardButtonPollType {
     /** If _quiz_ is passed, the user will be allowed to create only polls in the quiz mode. If _regular_ is passed, only regular polls will be allowed. Otherwise, the user will be allowed to create a poll of any type. */
-    type?: string
+    type?: 'quiz' | 'regular'
   }
 
   /** Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see [ReplyKeyboardMarkup](https://core.telegram.org/bots/api#replykeyboardmarkup)). Not supported in channels and for messages sent on behalf of a Telegram Business account. */
@@ -1965,10 +2005,14 @@ export declare namespace Types {
     inline_keyboard: Array<Array<Types.InlineKeyboardButton>>
   }
 
-  /** This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button. */
+  /** This object represents one button of an inline keyboard. Exactly one of the fields other than _text_, _icon\_custom\_emoji\_id_, and _style_ must be used to specify the type of the button. */
   export interface InlineKeyboardButton {
     /** Label text on the button */
     text: string
+    /** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on [Fragment](https://fragment.com/) or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
+    icon_custom_emoji_id?: string
+    /** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
+    style?: 'danger' | 'success' | 'primary'
     /** HTTP or tg:// URL to be opened when the button is pressed. Links `tg://user?id=<user_id>` can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings. */
     url?: string
     /** Data to be sent in a [callback query](https://core.telegram.org/bots/api#callbackquery) to the bot when the button is pressed, 1-64 bytes */
@@ -2197,7 +2241,7 @@ export declare namespace Types {
   /** Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that owns the chat and has all administrator privileges. */
   export interface ChatMemberOwner {
     /** The member's status in the chat, always “creator” */
-    status: string
+    status: 'creator'
     /** Information about the user */
     user: Types.User
     /** _True_, if the user's presence in the chat is hidden */
@@ -2209,7 +2253,7 @@ export declare namespace Types {
   /** Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that has some additional privileges. */
   export interface ChatMemberAdministrator {
     /** The member's status in the chat, always “administrator” */
-    status: string
+    status: 'administrator'
     /** Information about the user */
     user: Types.User
     /** _True_, if the bot is allowed to edit administrator privileges of that user */
@@ -2253,7 +2297,7 @@ export declare namespace Types {
   /** Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that has no additional privileges or restrictions. */
   export interface ChatMemberMember {
     /** The member's status in the chat, always “member” */
-    status: string
+    status: 'member'
     /** Information about the user */
     user: Types.User
     /** Date when the user's subscription will expire; Unix time */
@@ -2263,7 +2307,7 @@ export declare namespace Types {
   /** Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that is under certain restrictions in the chat. Supergroups only. */
   export interface ChatMemberRestricted {
     /** The member's status in the chat, always “restricted” */
-    status: string
+    status: 'restricted'
     /** Information about the user */
     user: Types.User
     /** _True_, if the user is a member of the chat at the moment of the request */
@@ -2303,7 +2347,7 @@ export declare namespace Types {
   /** Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that isn't currently a member of the chat, but may join it themselves. */
   export interface ChatMemberLeft {
     /** The member's status in the chat, always “left” */
-    status: string
+    status: 'left'
     /** Information about the user */
     user: Types.User
   }
@@ -2311,7 +2355,7 @@ export declare namespace Types {
   /** Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that was banned in the chat and can't return to the chat or view chat messages. */
   export interface ChatMemberBanned {
     /** The member's status in the chat, always “kicked” */
-    status: string
+    status: 'kicked'
     /** Information about the user */
     user: Types.User
     /** Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever */
@@ -2464,7 +2508,7 @@ export declare namespace Types {
   /** Describes a story area pointing to a location. Currently, a story can have up to 10 location areas. */
   export interface StoryAreaTypeLocation {
     /** Type of the area, always “location” */
-    type: string
+    type: 'location'
     /** Location latitude in degrees */
     latitude: number
     /** Location longitude in degrees */
@@ -2476,7 +2520,7 @@ export declare namespace Types {
   /** Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas. */
   export interface StoryAreaTypeSuggestedReaction {
     /** Type of the area, always “suggested\_reaction” */
-    type: string
+    type: 'suggested_reaction'
     /** Type of the reaction */
     reaction_type: Types.ReactionType
     /** Pass _True_ if the reaction area has a dark background */
@@ -2488,7 +2532,7 @@ export declare namespace Types {
   /** Describes a story area pointing to an HTTP or tg:// link. Currently, a story can have up to 3 link areas. */
   export interface StoryAreaTypeLink {
     /** Type of the area, always “link” */
-    type: string
+    type: 'link'
     /** HTTP or tg:// URL to be opened when the area is clicked */
     url: string
   }
@@ -2496,7 +2540,7 @@ export declare namespace Types {
   /** Describes a story area containing weather information. Currently, a story can have up to 3 weather areas. */
   export interface StoryAreaTypeWeather {
     /** Type of the area, always “weather” */
-    type: string
+    type: 'weather'
     /** Temperature, in degree Celsius */
     temperature: number
     /** Emoji representing the weather */
@@ -2508,7 +2552,7 @@ export declare namespace Types {
   /** Describes a story area pointing to a unique gift. Currently, a story can have at most 1 unique gift area. */
   export interface StoryAreaTypeUniqueGift {
     /** Type of the area, always “unique\_gift” */
-    type: string
+    type: 'unique_gift'
     /** Unique name of the gift */
     name: string
   }
@@ -2541,7 +2585,7 @@ export declare namespace Types {
   /** The reaction is based on an emoji. */
   export interface ReactionTypeEmoji {
     /** Type of the reaction, always “emoji” */
-    type: string
+    type: 'emoji'
     /** Reaction emoji. Currently, it can be one of "![❤](//telegram.org/img/emoji/40/E29DA4.png)", "![👍](//telegram.org/img/emoji/40/F09F918D.png)", "![👎](//telegram.org/img/emoji/40/F09F918E.png)", "![🔥](//telegram.org/img/emoji/40/F09F94A5.png)", "![🥰](//telegram.org/img/emoji/40/F09FA5B0.png)", "![👏](//telegram.org/img/emoji/40/F09F918F.png)", "![😁](//telegram.org/img/emoji/40/F09F9881.png)", "![🤔](//telegram.org/img/emoji/40/F09FA494.png)", "![🤯](//telegram.org/img/emoji/40/F09FA4AF.png)", "![😱](//telegram.org/img/emoji/40/F09F98B1.png)", "![🤬](//telegram.org/img/emoji/40/F09FA4AC.png)", "![😢](//telegram.org/img/emoji/40/F09F98A2.png)", "![🎉](//telegram.org/img/emoji/40/F09F8E89.png)", "![🤩](//telegram.org/img/emoji/40/F09FA4A9.png)", "![🤮](//telegram.org/img/emoji/40/F09FA4AE.png)", "![💩](//telegram.org/img/emoji/40/F09F92A9.png)", "![🙏](//telegram.org/img/emoji/40/F09F998F.png)", "![👌](//telegram.org/img/emoji/40/F09F918C.png)", "![🕊](//telegram.org/img/emoji/40/F09F958A.png)", "![🤡](//telegram.org/img/emoji/40/F09FA4A1.png)", "![🥱](//telegram.org/img/emoji/40/F09FA5B1.png)", "![🥴](//telegram.org/img/emoji/40/F09FA5B4.png)", "![😍](//telegram.org/img/emoji/40/F09F988D.png)", "![🐳](//telegram.org/img/emoji/40/F09F90B3.png)", "![❤‍🔥](//telegram.org/img/emoji/40/E29DA4E2808DF09F94A5.png)", "![🌚](//telegram.org/img/emoji/40/F09F8C9A.png)", "![🌭](//telegram.org/img/emoji/40/F09F8CAD.png)", "![💯](//telegram.org/img/emoji/40/F09F92AF.png)", "![🤣](//telegram.org/img/emoji/40/F09FA4A3.png)", "![⚡](//telegram.org/img/emoji/40/E29AA1.png)", "![🍌](//telegram.org/img/emoji/40/F09F8D8C.png)", "![🏆](//telegram.org/img/emoji/40/F09F8F86.png)", "![💔](//telegram.org/img/emoji/40/F09F9294.png)", "![🤨](//telegram.org/img/emoji/40/F09FA4A8.png)", "![😐](//telegram.org/img/emoji/40/F09F9890.png)", "![🍓](//telegram.org/img/emoji/40/F09F8D93.png)", "![🍾](//telegram.org/img/emoji/40/F09F8DBE.png)", "![💋](//telegram.org/img/emoji/40/F09F928B.png)", "![🖕](//telegram.org/img/emoji/40/F09F9695.png)", "![😈](//telegram.org/img/emoji/40/F09F9888.png)", "![😴](//telegram.org/img/emoji/40/F09F98B4.png)", "![😭](//telegram.org/img/emoji/40/F09F98AD.png)", "![🤓](//telegram.org/img/emoji/40/F09FA493.png)", "![👻](//telegram.org/img/emoji/40/F09F91BB.png)", "![👨‍💻](//telegram.org/img/emoji/40/F09F91A8E2808DF09F92BB.png)", "![👀](//telegram.org/img/emoji/40/F09F9180.png)", "![🎃](//telegram.org/img/emoji/40/F09F8E83.png)", "![🙈](//telegram.org/img/emoji/40/F09F9988.png)", "![😇](//telegram.org/img/emoji/40/F09F9887.png)", "![😨](//telegram.org/img/emoji/40/F09F98A8.png)", "![🤝](//telegram.org/img/emoji/40/F09FA49D.png)", "![✍](//telegram.org/img/emoji/40/E29C8D.png)", "![🤗](//telegram.org/img/emoji/40/F09FA497.png)", "![🫡](//telegram.org/img/emoji/40/F09FABA1.png)", "![🎅](//telegram.org/img/emoji/40/F09F8E85.png)", "![🎄](//telegram.org/img/emoji/40/F09F8E84.png)", "![☃](//telegram.org/img/emoji/40/E29883.png)", "![💅](//telegram.org/img/emoji/40/F09F9285.png)", "![🤪](//telegram.org/img/emoji/40/F09FA4AA.png)", "![🗿](//telegram.org/img/emoji/40/F09F97BF.png)", "![🆒](//telegram.org/img/emoji/40/F09F8692.png)", "![💘](//telegram.org/img/emoji/40/F09F9298.png)", "![🙉](//telegram.org/img/emoji/40/F09F9989.png)", "![🦄](//telegram.org/img/emoji/40/F09FA684.png)", "![😘](//telegram.org/img/emoji/40/F09F9898.png)", "![💊](//telegram.org/img/emoji/40/F09F928A.png)", "![🙊](//telegram.org/img/emoji/40/F09F998A.png)", "![😎](//telegram.org/img/emoji/40/F09F988E.png)", "![👾](//telegram.org/img/emoji/40/F09F91BE.png)", "![🤷‍♂](//telegram.org/img/emoji/40/F09FA4B7E2808DE29982.png)", "![🤷](//telegram.org/img/emoji/40/F09FA4B7.png)", "![🤷‍♀](//telegram.org/img/emoji/40/F09FA4B7E2808DE29980.png)", "![😡](//telegram.org/img/emoji/40/F09F98A1.png)" */
     emoji: string
   }
@@ -2549,7 +2593,7 @@ export declare namespace Types {
   /** The reaction is based on a custom emoji. */
   export interface ReactionTypeCustomEmoji {
     /** Type of the reaction, always “custom\_emoji” */
-    type: string
+    type: 'custom_emoji'
     /** Custom emoji identifier */
     custom_emoji_id: string
   }
@@ -2557,7 +2601,7 @@ export declare namespace Types {
   /** The reaction is paid. */
   export interface ReactionTypePaid {
     /** Type of the reaction, always “paid” */
-    type: string
+    type: 'paid'
   }
 
   /** Represents a reaction added to a message along with the number of times it was added. */
@@ -2664,8 +2708,10 @@ export declare namespace Types {
     name: string
     /** The sticker that represents the unique gift */
     sticker: Types.Sticker
-    /** The number of unique gifts that receive this model for every 1000 gifts upgraded */
+    /** The number of unique gifts that receive this model for every 1000 gift upgrades. Always 0 for crafted gifts. */
     rarity_per_mille: number
+    /** Rarity of the model if it is a crafted model. Currently, can be “uncommon”, “rare”, “epic”, or “legendary”. */
+    rarity?: 'uncommon' | 'rare' | 'epic' | 'legendary'
   }
 
   /** This object describes the symbol shown on the pattern of a unique gift. */
@@ -2734,6 +2780,8 @@ export declare namespace Types {
     backdrop: Types.UniqueGiftBackdrop
     /** _True_, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers */
     is_premium?: true
+    /** _True_, if the gift was used to craft another gift and isn't available anymore */
+    is_burned?: true
     /** _True_, if the gift is assigned from the TON blockchain and can't be resold or transferred in Telegram */
     is_from_blockchain?: true
     /** The color scheme that can be used by the gift's owner for the chat's name, replies to messages and link previews; for business account gifts and gifts that are currently on sale only */
@@ -2771,9 +2819,9 @@ export declare namespace Types {
     /** Information about the gift */
     gift: Types.UniqueGift
     /** Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted\_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers */
-    origin: string
+    origin: 'upgrade' | 'transfer' | 'resale' | 'gifted_upgrade' | 'offer'
     /** For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins. */
-    last_resale_currency?: string
+    last_resale_currency?: 'XTR' | 'TON'
     /** For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins */
     last_resale_amount?: number
     /** Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts */
@@ -2795,7 +2843,7 @@ export declare namespace Types {
   /** Describes a regular gift owned by a user or a chat. */
   export interface OwnedGiftRegular {
     /** Type of the gift, always “regular” */
-    type: string
+    type: 'regular'
     /** Information about the regular gift */
     gift: Types.Gift
     /** Unique identifier of the gift for the bot; for gifts received on behalf of business accounts only */
@@ -2829,7 +2877,7 @@ export declare namespace Types {
   /** Describes a unique gift received and owned by a user or a chat. */
   export interface OwnedGiftUnique {
     /** Type of the gift, always “unique” */
-    type: string
+    type: 'unique'
     /** Information about the unique gift */
     gift: Types.UniqueGift
     /** Unique identifier of the received gift for the bot; for gifts received on behalf of business accounts only */
@@ -2904,31 +2952,31 @@ export declare namespace Types {
   /** Represents the default [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands. Default commands are used if no commands with a [narrower scope](https://core.telegram.org/bots/api#determining-list-of-commands) are specified for the user. */
   export interface BotCommandScopeDefault {
     /** Scope type, must be _default_ */
-    type: string
+    type: 'default'
   }
 
   /** Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all private chats. */
   export interface BotCommandScopeAllPrivateChats {
     /** Scope type, must be _all\_private\_chats_ */
-    type: string
+    type: 'all_private_chats'
   }
 
   /** Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup chats. */
   export interface BotCommandScopeAllGroupChats {
     /** Scope type, must be _all\_group\_chats_ */
-    type: string
+    type: 'all_group_chats'
   }
 
   /** Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup chat administrators. */
   export interface BotCommandScopeAllChatAdministrators {
     /** Scope type, must be _all\_chat\_administrators_ */
-    type: string
+    type: 'all_chat_administrators'
   }
 
   /** Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering a specific chat. */
   export interface BotCommandScopeChat {
     /** Scope type, must be _chat_ */
-    type: string
+    type: 'chat'
     /** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren't supported. */
     chat_id: number | string
   }
@@ -2936,7 +2984,7 @@ export declare namespace Types {
   /** Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all administrators of a specific group or supergroup chat. */
   export interface BotCommandScopeChatAdministrators {
     /** Scope type, must be _chat\_administrators_ */
-    type: string
+    type: 'chat_administrators'
     /** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren't supported. */
     chat_id: number | string
   }
@@ -2944,7 +2992,7 @@ export declare namespace Types {
   /** Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering a specific member of a group or supergroup chat. */
   export interface BotCommandScopeChatMember {
     /** Scope type, must be _chat\_member_ */
-    type: string
+    type: 'chat_member'
     /** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren't supported. */
     chat_id: number | string
     /** Unique identifier of the target user */
@@ -2983,13 +3031,13 @@ export declare namespace Types {
   /** Represents a menu button, which opens the bot's list of commands. */
   export interface MenuButtonCommands {
     /** Type of the button, must be _commands_ */
-    type: string
+    type: 'commands'
   }
 
   /** Represents a menu button, which launches a [Web App](https://core.telegram.org/bots/webapps). */
   export interface MenuButtonWebApp {
     /** Type of the button, must be _web\_app_ */
-    type: string
+    type: 'web_app'
     /** Text on the button */
     text: string
     /** Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [answerWebAppQuery](https://core.telegram.org/bots/api#answerwebappquery). Alternatively, a `t.me` link to a Web App of the bot can be specified in the object instead of the Web App's URL, in which case the Web App will be opened as if the user pressed the link. */
@@ -2999,7 +3047,7 @@ export declare namespace Types {
   /** Describes that no specific value for the menu button was set. */
   export interface MenuButtonDefault {
     /** Type of the button, must be _default_ */
-    type: string
+    type: 'default'
   }
 
   /**
@@ -3014,7 +3062,7 @@ export declare namespace Types {
   /** The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user. */
   export interface ChatBoostSourcePremium {
     /** Source of the boost, always “premium” */
-    source: string
+    source: 'premium'
     /** User that boosted the chat */
     user: Types.User
   }
@@ -3022,7 +3070,7 @@ export declare namespace Types {
   /** The boost was obtained by the creation of Telegram Premium gift codes to boost a chat. Each such code boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription. */
   export interface ChatBoostSourceGiftCode {
     /** Source of the boost, always “gift\_code” */
-    source: string
+    source: 'gift_code'
     /** User for which the gift code was created */
     user: Types.User
   }
@@ -3030,7 +3078,7 @@ export declare namespace Types {
   /** The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and _prize\_star\_count_ / 500 times for one year for Telegram Star giveaways. */
   export interface ChatBoostSourceGiveaway {
     /** Source of the boost, always “giveaway” */
-    source: string
+    source: 'giveaway'
     /** Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet. */
     giveaway_message_id: number
     /** User that won the prize in the giveaway if any; for Telegram Premium giveaways only */
@@ -3071,6 +3119,18 @@ export declare namespace Types {
     remove_date: number
     /** Source of the removed boost */
     source: Types.ChatBoostSource
+  }
+
+  /** Describes a service message about the chat owner leaving the chat. */
+  export interface ChatOwnerLeft {
+    /** The user which will be the new owner of the chat if the previous owner does not return to the chat */
+    new_owner?: Types.User
+  }
+
+  /** Describes a service message about an ownership change in the chat. */
+  export interface ChatOwnerChanged {
+    /** The new owner of the chat */
+    new_owner: Types.User
   }
 
   /** This object represents a list of boosts added to a chat by a user. */
@@ -3159,13 +3219,13 @@ export declare namespace Types {
   /** Represents a photo to be sent. */
   export interface InputMediaPhoto {
     /** Type of the result, must be _photo_ */
-    type: string
+    type: 'photo'
     /** File to send. Pass a file\_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file\_attach\_name>” to upload a new one using multipart/form-data under <file\_attach\_name> name. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     media: string
     /** Caption of the photo to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the photo caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3177,7 +3237,7 @@ export declare namespace Types {
   /** Represents a video to be sent. */
   export interface InputMediaVideo {
     /** Type of the result, must be _video_ */
-    type: string
+    type: 'video'
     /** File to send. Pass a file\_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file\_attach\_name>” to upload a new one using multipart/form-data under <file\_attach\_name> name. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     media: string
     /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file\_attach\_name>” if the thumbnail was uploaded using multipart/form-data under <file\_attach\_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
@@ -3189,7 +3249,7 @@ export declare namespace Types {
     /** Caption of the video to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the video caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3209,7 +3269,7 @@ export declare namespace Types {
   /** Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent. */
   export interface InputMediaAnimation {
     /** Type of the result, must be _animation_ */
-    type: string
+    type: 'animation'
     /** File to send. Pass a file\_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file\_attach\_name>” to upload a new one using multipart/form-data under <file\_attach\_name> name. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     media: string
     /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file\_attach\_name>” if the thumbnail was uploaded using multipart/form-data under <file\_attach\_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
@@ -3217,7 +3277,7 @@ export declare namespace Types {
     /** Caption of the animation to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the animation caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3235,7 +3295,7 @@ export declare namespace Types {
   /** Represents an audio file to be treated as music to be sent. */
   export interface InputMediaAudio {
     /** Type of the result, must be _audio_ */
-    type: string
+    type: 'audio'
     /** File to send. Pass a file\_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file\_attach\_name>” to upload a new one using multipart/form-data under <file\_attach\_name> name. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     media: string
     /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file\_attach\_name>” if the thumbnail was uploaded using multipart/form-data under <file\_attach\_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
@@ -3243,7 +3303,7 @@ export declare namespace Types {
     /** Caption of the audio to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the audio caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Duration of the audio in seconds */
@@ -3257,7 +3317,7 @@ export declare namespace Types {
   /** Represents a general file to be sent. */
   export interface InputMediaDocument {
     /** Type of the result, must be _document_ */
-    type: string
+    type: 'document'
     /** File to send. Pass a file\_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file\_attach\_name>” to upload a new one using multipart/form-data under <file\_attach\_name> name. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     media: string
     /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file\_attach\_name>” if the thumbnail was uploaded using multipart/form-data under <file\_attach\_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
@@ -3265,7 +3325,7 @@ export declare namespace Types {
     /** Caption of the document to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always _True_, if the document is sent as part of an album. */
@@ -3283,7 +3343,7 @@ export declare namespace Types {
   /** The paid media to send is a photo. */
   export interface InputPaidMediaPhoto {
     /** Type of the media, must be _photo_ */
-    type: string
+    type: 'photo'
     /** File to send. Pass a file\_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file\_attach\_name>” to upload a new one using multipart/form-data under <file\_attach\_name> name. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     media: string
   }
@@ -3291,7 +3351,7 @@ export declare namespace Types {
   /** The paid media to send is a video. */
   export interface InputPaidMediaVideo {
     /** Type of the media, must be _video_ */
-    type: string
+    type: 'video'
     /** File to send. Pass a file\_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file\_attach\_name>” to upload a new one using multipart/form-data under <file\_attach\_name> name. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     media: string
     /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file\_attach\_name>” if the thumbnail was uploaded using multipart/form-data under <file\_attach\_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
@@ -3321,7 +3381,7 @@ export declare namespace Types {
   /** A static profile photo in the .JPG format. */
   export interface InputProfilePhotoStatic {
     /** Type of the profile photo, must be _static_ */
-    type: string
+    type: 'static'
     /** The static profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file\_attach\_name>” if the photo was uploaded using multipart/form-data under <file\_attach\_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     photo: string
   }
@@ -3329,7 +3389,7 @@ export declare namespace Types {
   /** An animated profile photo in the MPEG4 format. */
   export interface InputProfilePhotoAnimated {
     /** Type of the profile photo, must be _animated_ */
-    type: string
+    type: 'animated'
     /** The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file\_attach\_name>” if the photo was uploaded using multipart/form-data under <file\_attach\_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     animation: string
     /** Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0. */
@@ -3347,7 +3407,7 @@ export declare namespace Types {
   /** Describes a photo to post as a story. */
   export interface InputStoryContentPhoto {
     /** Type of the content, must be _photo_ */
-    type: string
+    type: 'photo'
     /** The photo to post as a story. The photo must be of the size 1080x1920 and must not exceed 10 MB. The photo can't be reused and can only be uploaded as a new file, so you can pass “attach://<file\_attach\_name>” if the photo was uploaded using multipart/form-data under <file\_attach\_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     photo: string
   }
@@ -3355,7 +3415,7 @@ export declare namespace Types {
   /** Describes a video to post as a story. */
   export interface InputStoryContentVideo {
     /** Type of the content, must be _video_ */
-    type: string
+    type: 'video'
     /** The video to post as a story. The video must be of the size 720x1280, streamable, encoded with H.265 codec, with key frames added each second in the MPEG4 format, and must not exceed 30 MB. The video can't be reused and can only be uploaded as a new file, so you can pass “attach://<file\_attach\_name>” if the video was uploaded using multipart/form-data under <file\_attach\_name>. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     video: string
     /** Precise duration of the video in seconds; 0-60 */
@@ -3373,7 +3433,7 @@ export declare namespace Types {
     /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
     file_unique_id: string
     /** Type of the sticker, currently one of “regular”, “mask”, “custom\_emoji”. The type of the sticker is independent from its format, which is determined by the fields _is\_animated_ and _is\_video_. */
-    type: string
+    type: 'regular' | 'mask' | 'custom_emoji'
     /** Sticker width */
     width: number
     /** Sticker height */
@@ -3407,7 +3467,7 @@ export declare namespace Types {
     /** Sticker set title */
     title: string
     /** Type of stickers in the set, currently one of “regular”, “mask”, “custom\_emoji” */
-    sticker_type: string
+    sticker_type: 'regular' | 'mask' | 'custom_emoji'
     /** List of all set stickers */
     stickers: Array<Types.Sticker>
     /** Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format */
@@ -3417,7 +3477,7 @@ export declare namespace Types {
   /** This object describes the position on faces where a mask should be placed by default. */
   export interface MaskPosition {
     /** The part of the face relative to which the mask should be placed. One of “forehead”, “eyes”, “mouth”, or “chin”. */
-    point: string
+    point: 'forehead' | 'eyes' | 'mouth' | 'chin'
     /** Shift by X-axis measured in widths of the mask scaled to the face size, from left to right. For example, choosing -1.0 will place mask just to the left of the default mask position. */
     x_shift: number
     /** Shift by Y-axis measured in heights of the mask scaled to the face size, from top to bottom. For example, 1.0 will place the mask just below the default mask position. */
@@ -3431,7 +3491,7 @@ export declare namespace Types {
     /** The added sticker. Pass a _file\_id_ as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or pass “attach://<file\_attach\_name>” to upload a new file using multipart/form-data under <file\_attach\_name> name. Animated and video stickers can't be uploaded via HTTP URL. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     sticker: string
     /** Format of the added sticker, must be one of “static” for a **.WEBP** or **.PNG** image, “animated” for a **.TGS** animation, “video” for a **.WEBM** video */
-    format: string
+    format: 'static' | 'animated' | 'video'
     /** List of 1-20 emoji associated with the sticker */
     emoji_list: Array<string>
     /** Position where the mask should be placed on faces. For “mask” stickers only. */
@@ -3451,7 +3511,7 @@ export declare namespace Types {
     /** Offset of the results to be returned, can be controlled by the bot */
     offset: string
     /** Type of the chat from which the inline query was sent. Can be either “sender” for a private chat with the inline query sender, “private”, “group”, “supergroup”, or “channel”. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat */
-    chat_type?: string
+    chat_type?: 'sender' | 'private' | 'group' | 'supergroup' | 'channel'
     /** Sender location, only for bots that request user location */
     location?: Types.Location
   }
@@ -3501,7 +3561,7 @@ export declare namespace Types {
   /** Represents a link to an article or web page. */
   export interface InlineQueryResultArticle {
     /** Type of the result, must be _article_ */
-    type: string
+    type: 'article'
     /** Unique identifier for this result, 1-64 Bytes */
     id: string
     /** Title of the result */
@@ -3525,7 +3585,7 @@ export declare namespace Types {
   /** Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the photo. */
   export interface InlineQueryResultPhoto {
     /** Type of the result, must be _photo_ */
-    type: string
+    type: 'photo'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid URL of the photo. Photo must be in **JPEG** format. Photo size must not exceed 5MB */
@@ -3543,7 +3603,7 @@ export declare namespace Types {
     /** Caption of the photo to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the photo caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3557,7 +3617,7 @@ export declare namespace Types {
   /** Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the animation. */
   export interface InlineQueryResultGif {
     /** Type of the result, must be _gif_ */
-    type: string
+    type: 'gif'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid URL for the GIF file */
@@ -3571,13 +3631,13 @@ export declare namespace Types {
     /** URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result */
     thumbnail_url: string
     /** MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg” */
-    thumbnail_mime_type?: string
+    thumbnail_mime_type?: 'image/jpeg' | 'image/gif' | 'video/mp4'
     /** Title for the result */
     title?: string
     /** Caption of the GIF file to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3591,7 +3651,7 @@ export declare namespace Types {
   /** Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this animated MPEG-4 file will be sent by the user with optional caption. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the animation. */
   export interface InlineQueryResultMpeg4Gif {
     /** Type of the result, must be _mpeg4\_gif_ */
-    type: string
+    type: 'mpeg4_gif'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid URL for the MPEG4 file */
@@ -3605,13 +3665,13 @@ export declare namespace Types {
     /** URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result */
     thumbnail_url: string
     /** MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg” */
-    thumbnail_mime_type?: string
+    thumbnail_mime_type?: 'image/jpeg' | 'image/gif' | 'video/mp4'
     /** Title for the result */
     title?: string
     /** Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3629,13 +3689,13 @@ export declare namespace Types {
    */
   export interface InlineQueryResultVideo {
     /** Type of the result, must be _video_ */
-    type: string
+    type: 'video'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid URL for the embedded video player or video file */
     video_url: string
     /** MIME type of the content of the video URL, “text/html” or “video/mp4” */
-    mime_type: string
+    mime_type: 'text/html' | 'video/mp4'
     /** URL of the thumbnail (JPEG only) for the video */
     thumbnail_url: string
     /** Title for the result */
@@ -3643,7 +3703,7 @@ export declare namespace Types {
     /** Caption of the video to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the video caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3665,7 +3725,7 @@ export declare namespace Types {
   /** Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the audio. */
   export interface InlineQueryResultAudio {
     /** Type of the result, must be _audio_ */
-    type: string
+    type: 'audio'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid URL for the audio file */
@@ -3675,7 +3735,7 @@ export declare namespace Types {
     /** Caption, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the audio caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Performer */
@@ -3691,7 +3751,7 @@ export declare namespace Types {
   /** Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the the voice message. */
   export interface InlineQueryResultVoice {
     /** Type of the result, must be _voice_ */
-    type: string
+    type: 'voice'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid URL for the voice recording */
@@ -3701,7 +3761,7 @@ export declare namespace Types {
     /** Caption, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the voice message caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Recording duration in seconds */
@@ -3715,7 +3775,7 @@ export declare namespace Types {
   /** Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the file. Currently, only **.PDF** and **.ZIP** files can be sent using this method. */
   export interface InlineQueryResultDocument {
     /** Type of the result, must be _document_ */
-    type: string
+    type: 'document'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** Title for the result */
@@ -3723,13 +3783,13 @@ export declare namespace Types {
     /** Caption of the document to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** A valid URL for the file */
     document_url: string
     /** MIME type of the content of the file, either “application/pdf” or “application/zip” */
-    mime_type: string
+    mime_type: 'application/pdf' | 'application/zip'
     /** Short description of the result */
     description?: string
     /** Inline keyboard attached to the message */
@@ -3747,7 +3807,7 @@ export declare namespace Types {
   /** Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the location. */
   export interface InlineQueryResultLocation {
     /** Type of the result, must be _location_ */
-    type: string
+    type: 'location'
     /** Unique identifier for this result, 1-64 Bytes */
     id: string
     /** Location latitude in degrees */
@@ -3779,7 +3839,7 @@ export declare namespace Types {
   /** Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the venue. */
   export interface InlineQueryResultVenue {
     /** Type of the result, must be _venue_ */
-    type: string
+    type: 'venue'
     /** Unique identifier for this result, 1-64 Bytes */
     id: string
     /** Latitude of the venue location in degrees */
@@ -3813,7 +3873,7 @@ export declare namespace Types {
   /** Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the contact. */
   export interface InlineQueryResultContact {
     /** Type of the result, must be _contact_ */
-    type: string
+    type: 'contact'
     /** Unique identifier for this result, 1-64 Bytes */
     id: string
     /** Contact's phone number */
@@ -3839,7 +3899,7 @@ export declare namespace Types {
   /** Represents a [Game](https://core.telegram.org/bots/api#games). */
   export interface InlineQueryResultGame {
     /** Type of the result, must be _game_ */
-    type: string
+    type: 'game'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** Short name of the game */
@@ -3851,7 +3911,7 @@ export declare namespace Types {
   /** Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the photo. */
   export interface InlineQueryResultCachedPhoto {
     /** Type of the result, must be _photo_ */
-    type: string
+    type: 'photo'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid file identifier of the photo */
@@ -3863,7 +3923,7 @@ export declare namespace Types {
     /** Caption of the photo to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the photo caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3877,7 +3937,7 @@ export declare namespace Types {
   /** Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use _input\_message\_content_ to send a message with specified content instead of the animation. */
   export interface InlineQueryResultCachedGif {
     /** Type of the result, must be _gif_ */
-    type: string
+    type: 'gif'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid file identifier for the GIF file */
@@ -3887,7 +3947,7 @@ export declare namespace Types {
     /** Caption of the GIF file to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3901,7 +3961,7 @@ export declare namespace Types {
   /** Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers. By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the animation. */
   export interface InlineQueryResultCachedMpeg4Gif {
     /** Type of the result, must be _mpeg4\_gif_ */
-    type: string
+    type: 'mpeg4_gif'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid file identifier for the MPEG4 file */
@@ -3911,7 +3971,7 @@ export declare namespace Types {
     /** Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3925,7 +3985,7 @@ export declare namespace Types {
   /** Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the sticker. */
   export interface InlineQueryResultCachedSticker {
     /** Type of the result, must be _sticker_ */
-    type: string
+    type: 'sticker'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid file identifier of the sticker */
@@ -3939,7 +3999,7 @@ export declare namespace Types {
   /** Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the file. */
   export interface InlineQueryResultCachedDocument {
     /** Type of the result, must be _document_ */
-    type: string
+    type: 'document'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** Title for the result */
@@ -3951,7 +4011,7 @@ export declare namespace Types {
     /** Caption of the document to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
@@ -3963,7 +4023,7 @@ export declare namespace Types {
   /** Represents a link to a video file stored on the Telegram servers. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the video. */
   export interface InlineQueryResultCachedVideo {
     /** Type of the result, must be _video_ */
-    type: string
+    type: 'video'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid file identifier for the video file */
@@ -3975,7 +4035,7 @@ export declare namespace Types {
     /** Caption of the video to be sent, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the video caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -3989,7 +4049,7 @@ export declare namespace Types {
   /** Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the voice message. */
   export interface InlineQueryResultCachedVoice {
     /** Type of the result, must be _voice_ */
-    type: string
+    type: 'voice'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid file identifier for the voice message */
@@ -3999,7 +4059,7 @@ export declare namespace Types {
     /** Caption, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the voice message caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
@@ -4011,7 +4071,7 @@ export declare namespace Types {
   /** Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use _input\_message\_content_ to send a message with the specified content instead of the audio. */
   export interface InlineQueryResultCachedAudio {
     /** Type of the result, must be _audio_ */
-    type: string
+    type: 'audio'
     /** Unique identifier for this result, 1-64 bytes */
     id: string
     /** A valid file identifier for the audio file */
@@ -4019,7 +4079,7 @@ export declare namespace Types {
     /** Caption, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the audio caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
@@ -4044,7 +4104,7 @@ export declare namespace Types {
     /** Text of the message to be sent, 1-4096 characters */
     message_text: string
     /** Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** List of special entities that appear in message text, which can be specified instead of _parse\_mode_ */
     entities?: Array<Types.MessageEntity>
     /** Link preview generation options for the message */
@@ -4262,7 +4322,7 @@ export declare namespace Types {
   /** This object contains basic information about a refunded payment. */
   export interface RefundedPayment {
     /** Three-letter ISO 4217 [currency](https://core.telegram.org/bots/payments#supported-currencies) code, or “XTR” for payments in [Telegram Stars](https://t.me/BotNews/90). Currently, always “XTR” */
-    currency: string
+    currency: 'XTR'
     /** Total refunded price in the _smallest units_ of the currency (integer, **not** float/double). For example, for a price of `US$ 1.45`, `total_amount = 145`. See the _exp_ parameter in [currencies.json](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
     total_amount: number
     /** Bot-specified invoice payload */
@@ -4323,13 +4383,13 @@ export declare namespace Types {
   /** The withdrawal is in progress. */
   export interface RevenueWithdrawalStatePending {
     /** Type of the state, always “pending” */
-    type: string
+    type: 'pending'
   }
 
   /** The withdrawal succeeded. */
   export interface RevenueWithdrawalStateSucceeded {
     /** Type of the state, always “succeeded” */
-    type: string
+    type: 'succeeded'
     /** Date the withdrawal was completed in Unix time */
     date: number
     /** An HTTPS URL that can be used to see transaction details */
@@ -4339,7 +4399,7 @@ export declare namespace Types {
   /** The withdrawal failed and the transaction was refunded. */
   export interface RevenueWithdrawalStateFailed {
     /** Type of the state, always “failed” */
-    type: string
+    type: 'failed'
   }
 
   /** Contains information about the affiliate that received a commission via this transaction. */
@@ -4372,9 +4432,9 @@ export declare namespace Types {
   /** Describes a transaction with a user. */
   export interface TransactionPartnerUser {
     /** Type of the transaction partner, always “user” */
-    type: string
+    type: 'user'
     /** Type of the transaction, currently one of “invoice\_payment” for payments via invoices, “paid\_media\_payment” for payments for paid media, “gift\_purchase” for gifts sent by the bot, “premium\_purchase” for Telegram Premium subscriptions gifted by the bot, “business\_account\_transfer” for direct transfers from managed business accounts */
-    transaction_type: string
+    transaction_type: 'invoice_payment' | 'paid_media_payment' | 'gift_purchase' | 'premium_purchase' | 'business_account_transfer'
     /** Information about the user */
     user: Types.User
     /** Information about the affiliate that received a commission via this transaction. Can be available only for “invoice\_payment” and “paid\_media\_payment” transactions. */
@@ -4396,7 +4456,7 @@ export declare namespace Types {
   /** Describes a transaction with a chat. */
   export interface TransactionPartnerChat {
     /** Type of the transaction partner, always “chat” */
-    type: string
+    type: 'chat'
     /** Information about the chat */
     chat: Types.Chat
     /** The gift sent to the chat by the bot */
@@ -4406,7 +4466,7 @@ export declare namespace Types {
   /** Describes the affiliate program that issued the affiliate commission received via this transaction. */
   export interface TransactionPartnerAffiliateProgram {
     /** Type of the transaction partner, always “affiliate\_program” */
-    type: string
+    type: 'affiliate_program'
     /** Information about the bot that sponsored the affiliate program */
     sponsor_user?: Types.User
     /** The number of Telegram Stars received by the bot for each 1000 Telegram Stars received by the affiliate program sponsor from referred users */
@@ -4416,7 +4476,7 @@ export declare namespace Types {
   /** Describes a withdrawal transaction with Fragment. */
   export interface TransactionPartnerFragment {
     /** Type of the transaction partner, always “fragment” */
-    type: string
+    type: 'fragment'
     /** State of the transaction if the transaction is outgoing */
     withdrawal_state?: Types.RevenueWithdrawalState
   }
@@ -4424,13 +4484,13 @@ export declare namespace Types {
   /** Describes a withdrawal transaction to the Telegram Ads platform. */
   export interface TransactionPartnerTelegramAds {
     /** Type of the transaction partner, always “telegram\_ads” */
-    type: string
+    type: 'telegram_ads'
   }
 
   /** Describes a transaction with payment for [paid broadcasting](https://core.telegram.org/bots/api#paid-broadcasts). */
   export interface TransactionPartnerTelegramApi {
     /** Type of the transaction partner, always “telegram\_api” */
-    type: string
+    type: 'telegram_api'
     /** The number of successful requests that exceeded regular limits and were therefore billed */
     request_count: number
   }
@@ -4438,7 +4498,7 @@ export declare namespace Types {
   /** Describes a transaction with an unknown source or recipient. */
   export interface TransactionPartnerOther {
     /** Type of the transaction partner, always “other” */
-    type: string
+    type: 'other'
   }
 
   /** Describes a Telegram Star transaction. Note that if the buyer initiates a chargeback with the payment provider from whom they acquired Stars (e.g., Apple, Google) following this transaction, the refunded Stars will be deducted from the bot's balance. This is outside of Telegram's control. */
@@ -4486,7 +4546,7 @@ export declare namespace Types {
   /** Describes documents or other Telegram Passport elements shared with the bot by the user. */
   export interface EncryptedPassportElement {
     /** Element type. One of “personal\_details”, “passport”, “driver\_license”, “identity\_card”, “internal\_passport”, “address”, “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration”, “temporary\_registration”, “phone\_number”, “email”. */
-    type: string
+    type: 'personal_details' | 'passport' | 'driver_license' | 'identity_card' | 'internal_passport' | 'address' | 'utility_bill' | 'bank_statement' | 'rental_agreement' | 'passport_registration' | 'temporary_registration' | 'phone_number' | 'email'
     /** Base64-encoded encrypted Telegram Passport element data provided by the user; available only for “personal\_details”, “passport”, “driver\_license”, “identity\_card”, “internal\_passport” and “address” types. Can be decrypted and verified using the accompanying [EncryptedCredentials](https://core.telegram.org/bots/api#encryptedcredentials). */
     data?: string
     /** User's verified phone number; available only for “phone\_number” type */
@@ -4535,9 +4595,9 @@ export declare namespace Types {
   /** Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes. */
   export interface PassportElementErrorDataField {
     /** Error source, must be _data_ */
-    source: string
+    source: 'data'
     /** The section of the user's Telegram Passport which has the error, one of “personal\_details”, “passport”, “driver\_license”, “identity\_card”, “internal\_passport”, “address” */
-    type: string
+    type: 'personal_details' | 'passport' | 'driver_license' | 'identity_card' | 'internal_passport' | 'address'
     /** Name of the data field which has the error */
     field_name: string
     /** Base64-encoded data hash */
@@ -4549,9 +4609,9 @@ export declare namespace Types {
   /** Represents an issue with the front side of a document. The error is considered resolved when the file with the front side of the document changes. */
   export interface PassportElementErrorFrontSide {
     /** Error source, must be _front\_side_ */
-    source: string
+    source: 'front_side'
     /** The section of the user's Telegram Passport which has the issue, one of “passport”, “driver\_license”, “identity\_card”, “internal\_passport” */
-    type: string
+    type: 'passport' | 'driver_license' | 'identity_card' | 'internal_passport'
     /** Base64-encoded hash of the file with the front side of the document */
     file_hash: string
     /** Error message */
@@ -4561,9 +4621,9 @@ export declare namespace Types {
   /** Represents an issue with the reverse side of a document. The error is considered resolved when the file with reverse side of the document changes. */
   export interface PassportElementErrorReverseSide {
     /** Error source, must be _reverse\_side_ */
-    source: string
+    source: 'reverse_side'
     /** The section of the user's Telegram Passport which has the issue, one of “driver\_license”, “identity\_card” */
-    type: string
+    type: 'driver_license' | 'identity_card'
     /** Base64-encoded hash of the file with the reverse side of the document */
     file_hash: string
     /** Error message */
@@ -4573,9 +4633,9 @@ export declare namespace Types {
   /** Represents an issue with the selfie with a document. The error is considered resolved when the file with the selfie changes. */
   export interface PassportElementErrorSelfie {
     /** Error source, must be _selfie_ */
-    source: string
+    source: 'selfie'
     /** The section of the user's Telegram Passport which has the issue, one of “passport”, “driver\_license”, “identity\_card”, “internal\_passport” */
-    type: string
+    type: 'passport' | 'driver_license' | 'identity_card' | 'internal_passport'
     /** Base64-encoded hash of the file with the selfie */
     file_hash: string
     /** Error message */
@@ -4585,9 +4645,9 @@ export declare namespace Types {
   /** Represents an issue with a document scan. The error is considered resolved when the file with the document scan changes. */
   export interface PassportElementErrorFile {
     /** Error source, must be _file_ */
-    source: string
+    source: 'file'
     /** The section of the user's Telegram Passport which has the issue, one of “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration”, “temporary\_registration” */
-    type: string
+    type: 'utility_bill' | 'bank_statement' | 'rental_agreement' | 'passport_registration' | 'temporary_registration'
     /** Base64-encoded file hash */
     file_hash: string
     /** Error message */
@@ -4597,9 +4657,9 @@ export declare namespace Types {
   /** Represents an issue with a list of scans. The error is considered resolved when the list of files containing the scans changes. */
   export interface PassportElementErrorFiles {
     /** Error source, must be _files_ */
-    source: string
+    source: 'files'
     /** The section of the user's Telegram Passport which has the issue, one of “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration”, “temporary\_registration” */
-    type: string
+    type: 'utility_bill' | 'bank_statement' | 'rental_agreement' | 'passport_registration' | 'temporary_registration'
     /** List of base64-encoded file hashes */
     file_hashes: Array<string>
     /** Error message */
@@ -4609,9 +4669,9 @@ export declare namespace Types {
   /** Represents an issue with one of the files that constitute the translation of a document. The error is considered resolved when the file changes. */
   export interface PassportElementErrorTranslationFile {
     /** Error source, must be _translation\_file_ */
-    source: string
+    source: 'translation_file'
     /** Type of element of the user's Telegram Passport which has the issue, one of “passport”, “driver\_license”, “identity\_card”, “internal\_passport”, “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration”, “temporary\_registration” */
-    type: string
+    type: 'passport' | 'driver_license' | 'identity_card' | 'internal_passport' | 'utility_bill' | 'bank_statement' | 'rental_agreement' | 'passport_registration' | 'temporary_registration'
     /** Base64-encoded file hash */
     file_hash: string
     /** Error message */
@@ -4621,9 +4681,9 @@ export declare namespace Types {
   /** Represents an issue with the translated version of a document. The error is considered resolved when a file with the document translation change. */
   export interface PassportElementErrorTranslationFiles {
     /** Error source, must be _translation\_files_ */
-    source: string
+    source: 'translation_files'
     /** Type of element of the user's Telegram Passport which has the issue, one of “passport”, “driver\_license”, “identity\_card”, “internal\_passport”, “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration”, “temporary\_registration” */
-    type: string
+    type: 'passport' | 'driver_license' | 'identity_card' | 'internal_passport' | 'utility_bill' | 'bank_statement' | 'rental_agreement' | 'passport_registration' | 'temporary_registration'
     /** List of base64-encoded file hashes */
     file_hashes: Array<string>
     /** Error message */
@@ -4633,7 +4693,7 @@ export declare namespace Types {
   /** Represents an issue in an unspecified place. The error is considered resolved when new data is added. */
   export interface PassportElementErrorUnspecified {
     /** Error source, must be _unspecified_ */
-    source: string
+    source: 'unspecified'
     /** Type of element of the user's Telegram Passport which has the issue */
     type: string
     /** Base64-encoded element hash */
@@ -4728,7 +4788,7 @@ export interface MethodParams {
     /** Text of the message to be sent, 1-4096 characters after entities parsing */
     text: string
     /** Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in message text, which can be specified instead of _parse\_mode_ */
     entities?: Array<Types.MessageEntity>
     /** Link preview generation options for the message */
@@ -4802,7 +4862,7 @@ export interface MethodParams {
     /** New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept */
     caption?: string
     /** Mode for parsing entities in the new caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the new caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media. Ignored if a new caption isn't specified. */
@@ -4854,7 +4914,7 @@ export interface MethodParams {
     /** Photo caption (may also be used when resending photos by _file\_id_), 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the photo caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -4890,7 +4950,7 @@ export interface MethodParams {
     /** Audio caption, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the audio caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Duration of the audio in seconds */
@@ -4932,7 +4992,7 @@ export interface MethodParams {
     /** Document caption (may also be used when resending documents by _file\_id_), 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Disables automatic server-side content type detection for files uploaded using multipart/form-data */
@@ -4978,7 +5038,7 @@ export interface MethodParams {
     /** Video caption (may also be used when resending videos by _file\_id_), 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the video caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -5024,7 +5084,7 @@ export interface MethodParams {
     /** Animation caption (may also be used when resending animation by _file\_id_), 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the animation caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -5060,7 +5120,7 @@ export interface MethodParams {
     /** Voice message caption, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the voice message caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Duration of the voice message in seconds */
@@ -5130,7 +5190,7 @@ export interface MethodParams {
     /** Media caption, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the media caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media */
@@ -5288,7 +5348,7 @@ export interface MethodParams {
     /** Poll question, 1-300 characters */
     question: string
     /** Mode for parsing entities in the question. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Currently, only custom emoji entities are allowed */
-    question_parse_mode?: string
+    question_parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the poll question. It can be specified instead of _question\_parse\_mode_ */
     question_entities?: Array<Types.MessageEntity>
     /** An array of 2-12 answer options */
@@ -5296,7 +5356,7 @@ export interface MethodParams {
     /** _True_, if the poll needs to be anonymous, defaults to _True_ */
     is_anonymous?: boolean
     /** Poll type, “quiz” or “regular”, defaults to “regular” */
-    type?: string
+    type?: 'quiz' | 'regular'
     /** _True_, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to _False_ */
     allows_multiple_answers?: boolean
     /** 0-based identifier of the correct answer option, required for polls in quiz mode */
@@ -5304,7 +5364,7 @@ export interface MethodParams {
     /** Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing */
     explanation?: string
     /** Mode for parsing entities in the explanation. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    explanation_parse_mode?: string
+    explanation_parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the poll explanation. It can be specified instead of _explanation\_parse\_mode_ */
     explanation_entities?: Array<Types.MessageEntity>
     /** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with _close\_date_. */
@@ -5354,7 +5414,7 @@ export interface MethodParams {
     /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
     direct_messages_topic_id?: number
     /** Emoji on which the dice throw animation is based. Currently, must be one of “![🎲](//telegram.org/img/emoji/40/F09F8EB2.png)”, “![🎯](//telegram.org/img/emoji/40/F09F8EAF.png)”, “![🏀](//telegram.org/img/emoji/40/F09F8F80.png)”, “![⚽](//telegram.org/img/emoji/40/E29ABD.png)”, “![🎳](//telegram.org/img/emoji/40/F09F8EB3.png)”, or “![🎰](//telegram.org/img/emoji/40/F09F8EB0.png)”. Dice can have values 1-6 for “![🎲](//telegram.org/img/emoji/40/F09F8EB2.png)”, “![🎯](//telegram.org/img/emoji/40/F09F8EAF.png)” and “![🎳](//telegram.org/img/emoji/40/F09F8EB3.png)”, values 1-5 for “![🏀](//telegram.org/img/emoji/40/F09F8F80.png)” and “![⚽](//telegram.org/img/emoji/40/E29ABD.png)”, and values 1-64 for “![🎰](//telegram.org/img/emoji/40/F09F8EB0.png)”. Defaults to “![🎲](//telegram.org/img/emoji/40/F09F8EB2.png)” */
-    emoji?: string
+    emoji?: '🎲' | '🎯' | '🏀' | '⚽' | '🎳' | '🎰'
     /** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
     disable_notification?: boolean
     /** Protects the contents of the sent message from forwarding */
@@ -5380,7 +5440,7 @@ export interface MethodParams {
     /** Text of the message to be sent, 1-4096 characters after entities parsing */
     text: string
     /** Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in message text, which can be specified instead of _parse\_mode_ */
     entities?: Array<Types.MessageEntity>
   }
@@ -5392,7 +5452,7 @@ export interface MethodParams {
     /** Unique identifier for the target message thread or topic of a forum; for supergroups and private chats of bots with forum topic mode enabled only */
     message_thread_id?: number
     /** Type of action to broadcast. Choose one, depending on what the user is about to receive: _typing_ for [text messages](https://core.telegram.org/bots/api#sendmessage), _upload\_photo_ for [photos](https://core.telegram.org/bots/api#sendphoto), _record\_video_ or _upload\_video_ for [videos](https://core.telegram.org/bots/api#sendvideo), _record\_voice_ or _upload\_voice_ for [voice notes](https://core.telegram.org/bots/api#sendvoice), _upload\_document_ for [general files](https://core.telegram.org/bots/api#senddocument), _choose\_sticker_ for [stickers](https://core.telegram.org/bots/api#sendsticker), _find\_location_ for [location data](https://core.telegram.org/bots/api#sendlocation), _record\_video\_note_ or _upload\_video\_note_ for [video notes](https://core.telegram.org/bots/api#sendvideonote). */
-    action: string
+    action: 'typing' | 'upload_photo' | 'record_video' | 'upload_video' | 'record_voice' | 'upload_voice' | 'upload_document' | 'choose_sticker' | 'find_location' | 'record_video_note' | 'upload_video_note'
   }
   setMessageReaction: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
@@ -5410,6 +5470,14 @@ export interface MethodParams {
     /** Sequential number of the first photo to be returned. By default, all photos are returned. */
     offset?: number
     /** Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
+    limit?: number
+  }
+  getUserProfileAudios: {
+    /** Unique identifier of the target user */
+    user_id: number
+    /** Sequential number of the first audio to be returned. By default, all audios are returned. */
+    offset?: number
+    /** Limits the number of audios to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
     limit?: number
   }
   setUserEmojiStatus: {
@@ -5556,7 +5624,7 @@ export interface MethodParams {
     /** Invite link name; 0-32 characters */
     name?: string
     /** The number of seconds the subscription will be active for before the next payment. Currently, it must always be 2592000 (30 days). */
-    subscription_period: number
+    subscription_period: 2592000
     /** The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat; 1-10000 */
     subscription_price: number
   }
@@ -5669,7 +5737,7 @@ export interface MethodParams {
     /** Topic name, 1-128 characters */
     name: string
     /** Color of the topic icon in RGB format. Currently, must be one of 7322096 (0x6FB9F0), 16766590 (0xFFD67E), 13338331 (0xCB86DB), 9367192 (0x8EEE98), 16749490 (0xFF93B2), or 16478047 (0xFB6F5F) */
-    icon_color?: number
+    icon_color?: 7322096 | 16766590 | 13338331 | 9367192 | 16749490 | 16478047
     /** Unique identifier of the custom emoji shown as the topic icon. Use [getForumTopicIconStickers](https://core.telegram.org/bots/api#getforumtopiciconstickers) to get all allowed custom emoji identifiers. */
     icon_custom_emoji_id?: string
   }
@@ -5809,6 +5877,11 @@ export interface MethodParams {
     /** A two-letter ISO 639-1 language code or an empty string */
     language_code?: string
   }
+  setMyProfilePhoto: {
+    /** The new profile photo to set */
+    photo: Types.InputProfilePhoto
+  }
+  removeMyProfilePhoto: void | Record<string, never>
   setChatMenuButton: void | {
     /** Unique identifier for the target private chat. If not specified, default bot's menu button will be changed */
     chat_id?: number
@@ -5842,7 +5915,7 @@ export interface MethodParams {
     /** Text that will be shown along with the gift; 0-128 characters */
     text?: string
     /** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored. */
-    text_parse_mode?: string
+    text_parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the gift text. It can be specified instead of _text\_parse\_mode_. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored. */
     text_entities?: Array<Types.MessageEntity>
   }
@@ -5850,13 +5923,13 @@ export interface MethodParams {
     /** Unique identifier of the target user who will receive a Telegram Premium subscription */
     user_id: number
     /** Number of months the Telegram Premium subscription will be active for the user; must be one of 3, 6, or 12 */
-    month_count: number
+    month_count: 3 | 6 | 12
     /** Number of Telegram Stars to pay for the Telegram Premium subscription; must be 1000 for 3 months, 1500 for 6 months, and 2500 for 12 months */
-    star_count: number
+    star_count: 1000 | 1500 | 2500
     /** Text that will be shown along with the service message about the subscription; 0-128 characters */
     text?: string
     /** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored. */
-    text_parse_mode?: string
+    text_parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the gift text. It can be specified instead of _text\_parse\_mode_. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored. */
     text_entities?: Array<Types.MessageEntity>
   }
@@ -6046,11 +6119,11 @@ export interface MethodParams {
     /** Content of the story */
     content: Types.InputStoryContent
     /** Period after which the story is moved to the archive, in seconds; must be one of `6 * 3600`, `12 * 3600`, `86400`, or `2 * 86400` */
-    active_period: number
+    active_period: 21600 | 43200 | 86400 | 172800
     /** Caption of the story, 0-2048 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the story caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** An array of clickable areas to be shown on the story */
@@ -6068,7 +6141,7 @@ export interface MethodParams {
     /** Unique identifier of the story that should be reposted */
     from_story_id: number
     /** Period after which the story is moved to the archive, in seconds; must be one of `6 * 3600`, `12 * 3600`, `86400`, or `2 * 86400` */
-    active_period: number
+    active_period: 21600 | 43200 | 86400 | 172800
     /** Pass _True_ to keep the story accessible after it expires */
     post_to_chat_page?: boolean
     /** Pass _True_ if the content of the story must be protected from forwarding and screenshotting */
@@ -6084,7 +6157,7 @@ export interface MethodParams {
     /** Caption of the story, 0-2048 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the story caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** An array of clickable areas to be shown on the story */
@@ -6108,7 +6181,7 @@ export interface MethodParams {
     /** New text of the message, 1-4096 characters after entities parsing */
     text: string
     /** Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in message text, which can be specified instead of _parse\_mode_ */
     entities?: Array<Types.MessageEntity>
     /** Link preview generation options for the message */
@@ -6128,7 +6201,7 @@ export interface MethodParams {
     /** New caption of the message, 0-1024 characters after entities parsing */
     caption?: string
     /** Mode for parsing entities in the message caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
-    parse_mode?: string
+    parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_ */
     caption_entities?: Array<Types.MessageEntity>
     /** Pass _True_, if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
@@ -6290,7 +6363,7 @@ export interface MethodParams {
     /** A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See [](https://core.telegram.org/stickers)[https://core.telegram.org/stickers](https://core.telegram.org/stickers) for technical requirements. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files) */
     sticker: InputFile
     /** Format of the sticker, must be one of “static”, “animated”, “video” */
-    sticker_format: string
+    sticker_format: 'static' | 'animated' | 'video'
   }
   createNewStickerSet: {
     /** User identifier of created sticker set owner */
@@ -6302,7 +6375,7 @@ export interface MethodParams {
     /** An array of 1-50 initial stickers to be added to the sticker set */
     stickers: Array<Types.InputSticker>
     /** Type of stickers in the set, pass “regular”, “mask”, or “custom\_emoji”. By default, a regular sticker set is created. */
-    sticker_type?: string
+    sticker_type?: 'regular' | 'mask' | 'custom_emoji'
     /** Pass _True_ if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only */
     needs_repainting?: boolean
   }
@@ -6366,7 +6439,7 @@ export interface MethodParams {
     /** A **.WEBP** or **.PNG** image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a **.TGS** animation with a thumbnail up to 32 kilobytes in size (see [](https://core.telegram.org/stickers#animation-requirements)[https://core.telegram.org/stickers#animation-requirements](https://core.telegram.org/stickers#animation-requirements) for animated sticker technical requirements), or a **.WEBM** video with the thumbnail up to 32 kilobytes in size; see [](https://core.telegram.org/stickers#video-requirements)[https://core.telegram.org/stickers#video-requirements](https://core.telegram.org/stickers#video-requirements) for video sticker technical requirements. Pass a _file\_id_ as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files). Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail. */
     thumbnail?: InputFile | string
     /** Format of the thumbnail, must be one of “static” for a **.WEBP** or **.PNG** image, “animated” for a **.TGS** animation, or “video” for a **.WEBM** video */
-    format: string
+    format: 'static' | 'animated' | 'video'
   }
   setCustomEmojiStickerSetThumbnail: {
     /** Sticker set name */
@@ -6492,7 +6565,7 @@ export interface MethodParams {
     /** Price breakdown, an array of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in [Telegram Stars](https://t.me/BotNews/90). */
     prices: Array<Types.LabeledPrice>
     /** The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must no exceed 10000 Telegram Stars. */
-    subscription_period?: number
+    subscription_period?: 2592000
     /** The maximum accepted amount for tips in the _smallest units_ of the currency (integer, **not** float/double). For example, for a maximum tip of `US$ 1.45` pass `max_tip_amount = 145`. See the _exp_ parameter in [currencies.json](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in [Telegram Stars](https://t.me/BotNews/90). */
     max_tip_amount?: number
     /** An array of suggested amounts of tips in the _smallest units_ of the currency (integer, **not** float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed _max\_tip\_amount_. */
@@ -6649,6 +6722,7 @@ export interface MethodResults {
   sendChatAction: true
   setMessageReaction: true
   getUserProfilePhotos: Types.UserProfilePhotos
+  getUserProfileAudios: Types.UserProfileAudios
   setUserEmojiStatus: true
   getFile: Types.File
   banChatMember: true
@@ -6706,6 +6780,8 @@ export interface MethodResults {
   getMyDescription: Types.BotDescription
   setMyShortDescription: true
   getMyShortDescription: Types.BotShortDescription
+  setMyProfilePhoto: true
+  removeMyProfilePhoto: true
   setChatMenuButton: true
   getChatMenuButton: Types.MenuButton
   setMyDefaultAdministratorRights: true
