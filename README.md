@@ -135,7 +135,7 @@ const program = BotApi.callMethod('doSomething').pipe(
         RateLimited: ({ retryAfter }) =>
           Effect.logError(`Try again in ${Duration.format(retryAfter)}`),
         GroupUpgraded: ({ supergroup }) =>
-          Effect.logError(`Group now has a new ID: ${supergroup.id}`),
+          Effect.logError(`Group is now a supergroup with ID: ${supergroup.id}`),
         MethodFailed: ({ possibleReason, response }) =>
           Match.value(possibleReason).pipe(
             Match.when('BotBlockedByUser', () =>
@@ -198,41 +198,89 @@ To send a message, you need:
 - **Reply** — (optional) information about the message being replied to.
 - **Options** — (optional) additional options for sending the message.
 
-`Send.sendMessage` function accepts mentioned parameters and returns an `Effect` that sends a message, automatically choosing the appropriate method based on the content type.
+`Send.sendMessage` function accepts mentioned parameters and returns an `Effect` that sends a message, automatically choosing the appropriate Bot API method based on the content type.
 
 **Example:** Sending messages using `Send.sendMessage`.
 
 ```ts
-// TODO: variety of examples
+import { Content, Dialog, File, Markup, Reply, Send, Text } from '@grom.js/effect-tg'
+import { Effect } from 'effect'
+
+const program = Effect.gen(function* () {
+  // Plain text to a user
+  const greeting = yield* Send.sendMessage({
+    content: Content.text(Text.plain('Hey! Wanna roll a dice?')),
+    dialog: Dialog.user(382713),
+  })
+
+  // Photo with formatted caption and inline keyboard
+  yield* Send.sendMessage({
+    content: Content.photo(
+      File.External(new URL('https://cataas.com/cat')),
+      { caption: Text.html('<b>Cat of the day</b>\n<i>Rate this cat:</i>') },
+    ),
+    dialog: Dialog.user(382713),
+    markup: Markup.inlineKeyboard([
+      [Markup.InlineButton.callback('❤️', 'rate_love')],
+      [Markup.InlineButton.callback('👎', 'rate_nope')],
+    ]),
+  })
+
+  // Silently reply with a dice
+  const roll = yield* Send.sendMessage({
+    content: Content.dice('🎲'),
+    dialog: Dialog.user(382713),
+    reply: Reply.toMessage(greeting),
+    options: Send.options({ disableNotification: true })
+  })
+
+  // React to the roll — reply to the dice message
+  const rolled = roll.dice!.value
+  yield* Send.sendMessage({
+    content: Content.text(
+      rolled === 6
+        ? Text.html('<b>JACKPOT!</b> You are officially <i>the luckiest person alive</i>.')
+        : Text.plain(`You rolled ${rolled}. Disappointing. I expected more from you.`),
+    ),
+    dialog: Dialog.user(382713),
+    reply: Reply.toMessage(roll),
+  })
+
+  // Log the result to a channel direct messages topic
+  yield* Send.sendMessage({
+    content: Content.text(Text.plain(`User 382713 rolled ${rolled}.`)),
+    dialog: Dialog.channel(100200).directMessages(42),
+  })
+})
 ```
 
 #### Content
 
-`Content` module provides constructors for every supported content type:
+`Content` module provides constructors for creating objects that represent the content of a message. `Send.sendMessage` uses the content type to choose the appropriate Bot API method automatically.
 
-| Constructor            | Bot API method  | Description                                         |
-| ---------------------- | --------------- | --------------------------------------------------- |
-| `Content.text`         | `sendMessage`   | Text with optional link preview                     |
-| `Content.photo`        | `sendPhoto`     | Photo with optional caption and spoiler             |
-| `Content.video`        | `sendVideo`     | Video with optional caption, spoiler, and streaming |
-| `Content.animation`    | `sendAnimation` | GIF or video without sound                          |
-| `Content.audio`        | `sendAudio`     | Audio file with optional metadata                   |
-| `Content.voice`        | `sendVoice`     | Voice note                                          |
-| `Content.videoNote`    | `sendVideoNote` | Round video                                         |
-| `Content.document`     | `sendDocument`  | File of any type                                    |
-| `Content.sticker`      | `sendSticker`   | Sticker                                             |
-| `Content.location`     | `sendLocation`  | Static location                                     |
-| `Content.liveLocation` | `sendLocation`  | Live location with updates                          |
-| `Content.venue`        | `sendVenue`     | Venue with address                                  |
-| `Content.contact`      | `sendContact`   | Phone contact                                       |
-| `Content.dice`         | `sendDice`      | Animated emoji                                      |
+| Constructor            | Bot API method  | Description            |
+| ---------------------- | --------------- | ---------------------- |
+| `Content.text`         | `sendMessage`   | Text                   |
+| `Content.photo`        | `sendPhoto`     | Photo                  |
+| `Content.video`        | `sendVideo`     | Video                  |
+| `Content.animation`    | `sendAnimation` | GIF or video w/o sound |
+| `Content.audio`        | `sendAudio`     | Audio file             |
+| `Content.voice`        | `sendVoice`     | Voice note             |
+| `Content.videoNote`    | `sendVideoNote` | Round video note       |
+| `Content.document`     | `sendDocument`  | File of any type       |
+| `Content.sticker`      | `sendSticker`   | Sticker                |
+| `Content.location`     | `sendLocation`  | Static location        |
+| `Content.liveLocation` | `sendLocation`  | Live location          |
+| `Content.venue`        | `sendVenue`     | Venue with address     |
+| `Content.contact`      | `sendContact`   | Phone contact          |
+| `Content.dice`         | `sendDice`      | Random dice            |
 
 #### Dialog
 
-`Dialog` module provides constructors for all target chats:
+`Dialog` module provides utilities for creating target chats:
 
 - `Dialog.user(id)` — private chat with a user.
-- `Dialog.group(id)` — group chat.
+- `Dialog.group(id)` — chat of a (basic) group.
 - `Dialog.supergroup(id)` — supergroup chat.
 - `Dialog.channel(id)` — channel.
 
@@ -242,60 +290,58 @@ To target a specific topic, chain a method on the peer:
 - `Dialog.supergroup(id).topic(topicId)` — topic in a forum supergroup.
 - `Dialog.channel(id).directMessages(topicId)` — channel direct messages.
 
-`Dialog.ofMessage` extracts the dialog from an incoming `Message` object.
+`Dialog.ofMessage` helper extracts the dialog from an incoming `Message` object.
 
-**Dialog ID vs peer ID**
+##### Dialog and peer IDs
 
-Bot API uses a single integer (`chat_id`) that [encodes both peer type and ID](https://core.telegram.org/api/bots/ids): user 1:1; group = `-id`; supergroup/channel = `-(id + 1000000000000)`. Some responses return dialog IDs, others peer IDs — wrong format causes errors.
+Bot API uses a single integer to encode peer type with its ID — [dialog ID](https://core.telegram.org/api/bots/ids).
 
-**Branded types**
+This may not be a problem for user IDs, since user IDs map to the same dialog IDs.
+However, this may cause some defects when working with other peers.
+For example, to send a message to a channel with ID `3011378744`, you need to set `chat_id` parameter to `-1003011378744`.
 
-`UserId`, `GroupId`, `SupergroupId`, `ChannelId`, `DialogId` prevent mixing. `SupergroupId` and `ChannelId` are the same type (supergroups are a special kind of channel; both share the same ID space). Use `Dialog.decodePeerId`, `Dialog.encodePeerId`, `Dialog.decodeDialogId` to convert.
+To prevent this confusion, `Dialog` module defines **branded types** that distinguish peer IDs from dialog IDs at the type level:
 
-#### Reply
+- `UserId` — number representing a user ID.
+- `GroupId` — number representing a group ID.
+- `ChannelId` — number representing a channel ID.
+- `SupergroupId` — alias to `ChannelId`, since supergroups share ID space with channels.
+- `DialogId` — number encoding peer type and peer ID.
 
-`Reply` module provides two ways to create a reply reference:
+Constructors like `Dialog.user`, `Dialog.channel`, etc. validate and encode IDs internally, so you rarely need to convert manually. When you do, `Dialog` module exports conversion utilities:
 
-- `Reply.make({ dialog, messageId })` — reply to a message by ID in a specific dialog.
-- `Reply.toMessage(message)` — reply to a `Message` object, extracting the dialog and ID automatically.
-
-Both accept an optional `optional` flag — when `true`, the message will be sent even if the referenced message is not found.
+- `Dialog.decodeDialogId(dialogId)` — decodes a dialog ID into peer type and peer ID.
+- `Dialog.decodePeerId(peer, dialogId)` — extracts a typed peer ID from a dialog ID.
+- `Dialog.encodePeerId(peer, id)` — encodes a peer type and ID into a dialog ID.
 
 #### Markup
 
 `Markup` module provides reply markup types and constructors:
 
-- `inlineKeyboard(rows)` — buttons attached to the message (callback, URL, web app, etc.).
-- `replyKeyboard(rows, options?)` — custom keyboard replacing the default; options include `oneTime`, `resizable`, `selective`, `inputPlaceholder`.
-- `replyKeyboardRemove` — hide a reply keyboard.
-- `forceReply` — show a reply input field.
+- `Markup.inlineKeyboard(rows)` — inline keyboard attached to the message.
+- `Markup.replyKeyboard(rows, options?)` — custom keyboard for quick reply or other action.
+- `Markup.replyKeyboardRemove()` — hide a previously shown reply keyboard.
+- `Markup.forceReply()` — forces Telegram client to reply to the message.
 
-Use `InlineButton` and `ReplyButton` builders to create button rows. Example:
+**Example:** Creating inline and reply keyboards.
 
 ```ts
-import { InlineButton, inlineKeyboard, ReplyButton, replyKeyboard } from '@grom.js/effect-tg'
+import { Markup } from '@grom.js/effect-tg'
 
-// Inline keyboard: URL and callback buttons
-const inline = inlineKeyboard([
-  [InlineButton.url('Open', 'https://example.com'), InlineButton.callback('Tap me', 'action_1')],
+const inline = Markup.inlineKeyboard([
+  [Markup.InlineButton.callback('Like', 'liked')],
+  [Markup.InlineButton.url('Source code', 'https://github.com/grom-dev/effect-tg')],
 ])
 
-// Reply keyboard: simple buttons
-const reply = replyKeyboard([
+const reply = Markup.replyKeyboard([
   ['Option A', 'Option B'],
-  [ReplyButton.requestContact('Share phone')],
+  [Markup.ReplyButton.requestContact('Share phone')],
 ], { oneTime: true })
 ```
 
 ### Prepared messages
 
-`Send.message` creates a `MessageToSend` — a reusable Effect that bundles content, markup, reply, and options. It does not send until you run it.
-
-Flow:
-
-1. `Send.message(content)` creates a `MessageToSend` (an Effect that requires `TargetDialog`).
-2. Chain modifiers (`Send.withMarkup`, `Send.withoutNotification`, etc.) to customize.
-3. `Send.to(dialog)` provides the target and returns a plain Effect; the message sends when that Effect runs (e.g. `yield*` in a generator, `Effect.runPromise`, or as part of a larger program).
+`Send.message` creates a `MessageToSend` — a reusable Effect that bundles content, markup, reply, and options. Chain modifiers to customize it, then call `Send.to(dialog)` to provide the target. The message is sent when the resulting Effect runs.
 
 **Example:** Creating and sending prepared messages.
 
@@ -308,10 +354,10 @@ const welcomeMessage = Send.message(
   Content.text(Text.html('<b>Welcome!</b> Thanks for joining.')),
 )
 
-// Send to different dialogs — runs the Effect to perform the API call
+// Send to different dialogs
 const program = Effect.gen(function* () {
-  yield* welcomeMessage.pipe(Send.to(Dialog.user(123456789)))
-  yield* welcomeMessage.pipe(Send.to(Dialog.user(987654321)))
+  yield* welcomeMessage.pipe(Send.to(Dialog.user(123)))
+  yield* welcomeMessage.pipe(Send.to(Dialog.channel(321)))
 })
 
 // With modifiers: silent, protected
@@ -321,25 +367,38 @@ const secretMessage = pipe(
   Send.withContentProtection,
   Send.to(Dialog.user(123456789)),
 )
-// Use yield* secretMessage or Effect.runPromise(secretMessage) to send
 ```
 
 ### Composing options
 
 Chain modifiers on a `MessageToSend` to customize its behavior:
 
-- `Send.withMarkup` / `Send.withoutMarkup` — set or remove reply keyboard / inline buttons.
-- `Send.withReply` / `Send.withoutReply` — set or remove the message being replied to.
-- `Send.withNotification` / `Send.withoutNotification` — enable or disable notification sound.
-- `Send.withContentProtection` / `Send.withoutContentProtection` — prevent or allow forwarding and saving.
-- `Send.withPaidBroadcast` / `Send.withoutPaidBroadcast` — enable or disable paid broadcast mode.
-- `Send.withOptions` — merge arbitrary options at once.
+- `withMarkup`/`withoutMarkup` — set/remove reply markup.
+- `withReply`/`withoutReply` — set/remove reply options.
+- `withNotification`/`withoutNotification` — enable/disable notification sound.
+- `withContentProtection`/`withoutContentProtection` — prevent/allow forwarding and saving.
+- `withPaidBroadcast`/`withoutPaidBroadcast` — enable/disable paid broadcast.
+- `withOptions` — merge with the new send options.
 
-All dual modifiers (`withMarkup`, `withReply`, `withOptions`) support both data-first and data-last calling conventions.
+**Example:** Chaining modifiers on a prepared message.
+
+```ts
+import { Content, Markup, Send, Text } from '@grom.js/effect-tg'
+
+const secretPromo = Send.message(Content.text(Text.plain('Shh!'))).pipe(
+  Send.withMarkup(
+    Markup.inlineKeyboard([
+      [Markup.InlineButton.copyText('Copy promo', 'EFFECT_TG')],
+    ]),
+  ),
+  Send.withoutNotification,
+  Send.withContentProtection,
+)
+```
 
 ### Text formatting
 
-`Text` module provides all [formatting options](https://core.telegram.org/bots/api#formatting-options) supported by the Bot API.
+`Text` module provides utilities for creating [formatted text](https://core.telegram.org/bots/api#formatting-options) to be used in text messages and captions.
 
 **Example:** Formatting text with `Text` module.
 
@@ -364,8 +423,8 @@ Benefits of using JSX:
 
 - **Validation**: JSX is validated during compilation, so you can't specify invalid HTML or Markdown.
 - **Composability**: JSX allows composing formatted text with custom components.
-- **Auto-escaping**: JSX escapes special characters, saving you from \<s\>B@d\</s\> \_iNpUtS\_.
-- **Type safety**: Free LSP hints and type checking for text entities and custom components.
+- **Auto-escaping**: JSX escapes special characters, saving you from \<s\>bAd\</s\> \_iNpUtS\_.
+- **Type safety**: LSP hints and type checking for text entities and custom components.
 
 `Text.tgx` function accepts a JSX element and returns an instance of `Text.Tgx`, which can then be used as a content of a message.
 
@@ -381,6 +440,11 @@ const Field = (props: PropsWithChildren<{ label: string }>) => (
   <><b>{props.label}:</b> {props.children}{'\n'}</>
 )
 
+// Simple component for convenience
+const RocketEmoji = () => (
+  <emoji id="5445284980978621387" alt="🚀" />
+)
+
 // Component that renders a deploy summary
 const DeploySummary = (props: {
   service: string
@@ -390,7 +454,7 @@ const DeploySummary = (props: {
   url: string
 }) => (
   <>
-    <emoji id="5445284980978621387" alt="🚀" /> <b>Deploy to <i>{props.env}</i></b>
+    <RocketEmoji /> <b>Deploy to <i>{props.env}</i></b>
     {'\n\n'}
     <Field label="Service"><code>{props.service}</code></Field>
     <Field label="Version"><code>{props.version}</code></Field>
@@ -407,19 +471,20 @@ const DeploySummary = (props: {
   </>
 )
 
-// Compose the final message
-const deployNotification = pipe(
-  Send.message(Content.text(Text.tgx(
-    <DeploySummary
-      service="billing-api"
-      version="2.14.0"
-      env="production"
-      author="Alice"
-      url="https://deploy.example.com/runs/4821"
-    />,
-  ))),
-  Send.withoutNotification,
-  Send.to(Dialog.channel(123456789)),
+// Create summary text
+const summary = Text.tgx(
+  <DeploySummary
+    service="billing-api"
+    version="2.14.0"
+    env="production"
+    author="Alice"
+    url="https://deploy.example.com/runs/4821"
+  />
+)
+
+// Publish a new post
+const publish = Send.message(Content.text(summary)).pipe(
+  Send.to(Dialog.channel(3011378744)),
 )
 ```
 
