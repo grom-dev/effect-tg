@@ -36,8 +36,8 @@ export class ChannelDm extends Data.TaggedClass('ChannelDm')<{
 export type Peer =
   | User
   | Group
-  | Supergroup
   | Channel
+  | Supergroup
 
 export class User extends Data.TaggedClass('User')<{
   id: UserId
@@ -59,27 +59,27 @@ export class Group extends Data.TaggedClass('Group')<{
   }
 }
 
-export class Supergroup extends Data.TaggedClass('Supergroup')<{
-  id: SupergroupId
-}> {
-  public dialogId(): DialogId {
-    return Option.getOrThrow(internal.encodePeerId('supergroup', this.id))
-  }
-
-  public topic(topicId: number): ForumTopic {
-    return new ForumTopic({ supergroup: this, topicId })
-  }
-}
-
 export class Channel extends Data.TaggedClass('Channel')<{
   id: ChannelId
 }> {
   public dialogId(): DialogId {
-    return Option.getOrThrow(internal.encodePeerId('supergroup', this.id))
+    return Option.getOrThrow(internal.encodePeerId('channel', this.id))
   }
 
   public directMessages(topicId: number): ChannelDm {
     return new ChannelDm({ channel: this, topicId })
+  }
+}
+
+export class Supergroup extends Data.TaggedClass('Supergroup')<{
+  id: SupergroupId
+}> {
+  public dialogId(): DialogId {
+    return Option.getOrThrow(internal.encodePeerId('channel', this.id))
+  }
+
+  public topic(topicId: number): ForumTopic {
+    return new ForumTopic({ supergroup: this, topicId })
   }
 }
 
@@ -110,21 +110,22 @@ export const GroupId = Brand.refined<GroupId>(
   n => Brand.error(`Invalid group ID: ${n}`),
 )
 
-export type SupergroupId = number & Brand.Brand<'@grom.js/effect-tg/SupergroupId'>
-export const SupergroupId = Brand.refined<SupergroupId>(
-  n => Option.isSome(internal.encodePeerId('supergroup', n)),
-  n => Brand.error(`Invalid supergroup or channel ID: ${n}`),
+/**
+ * ID for channels (including supergroups).
+ *
+ * @see {@link https://core.telegram.org/api/bots/ids Telegram API • Bot API dialog IDs}
+ */
+export type ChannelId = number & Brand.Brand<'@grom.js/effect-tg/ChannelId'>
+export const ChannelId = Brand.refined<ChannelId>(
+  n => Option.isSome(internal.encodePeerId('channel', n)),
+  n => Brand.error(`Invalid channel or supergroup ID: ${n}`),
 )
 
-/**
- * @alias SupergroupId
- */
-export type ChannelId = SupergroupId
+/** @alias ChannelId */
+export type SupergroupId = ChannelId
 
-/**
- * @alias SupergroupId
- */
-export const ChannelId = SupergroupId
+/** @alias ChannelId */
+export const SupergroupId = ChannelId
 
 // =============================================================================
 // Dialog ID <-> Peer ID
@@ -133,7 +134,7 @@ export const ChannelId = SupergroupId
 export const decodeDialogId: (dialogId: number) => Option.Option<
   | { peer: 'user', id: UserId }
   | { peer: 'group', id: GroupId }
-  | { peer: 'supergroup', id: SupergroupId }
+  | { peer: 'channel', id: ChannelId }
   | { peer: 'monoforum', id: number }
   | { peer: 'secret-chat', id: number }
 > = internal.decodeDialogId
@@ -141,13 +142,13 @@ export const decodeDialogId: (dialogId: number) => Option.Option<
 export const decodePeerId: {
   (peer: 'user', dialogId: number): Option.Option<UserId>
   (peer: 'group', dialogId: number): Option.Option<GroupId>
-  (peer: 'supergroup', dialogId: number): Option.Option<SupergroupId>
+  (peer: 'channel', dialogId: number): Option.Option<ChannelId>
   (peer: 'monoforum', dialogId: number): Option.Option<number>
   (peer: 'secret-chat', dialogId: number): Option.Option<number>
 } = internal.decodePeerId
 
 export const encodePeerId: (
-  peer: 'user' | 'group' | 'supergroup' | 'monoforum' | 'secret-chat',
+  peer: 'user' | 'group' | 'channel' | 'monoforum' | 'secret-chat',
   id: number,
 ) => Option.Option<DialogId> = internal.encodePeerId
 
@@ -163,12 +164,12 @@ export const group: (id: number) => Group = (id) => {
   return new Group({ id: GroupId(id) })
 }
 
-export const supergroup: (id: number) => Supergroup = (id) => {
-  return new Supergroup({ id: SupergroupId(id) })
+export const channel: (id: number) => Channel = (id) => {
+  return new Channel({ id: ChannelId(id) })
 }
 
-export const channel: (id: number) => Channel = (id) => {
-  return new Channel({ id: SupergroupId(id) })
+export const supergroup: (id: number) => Supergroup = (id) => {
+  return new Supergroup({ id: ChannelId(id) })
 }
 
 export const ofMessage: (

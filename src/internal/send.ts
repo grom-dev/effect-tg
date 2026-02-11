@@ -250,11 +250,11 @@ const paramsDialog: (
     Group: group => ({
       chat_id: group.dialogId(),
     }),
-    Supergroup: supergroup => ({
-      chat_id: supergroup.dialogId(),
-    }),
     Channel: channel => ({
       chat_id: channel.dialogId(),
+    }),
+    Supergroup: supergroup => ({
+      chat_id: supergroup.dialogId(),
     }),
     PrivateTopic: topic => ({
       chat_id: topic.user.dialogId(),
