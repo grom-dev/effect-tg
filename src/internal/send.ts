@@ -4,6 +4,7 @@ import type * as Markup from '../Markup.ts'
 import type * as Reply from '../Reply.ts'
 import type * as Send from '../Send.ts'
 import type * as Text from '../Text.ts'
+import type { Types } from './botApi.gen.ts'
 import * as Tgx from '@grom.js/tgx'
 import * as Duration from 'effect/Duration'
 import * as Effect from 'effect/Effect'
@@ -276,6 +277,146 @@ const paramsDialog: (
 
 type ParamsMarkup = PickMethodParams<SendMethod, 'reply_markup'>
 
+const paramsInlineButton = (btn: Markup.InlineButton): Types.InlineKeyboardButton => {
+  const base = {
+    text: btn.text,
+    style: btn.style,
+    icon_custom_emoji_id: btn.iconEmojiId,
+  }
+  if ('url' in btn && btn.url !== undefined) {
+    return { ...base, url: btn.url }
+  }
+  if ('callbackData' in btn && btn.callbackData !== undefined) {
+    return { ...base, callback_data: btn.callbackData }
+  }
+  if ('webApp' in btn && btn.webApp !== undefined) {
+    return { ...base, web_app: { url: btn.webApp.url } }
+  }
+  if ('loginUrl' in btn && btn.loginUrl !== undefined) {
+    return {
+      ...base,
+      login_url: {
+        url: btn.loginUrl.url,
+        ...(btn.loginUrl.forwardText !== undefined && { forward_text: btn.loginUrl.forwardText }),
+        ...(btn.loginUrl.botUsername !== undefined && { bot_username: btn.loginUrl.botUsername }),
+        ...(btn.loginUrl.requestWriteAccess !== undefined && { request_write_access: btn.loginUrl.requestWriteAccess }),
+      },
+    }
+  }
+  if ('switchInlineQuery' in btn && btn.switchInlineQuery !== undefined) {
+    return { ...base, switch_inline_query: btn.switchInlineQuery }
+  }
+  if ('switchInlineQueryCurrentChat' in btn && btn.switchInlineQueryCurrentChat !== undefined) {
+    return { ...base, switch_inline_query_current_chat: btn.switchInlineQueryCurrentChat }
+  }
+  if ('switchInlineQueryChosenChat' in btn && btn.switchInlineQueryChosenChat !== undefined) {
+    return {
+      ...base,
+      switch_inline_query_chosen_chat: {
+        query: btn.switchInlineQueryChosenChat.query,
+        allow_user_chats: btn.switchInlineQueryChosenChat.allowUserChats,
+        allow_bot_chats: btn.switchInlineQueryChosenChat.allowBotChats,
+        allow_group_chats: btn.switchInlineQueryChosenChat.allowGroupChats,
+        allow_channel_chats: btn.switchInlineQueryChosenChat.allowChannelChats,
+      },
+    }
+  }
+  if ('copyText' in btn && btn.copyText !== undefined) {
+    return { ...base, copy_text: { text: btn.copyText } }
+  }
+  if ('callbackGame' in btn && btn.callbackGame !== undefined) {
+    return { ...base, callback_game: {} }
+  }
+  if ('pay' in btn && btn.pay !== undefined) {
+    return { ...base, pay: true }
+  }
+  return base
+}
+
+const paramsChatAdminRights = (
+  rights: Markup.ChatAdminRights,
+): Types.ChatAdministratorRights => ({
+  is_anonymous: rights.isAnonymous,
+  can_manage_chat: rights.canManageChat,
+  can_delete_messages: rights.canDeleteMessages,
+  can_manage_video_chats: rights.canManageVideoChats,
+  can_restrict_members: rights.canRestrictMembers,
+  can_promote_members: rights.canPromoteMembers,
+  can_change_info: rights.canChangeInfo,
+  can_invite_users: rights.canInviteUsers,
+  can_post_stories: rights.canPostStories,
+  can_edit_stories: rights.canEditStories,
+  can_delete_stories: rights.canDeleteStories,
+  can_post_messages: rights.canPostMessages,
+  can_edit_messages: rights.canEditMessages,
+  can_pin_messages: rights.canPinMessages,
+  can_manage_topics: rights.canManageTopics,
+  can_manage_direct_messages: rights.canManageDirectMessages,
+})
+
+const paramsReplyButton = (btn: Markup.ReplyButton): string | Types.KeyboardButton => {
+  if (typeof btn === 'string') {
+    return btn
+  }
+  const base = {
+    text: btn.text,
+    style: btn.style,
+    icon_custom_emoji_id: btn.iconEmojiId,
+  }
+  if ('requestUsers' in btn && btn.requestUsers !== undefined) {
+    return {
+      ...base,
+      request_users: {
+        request_id: btn.requestUsers.requestId,
+        user_is_bot: btn.requestUsers.userIsBot,
+        user_is_premium: btn.requestUsers.userIsPremium,
+        max_quantity: btn.requestUsers.maxQuantity,
+        request_name: btn.requestUsers.requestName,
+        request_username: btn.requestUsers.requestUsername,
+        request_photo: btn.requestUsers.requestPhoto,
+      },
+    }
+  }
+  if ('requestChat' in btn && btn.requestChat !== undefined) {
+    return {
+      ...base,
+      request_chat: {
+        request_id: btn.requestChat.requestId,
+        chat_is_channel: btn.requestChat.chatIsChannel,
+        chat_is_forum: btn.requestChat.chatIsForum,
+        chat_has_username: btn.requestChat.chatHasUsername,
+        chat_is_created: btn.requestChat.chatIsCreated,
+        user_administrator_rights: btn.requestChat.userAdministratorRights
+          ? paramsChatAdminRights(btn.requestChat.userAdministratorRights)
+          : undefined,
+        bot_administrator_rights: btn.requestChat.botAdministratorRights
+          ? paramsChatAdminRights(btn.requestChat.botAdministratorRights)
+          : undefined,
+        bot_is_member: btn.requestChat.botIsMember,
+        request_title: btn.requestChat.requestTitle,
+        request_username: btn.requestChat.requestUsername,
+        request_photo: btn.requestChat.requestPhoto,
+      },
+    }
+  }
+  if ('requestContact' in btn && btn.requestContact !== undefined) {
+    return { ...base, request_contact: btn.requestContact }
+  }
+  if ('requestLocation' in btn && btn.requestLocation !== undefined) {
+    return { ...base, request_location: btn.requestLocation }
+  }
+  if ('requestPoll' in btn && btn.requestPoll !== undefined) {
+    return {
+      ...base,
+      request_poll: btn.requestPoll === true ? {} : { type: btn.requestPoll },
+    }
+  }
+  if ('webApp' in btn && btn.webApp !== undefined) {
+    return { ...base, web_app: { url: btn.webApp.url } }
+  }
+  return base
+}
+
 const paramsMarkup: (
   markup: Markup.Markup,
 ) => ParamsMarkup = Match.type<Markup.Markup>().pipe(
@@ -283,12 +424,12 @@ const paramsMarkup: (
   Match.tagsExhaustive({
     InlineKeyboard: markup => ({
       reply_markup: {
-        inline_keyboard: markup.rows, // TODO
+        inline_keyboard: markup.rows.map(row => row.map(paramsInlineButton)),
       },
     }),
     ReplyKeyboard: markup => ({
       reply_markup: {
-        keyboard: markup.rows, // TODO
+        keyboard: markup.rows.map(row => row.map(paramsReplyButton)),
         is_persistent: markup.persistent,
         resize_keyboard: markup.resizable,
         one_time_keyboard: markup.oneTime,
