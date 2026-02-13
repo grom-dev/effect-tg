@@ -442,19 +442,7 @@ Benefits of using JSX:
 `Text.tgx` function accepts a JSX element and returns an instance of `Text.Tgx`, which can then be used as a content of a message.
 
 <details>
-<summary>How it works?</summary>
-
-JSX is just syntactic sugar transformed by the compiler.
-Result of transformation depends on the JSX runtime.
-`effect-tg` relies on JSX runtime from [`@grom.js/tgx`](https://github.com/grom-dev/tgx), which transforms JSX elements to `TgxElement` instances.
-When `Send.sendMessage` encounters an instance of `Text.Tgx`, it converts inner `TgxElement`s to the parameters for a `send*` method.
-
-</details>
-
-<details>
 <summary>How to enable?</summary>
-
-To enable JSX support:
 
 1. Install `@grom.js/tgx` package:
 
@@ -472,6 +460,16 @@ To enable JSX support:
      }
    }
    ```
+
+</details>
+
+<details>
+<summary>How it works?</summary>
+
+JSX is just syntactic sugar transformed by the compiler.
+Result of transformation depends on the JSX runtime.
+`effect-tg` relies on JSX runtime from [`@grom.js/tgx`](https://github.com/grom-dev/tgx), which transforms JSX elements to `TgxElement` instances.
+When `Send.sendMessage` encounters an instance of `Text.Tgx`, it converts inner `TgxElement`s to the parameters for a `send*` method.
 
 </details>
 
