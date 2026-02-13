@@ -441,6 +441,40 @@ Benefits of using JSX:
 
 `Text.tgx` function accepts a JSX element and returns an instance of `Text.Tgx`, which can then be used as a content of a message.
 
+<details>
+<summary>How it works?</summary>
+
+JSX is just syntactic sugar transformed by the compiler.
+Result of transformation depends on the JSX runtime.
+`effect-tg` relies on JSX runtime from [`@grom.js/tgx`](https://github.com/grom-dev/tgx), which transforms JSX elements to `TgxElement` instances.
+When `Send.sendMessage` encounters an instance of `Text.Tgx`, it converts inner `TgxElement`s to the parameters for a `send*` method.
+
+</details>
+
+<details>
+<summary>How to enable?</summary>
+
+To enable JSX support:
+
+1. Install `@grom.js/tgx` package:
+
+   ```sh
+   npm install @grom.js/tgx
+   ```
+
+2. Update your `tsconfig.json`:
+
+   ```json
+   {
+     "compilerOptions": {
+       "jsx": "react-jsx",
+       "jsxImportSource": "@grom.js/tgx"
+     }
+   }
+   ```
+
+</details>
+
 **Example:** Composing reusable messages with JSX.
 
 ```tsx
@@ -500,32 +534,3 @@ const publish = Send.message(Content.text(summary)).pipe(
   Send.to(Dialog.channel(3011378744)),
 )
 ```
-
-<details>
-<summary>How it works?</summary>
-
-JSX is just syntactic sugar transformed by the compiler.
-Result of transformation depends on the JSX runtime.
-`effect-tg` relies on JSX runtime from [`@grom.js/tgx`](https://github.com/grom-dev/tgx), which transforms JSX elements to `TgxElement` instances.
-When `Send.sendMessage` encounters an instance of `Text.Tgx`, it converts inner `TgxElement`s to the parameters for a `send*` method.
-
-</details>
-
-To enable JSX support:
-
-1. Install `@grom.js/tgx` package:
-
-   ```sh
-   npm install @grom.js/tgx
-   ```
-
-2. Update your `tsconfig.json`:
-
-   ```json
-   {
-     "compilerOptions": {
-       "jsx": "react-jsx",
-       "jsxImportSource": "@grom.js/tgx"
-     }
-   }
-   ```
