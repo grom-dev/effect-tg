@@ -71,7 +71,7 @@ const paramsText: (
     Plain: ({ text, entities }) => ({ text, entities }),
     Html: ({ html }) => ({ text: html, parse_mode: 'HTML' }),
     Markdown: ({ markdown }) => ({ text: markdown, parse_mode: 'MarkdownV2' }),
-    Tgx: ({ tgx }) => ({ text: Tgx.html(tgx), parse_mode: 'HTML' }),
+    Tgx: ({ tgx }) => ({ text: Tgx.renderHtml(tgx), parse_mode: 'HTML' }),
   }),
 )
 

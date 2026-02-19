@@ -1,4 +1,4 @@
-import type { TgxElement } from '@grom.js/tgx/types'
+import type { TgxElement } from '@grom.js/tgx'
 import type { Types } from './BotApi.ts'
 import * as Data from 'effect/Data'
 
