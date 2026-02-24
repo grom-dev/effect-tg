@@ -11,10 +11,10 @@ import * as Data from 'effect/Data'
 import * as internal from './internal/file.ts'
 
 export type FileId = string & Brand.Brand<'FileId'>
-export const FileId = Brand.nominal<FileId>()
+export const FileId: Brand.Brand.Constructor<FileId> = Brand.nominal<FileId>()
 
 export type External = URL & Brand.Brand<'External'>
-export const External = Brand.nominal<External>()
+export const External: Brand.Brand.Constructor<External> = Brand.nominal<External>()
 
 export class InputFile extends Data.TaggedClass('InputFile')<{
   stream: Stream.Stream<Uint8Array>
