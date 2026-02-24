@@ -9,7 +9,7 @@ import * as Predicate from 'effect/Predicate'
 import * as Dialog from './Dialog.ts'
 import * as internal from './internal/botApiError.ts'
 
-export const TypeId = '@grom.js/effect-tg/BotApiError'
+export const TypeId: unique symbol = Symbol.for('@grom.js/effect-tg/BotApiError')
 
 export type TypeId = typeof TypeId
 
@@ -32,7 +32,7 @@ export class TransportError extends Data.TaggedError('TransportError')<{
 }> {
   readonly [TypeId]: TypeId = TypeId
 
-  override get message() {
+  override get message(): string {
     return Match.value(this.cause).pipe(
       Match.tagsExhaustive({
         RequestError: e => e.message,

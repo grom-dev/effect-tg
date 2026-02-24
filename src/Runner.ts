@@ -1,5 +1,7 @@
 import type * as Effect from 'effect/Effect'
 import type * as Bot from './Bot.ts'
+import type * as BotApi from './BotApi.ts'
+import type * as BotApiError from './BotApiError.ts'
 import * as internal from './internal/runner.ts'
 
 /**
@@ -19,4 +21,6 @@ export interface Runner<E = never, R = never> {
  * Creates a simple runner that fetches updates by calling `BotApi.getUpdates`
  * method and handles them one by one.
  */
-export const makeSimple = internal.makeSimple
+export const makeSimple: (options?: {
+  allowedUpdates?: string[]
+}) => Runner<BotApiError.BotApiError, BotApi.BotApi> = internal.makeSimple
