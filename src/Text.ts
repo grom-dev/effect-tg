@@ -11,36 +11,40 @@ export type Text =
   | Markdown
   | Tgx
 
-const _Plain: ReturnType<typeof Data.TaggedClass<'Plain'>> = Data.TaggedClass('Plain')
-export class Plain extends _Plain<{
-  text: string
-  entities?: Array<Types.MessageEntity>
-}> {}
+export interface Plain {
+  readonly _tag: 'Plain'
+  readonly text: string
+  readonly entities?: Array<Types.MessageEntity>
+}
+export const Plain: Data.Case.Constructor<Plain, '_tag'> = Data.tagged<Plain>('Plain')
 
-const _Html: ReturnType<typeof Data.TaggedClass<'Html'>> = Data.TaggedClass('Html')
-export class Html extends _Html<{
-  html: string
-}> {}
+export interface Html {
+  readonly _tag: 'Html'
+  readonly html: string
+}
+export const Html: Data.Case.Constructor<Html, '_tag'> = Data.tagged<Html>('Html')
 
-const _Markdown: ReturnType<typeof Data.TaggedClass<'Markdown'>> = Data.TaggedClass('Markdown')
-export class Markdown extends _Markdown<{
-  markdown: string
-}> {}
+export interface Markdown {
+  readonly _tag: 'Markdown'
+  readonly markdown: string
+}
+export const Markdown: Data.Case.Constructor<Markdown, '_tag'> = Data.tagged<Markdown>('Markdown')
 
-const _Tgx: ReturnType<typeof Data.TaggedClass<'Tgx'>> = Data.TaggedClass('Tgx')
-export class Tgx extends _Tgx<{
-  tgx: TgxElement
-}> {}
+export interface Tgx {
+  readonly _tag: 'Tgx'
+  readonly tgx: TgxElement
+}
+export const Tgx: Data.Case.Constructor<Tgx, '_tag'> = Data.tagged<Tgx>('Tgx')
 
 // ———— Constructors ———————————————————————————————————————————————————————————
 
 export const plain = (
   text: string,
   entities?: Array<Types.MessageEntity>,
-): Plain => new Plain({ text, entities })
+): Plain => Plain({ text, entities })
 
-export const html = (html: string): Html => new Html({ html })
+export const html = (html: string): Html => Html({ html })
 
-export const markdown = (markdown: string): Markdown => new Markdown({ markdown })
+export const markdown = (markdown: string): Markdown => Markdown({ markdown })
 
-export const tgx = (tgx: TgxElement): Tgx => new Tgx({ tgx })
+export const tgx = (tgx: TgxElement): Tgx => Tgx({ tgx })

@@ -37,6 +37,16 @@ export const sendMessage: (params: {
 > = internal.sendMessage
 
 // =============================================================================
+// TargetDialog
+// =============================================================================
+
+/**
+ * Target dialog for sending messages.
+ */
+export interface TargetDialog { readonly _: unique symbol }
+export const TargetDialog: Context.Tag<TargetDialog, Dialog.Dialog | Dialog.DialogId> = Context.GenericTag<TargetDialog, Dialog.Dialog | Dialog.DialogId>('@grom.js/effect-tg/Send/TargetDialog')
+
+// =============================================================================
 // MessageToSend
 // =============================================================================
 
@@ -108,16 +118,6 @@ export const message = (content: Content.Content, params?: {
   self.options = params?.options
   return self
 }
-
-// =============================================================================
-// TargetDialog
-// =============================================================================
-
-/**
- * Target dialog for sending messages.
- */
-const _TargetDialog: Context.TagClass<TargetDialog, '@grom.js/effect-tg/Send/TargetDialog', Dialog.Dialog | Dialog.DialogId> = Context.Tag('@grom.js/effect-tg/Send/TargetDialog')<TargetDialog, Dialog.Dialog | Dialog.DialogId>()
-export class TargetDialog extends _TargetDialog {}
 
 /**
  * Provides the target dialog for sending messages.

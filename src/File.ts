@@ -16,12 +16,16 @@ export const FileId: Brand.Brand.Constructor<FileId> = Brand.nominal<FileId>()
 export type External = URL & Brand.Brand<'External'>
 export const External: Brand.Brand.Constructor<External> = Brand.nominal<External>()
 
-const _InputFile: ReturnType<typeof Data.TaggedClass<'InputFile'>> = Data.TaggedClass('InputFile')
-export class InputFile extends _InputFile<{
-  stream: Stream.Stream<Uint8Array>
-  filename: string
-  mimeType?: string
-}> {}
+export interface InputFile {
+  readonly _tag: 'InputFile'
+  readonly stream: Stream.Stream<Uint8Array>
+  readonly filename: string
+  readonly mimeType?: string
+}
+export const InputFile: Data.Case.Constructor<InputFile, '_tag'> = Data.tagged<InputFile>('InputFile')
+
+export const isInputFile = (u: unknown): u is InputFile =>
+  typeof u === 'object' && u !== null && '_tag' in u && (u as { _tag: unknown })._tag === 'InputFile'
 
 /**
  * Downloads a file from the Bot API server.

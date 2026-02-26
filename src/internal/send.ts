@@ -1,7 +1,6 @@
 import type * as Effect from 'effect/Effect'
 import type * as BotApiError from '../BotApiError.ts'
 import type * as Content from '../Content.ts'
-import type * as Dialog from '../Dialog.ts'
 import type * as Markup from '../Markup.ts'
 import type * as Reply from '../Reply.ts'
 import type * as Send from '../Send.ts'
@@ -12,6 +11,7 @@ import * as Duration from 'effect/Duration'
 import * as Match from 'effect/Match'
 import * as Option from 'effect/Option'
 import * as BotApi from '../BotApi.ts'
+import * as Dialog from '../Dialog.ts'
 import * as LinkPreview from '../LinkPreview.ts'
 
 // =============================================================================
@@ -246,27 +246,27 @@ const paramsDialog: (
   })),
   Match.tagsExhaustive({
     User: user => ({
-      chat_id: user.dialogId(),
+      chat_id: Dialog.dialogId(user),
     }),
     Group: group => ({
-      chat_id: group.dialogId(),
+      chat_id: Dialog.dialogId(group),
     }),
     Channel: channel => ({
-      chat_id: channel.dialogId(),
+      chat_id: Dialog.dialogId(channel),
     }),
     Supergroup: supergroup => ({
-      chat_id: supergroup.dialogId(),
+      chat_id: Dialog.dialogId(supergroup),
     }),
     PrivateTopic: topic => ({
-      chat_id: topic.user.dialogId(),
+      chat_id: Dialog.dialogId(topic.user),
       message_thread_id: topic.topicId,
     }),
     ForumTopic: topic => ({
-      chat_id: topic.supergroup.dialogId(),
+      chat_id: Dialog.dialogId(topic.supergroup),
       message_thread_id: topic.topicId,
     }),
     ChannelDm: dm => ({
-      chat_id: dm.channel.dialogId(),
+      chat_id: Dialog.dialogId(dm.channel),
       direct_messages_topic_id: dm.topicId,
     }),
   }),
@@ -466,7 +466,7 @@ const paramsReply = (
   reply_parameters: {
     chat_id: Match.value(reply.dialog).pipe(
       Match.when(Match.number, id => id),
-      Match.orElse(peer => peer.dialogId()),
+      Match.orElse(peer => Dialog.dialogId(peer)),
     ),
     message_id: reply.messageId,
     checklist_task_id: Option.getOrUndefined(reply.taskId),

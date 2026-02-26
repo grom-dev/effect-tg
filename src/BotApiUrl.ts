@@ -1,7 +1,7 @@
 import * as Context from 'effect/Context'
 
-const _BotApiUrl: Context.TagClass<BotApiUrl, '@grom.js/effect-tg/BotApiUrl', Service> = Context.Tag('@grom.js/effect-tg/BotApiUrl')<BotApiUrl, Service>()
-export class BotApiUrl extends _BotApiUrl {}
+export interface BotApiUrl { readonly _: unique symbol }
+export const BotApiUrl: Context.Tag<BotApiUrl, Service> = Context.GenericTag<BotApiUrl, Service>('@grom.js/effect-tg/BotApiUrl')
 
 export interface Service {
   toMethod: (method: string) => URL

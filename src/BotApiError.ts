@@ -25,11 +25,11 @@ export type BotApiError =
 /**
  * Error caused by the transport when accessing Bot API.
  */
-const _TransportError: ReturnType<typeof Data.TaggedError<'TransportError'>> = Data.TaggedError('TransportError')
+const TransportError_base: ReturnType<typeof Data.TaggedError<'TransportError'>> = Data.TaggedError('TransportError')
 // eslint-disable-next-line ts/no-unsafe-declaration-merging
 export interface TransportError { readonly [TypeId]: TypeId }
 // eslint-disable-next-line ts/no-unsafe-declaration-merging
-export class TransportError extends _TransportError<{
+export class TransportError extends TransportError_base<{
   cause:
     | HttpClientError.HttpClientError
     | HttpBody.HttpBodyError
@@ -51,11 +51,11 @@ export class TransportError extends _TransportError<{
 }
 Object.defineProperty(TransportError.prototype, TypeId, { value: TypeId })
 
-const _MethodFailed: ReturnType<typeof Data.TaggedError<'MethodFailed'>> = Data.TaggedError('MethodFailed')
+const MethodFailed_base: ReturnType<typeof Data.TaggedError<'MethodFailed'>> = Data.TaggedError('MethodFailed')
 // eslint-disable-next-line ts/no-unsafe-declaration-merging
 export interface MethodFailed { readonly [TypeId]: TypeId }
 // eslint-disable-next-line ts/no-unsafe-declaration-merging
-export class MethodFailed extends _MethodFailed<{
+export class MethodFailed extends MethodFailed_base<{
   response: FailureResponse
   possibleReason: MethodFailureReason
 }> {
@@ -65,11 +65,11 @@ export class MethodFailed extends _MethodFailed<{
 }
 Object.defineProperty(MethodFailed.prototype, TypeId, { value: TypeId })
 
-const _GroupUpgraded: ReturnType<typeof Data.TaggedError<'GroupUpgraded'>> = Data.TaggedError('GroupUpgraded')
+const GroupUpgraded_base: ReturnType<typeof Data.TaggedError<'GroupUpgraded'>> = Data.TaggedError('GroupUpgraded')
 // eslint-disable-next-line ts/no-unsafe-declaration-merging
 export interface GroupUpgraded { readonly [TypeId]: TypeId }
 // eslint-disable-next-line ts/no-unsafe-declaration-merging
-export class GroupUpgraded extends _GroupUpgraded<{
+export class GroupUpgraded extends GroupUpgraded_base<{
   response: FailureResponse
   supergroup: Dialog.Supergroup
 }> {
@@ -79,11 +79,11 @@ export class GroupUpgraded extends _GroupUpgraded<{
 }
 Object.defineProperty(GroupUpgraded.prototype, TypeId, { value: TypeId })
 
-const _RateLimited: ReturnType<typeof Data.TaggedError<'RateLimited'>> = Data.TaggedError('RateLimited')
+const RateLimited_base: ReturnType<typeof Data.TaggedError<'RateLimited'>> = Data.TaggedError('RateLimited')
 // eslint-disable-next-line ts/no-unsafe-declaration-merging
 export interface RateLimited { readonly [TypeId]: TypeId }
 // eslint-disable-next-line ts/no-unsafe-declaration-merging
-export class RateLimited extends _RateLimited<{
+export class RateLimited extends RateLimited_base<{
   response: FailureResponse
   retryAfter: Duration.Duration
 }> {
@@ -93,11 +93,11 @@ export class RateLimited extends _RateLimited<{
 }
 Object.defineProperty(RateLimited.prototype, TypeId, { value: TypeId })
 
-const _InternalServerError: ReturnType<typeof Data.TaggedError<'InternalServerError'>> = Data.TaggedError('InternalServerError')
+const InternalServerError_base: ReturnType<typeof Data.TaggedError<'InternalServerError'>> = Data.TaggedError('InternalServerError')
 // eslint-disable-next-line ts/no-unsafe-declaration-merging
 export interface InternalServerError { readonly [TypeId]: TypeId }
 // eslint-disable-next-line ts/no-unsafe-declaration-merging
-export class InternalServerError extends _InternalServerError<{
+export class InternalServerError extends InternalServerError_base<{
   response: FailureResponse
 }> {}
 Object.defineProperty(InternalServerError.prototype, TypeId, { value: TypeId })

@@ -7,8 +7,8 @@ import * as Layer from 'effect/Layer'
 import * as BotApiUrl from './BotApiUrl.ts'
 import * as internal from './internal/botApiTransport.ts'
 
-const _BotApiTransport: Context.TagClass<BotApiTransport, '@grom.js/effect-tg/BotApiTransport', Service> = Context.Tag('@grom.js/effect-tg/BotApiTransport')<BotApiTransport, Service>()
-export class BotApiTransport extends _BotApiTransport {}
+export interface BotApiTransport { readonly _: unique symbol }
+export const BotApiTransport: Context.Tag<BotApiTransport, Service> = Context.GenericTag<BotApiTransport, Service>('@grom.js/effect-tg/BotApiTransport')
 
 export interface Service {
   sendRequest: (

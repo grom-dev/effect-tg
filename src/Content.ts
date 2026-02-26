@@ -28,197 +28,184 @@ export type Content =
   | Sticker
 
 /**
- * Content of a text message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_text.html TDLib • td_api.inputMessageText}
  * @see {@link https://core.telegram.org/bots/api#sendmessage Bot API • sendMessage}
  */
-const _Text: ReturnType<typeof Data.TaggedClass<'Text'>> = Data.TaggedClass('Text')
-export class Text extends _Text<{
-  text: Text_.Text
-  linkPreview: Option.Option<LinkPreview.LinkPreview>
-}> {}
+export interface Text {
+  readonly _tag: 'Text'
+  readonly text: Text_.Text
+  readonly linkPreview: Option.Option<LinkPreview.LinkPreview>
+}
+export const Text: Data.Case.Constructor<Text, '_tag'> = Data.tagged<Text>('Text')
 
 /**
- * Content of a photo message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_photo.html TDLib • td_api.inputMessagePhoto}
  * @see {@link https://core.telegram.org/bots/api#sendphoto Bot API • sendPhoto}
  */
-const _Photo: ReturnType<typeof Data.TaggedClass<'Photo'>> = Data.TaggedClass('Photo')
-export class Photo extends _Photo<{
-  file: File.FileId | File.External | File.InputFile
-  caption: Option.Option<Text_.Text>
-  layout: 'caption-above' | 'caption-below'
-  spoiler: boolean
-}> {}
+export interface Photo {
+  readonly _tag: 'Photo'
+  readonly file: File.FileId | File.External | File.InputFile
+  readonly caption: Option.Option<Text_.Text>
+  readonly layout: 'caption-above' | 'caption-below'
+  readonly spoiler: boolean
+}
+export const Photo: Data.Case.Constructor<Photo, '_tag'> = Data.tagged<Photo>('Photo')
 
 /**
- * Content of an audio message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_audio.html TDLib • td_api.inputMessageAudio}
  * @see {@link https://core.telegram.org/bots/api#sendaudio Bot API • sendAudio}
  */
-const _Audio: ReturnType<typeof Data.TaggedClass<'Audio'>> = Data.TaggedClass('Audio')
-export class Audio extends _Audio<{
-  file: File.FileId | File.External | File.InputFile
-  caption: Option.Option<Text_.Text>
-  duration: Option.Option<Duration.Duration>
-  performer: Option.Option<string>
-  title: Option.Option<string>
-  thumbnail: Option.Option<File.InputFile>
-}> {}
+export interface Audio {
+  readonly _tag: 'Audio'
+  readonly file: File.FileId | File.External | File.InputFile
+  readonly caption: Option.Option<Text_.Text>
+  readonly duration: Option.Option<Duration.Duration>
+  readonly performer: Option.Option<string>
+  readonly title: Option.Option<string>
+  readonly thumbnail: Option.Option<File.InputFile>
+}
+export const Audio: Data.Case.Constructor<Audio, '_tag'> = Data.tagged<Audio>('Audio')
 
 /**
- * Content of a document message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_document.html TDLib • td_api.inputMessageDocument}
  * @see {@link https://core.telegram.org/bots/api#senddocument Bot API • sendDocument}
  */
-const _Document: ReturnType<typeof Data.TaggedClass<'Document'>> = Data.TaggedClass('Document')
-export class Document extends _Document<{
-  file: File.FileId | File.External | File.InputFile
-  caption: Option.Option<Text_.Text>
-  thumbnail: Option.Option<File.InputFile>
-  contentTypeDetection: boolean
-}> {}
+export interface Document {
+  readonly _tag: 'Document'
+  readonly file: File.FileId | File.External | File.InputFile
+  readonly caption: Option.Option<Text_.Text>
+  readonly thumbnail: Option.Option<File.InputFile>
+  readonly contentTypeDetection: boolean
+}
+export const Document: Data.Case.Constructor<Document, '_tag'> = Data.tagged<Document>('Document')
 
 /**
- * Content of a video message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_video.html TDLib • td_api.inputMessageVideo}
  * @see {@link https://core.telegram.org/bots/api#sendvideo Bot API • sendVideo}
  */
-const _Video: ReturnType<typeof Data.TaggedClass<'Video'>> = Data.TaggedClass('Video')
-export class Video extends _Video<{
-  file: File.FileId | File.External | File.InputFile
-  caption: Option.Option<Text_.Text>
-  layout: 'caption-above' | 'caption-below'
-  spoiler: boolean
-  duration: Option.Option<Duration.Duration>
-  width: Option.Option<number>
-  height: Option.Option<number>
-  thumbnail: Option.Option<File.InputFile>
-  cover: Option.Option<File.FileId | File.External | File.InputFile>
-  startAt: Option.Option<Duration.Duration>
-  supportsStreaming: boolean
-}> {}
+export interface Video {
+  readonly _tag: 'Video'
+  readonly file: File.FileId | File.External | File.InputFile
+  readonly caption: Option.Option<Text_.Text>
+  readonly layout: 'caption-above' | 'caption-below'
+  readonly spoiler: boolean
+  readonly duration: Option.Option<Duration.Duration>
+  readonly width: Option.Option<number>
+  readonly height: Option.Option<number>
+  readonly thumbnail: Option.Option<File.InputFile>
+  readonly cover: Option.Option<File.FileId | File.External | File.InputFile>
+  readonly startAt: Option.Option<Duration.Duration>
+  readonly supportsStreaming: boolean
+}
+export const Video: Data.Case.Constructor<Video, '_tag'> = Data.tagged<Video>('Video')
 
 /**
- * Content of an animation message (GIF or video without sound).
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_animation.html TDLib • td_api.inputMessageAnimation}
  * @see {@link https://core.telegram.org/bots/api#sendanimation Bot API • sendAnimation}
  */
-const _Animation: ReturnType<typeof Data.TaggedClass<'Animation'>> = Data.TaggedClass('Animation')
-export class Animation extends _Animation<{
-  file: File.FileId | File.External | File.InputFile
-  caption: Option.Option<Text_.Text>
-  layout: 'caption-above' | 'caption-below'
-  spoiler: boolean
-  duration: Option.Option<Duration.Duration>
-  width: Option.Option<number>
-  height: Option.Option<number>
-  thumbnail: Option.Option<File.InputFile>
-}> {}
+export interface Animation {
+  readonly _tag: 'Animation'
+  readonly file: File.FileId | File.External | File.InputFile
+  readonly caption: Option.Option<Text_.Text>
+  readonly layout: 'caption-above' | 'caption-below'
+  readonly spoiler: boolean
+  readonly duration: Option.Option<Duration.Duration>
+  readonly width: Option.Option<number>
+  readonly height: Option.Option<number>
+  readonly thumbnail: Option.Option<File.InputFile>
+}
+export const Animation: Data.Case.Constructor<Animation, '_tag'> = Data.tagged<Animation>('Animation')
 
 /**
- * Content of a voice note message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_voice_note.html TDLib • td_api.inputMessageVoiceNote}
  * @see {@link https://core.telegram.org/bots/api#sendvoice Bot API • sendVoice}
  */
-const _Voice: ReturnType<typeof Data.TaggedClass<'Voice'>> = Data.TaggedClass('Voice')
-export class Voice extends _Voice<{
-  file: File.FileId | File.External | File.InputFile
-  caption: Option.Option<Text_.Text>
-  duration: Option.Option<Duration.Duration>
-}> {}
+export interface Voice {
+  readonly _tag: 'Voice'
+  readonly file: File.FileId | File.External | File.InputFile
+  readonly caption: Option.Option<Text_.Text>
+  readonly duration: Option.Option<Duration.Duration>
+}
+export const Voice: Data.Case.Constructor<Voice, '_tag'> = Data.tagged<Voice>('Voice')
 
 /**
- * Content of a video note message (round video).
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_video_note.html TDLib • td_api.inputMessageVideoNote}
  * @see {@link https://core.telegram.org/bots/api#sendvideonote Bot API • sendVideoNote}
  */
-const _VideoNote: ReturnType<typeof Data.TaggedClass<'VideoNote'>> = Data.TaggedClass('VideoNote')
-export class VideoNote extends _VideoNote<{
-  file: File.FileId | File.InputFile
-  duration: Option.Option<Duration.Duration>
-  diameter: Option.Option<number>
-  thumbnail: Option.Option<File.InputFile>
-}> {}
+export interface VideoNote {
+  readonly _tag: 'VideoNote'
+  readonly file: File.FileId | File.InputFile
+  readonly duration: Option.Option<Duration.Duration>
+  readonly diameter: Option.Option<number>
+  readonly thumbnail: Option.Option<File.InputFile>
+}
+export const VideoNote: Data.Case.Constructor<VideoNote, '_tag'> = Data.tagged<VideoNote>('VideoNote')
 
 /**
- * Content of a location message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_location.html TDLib • td_api.inputMessageLocation}
  * @see {@link https://core.telegram.org/bots/api#sendlocation Bot API • sendLocation}
  */
-const _Location: ReturnType<typeof Data.TaggedClass<'Location'>> = Data.TaggedClass('Location')
-export class Location extends _Location<{
-  latitude: number
-  longitude: number
-  uncertaintyRadius: Option.Option<number>
-  livePeriod: Option.Option<Duration.Duration>
-  heading: Option.Option<number>
-  proximityAlertRadius: Option.Option<number>
-}> {}
+export interface Location {
+  readonly _tag: 'Location'
+  readonly latitude: number
+  readonly longitude: number
+  readonly uncertaintyRadius: Option.Option<number>
+  readonly livePeriod: Option.Option<Duration.Duration>
+  readonly heading: Option.Option<number>
+  readonly proximityAlertRadius: Option.Option<number>
+}
+export const Location: Data.Case.Constructor<Location, '_tag'> = Data.tagged<Location>('Location')
 
 /**
- * Content of a venue message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_venue.html TDLib • td_api.inputMessageVenue}
  * @see {@link https://core.telegram.org/bots/api#sendvenue Bot API • sendVenue}
  */
-const _Venue: ReturnType<typeof Data.TaggedClass<'Venue'>> = Data.TaggedClass('Venue')
-export class Venue extends _Venue<{
-  latitude: number
-  longitude: number
-  title: string
-  address: string
-  foursquareId: Option.Option<string>
-  foursquareType: Option.Option<string>
-  googlePlaceId: Option.Option<string>
-  googlePlaceType: Option.Option<string>
-}> {}
+export interface Venue {
+  readonly _tag: 'Venue'
+  readonly latitude: number
+  readonly longitude: number
+  readonly title: string
+  readonly address: string
+  readonly foursquareId: Option.Option<string>
+  readonly foursquareType: Option.Option<string>
+  readonly googlePlaceId: Option.Option<string>
+  readonly googlePlaceType: Option.Option<string>
+}
+export const Venue: Data.Case.Constructor<Venue, '_tag'> = Data.tagged<Venue>('Venue')
 
 /**
- * Content of a contact message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_contact.html TDLib • td_api.inputMessageContact}
  * @see {@link https://core.telegram.org/bots/api#sendcontact Bot API • sendContact}
  */
-const _Contact: ReturnType<typeof Data.TaggedClass<'Contact'>> = Data.TaggedClass('Contact')
-export class Contact extends _Contact<{
-  phoneNumber: string
-  firstName: string
-  lastName: Option.Option<string>
-  vcard: Option.Option<string>
-}> {}
+export interface Contact {
+  readonly _tag: 'Contact'
+  readonly phoneNumber: string
+  readonly firstName: string
+  readonly lastName: Option.Option<string>
+  readonly vcard: Option.Option<string>
+}
+export const Contact: Data.Case.Constructor<Contact, '_tag'> = Data.tagged<Contact>('Contact')
 
 /**
- * Content of a dice message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_dice.html TDLib • td_api.inputMessageDice}
  * @see {@link https://core.telegram.org/bots/api#senddice Bot API • sendDice}
  */
-const _Dice: ReturnType<typeof Data.TaggedClass<'Dice'>> = Data.TaggedClass('Dice')
-export class Dice extends _Dice<{
-  emoji: '🎲' | '🎯' | '🏀' | '⚽' | '🎳' | '🎰'
-}> {}
+export interface Dice {
+  readonly _tag: 'Dice'
+  readonly emoji: '🎲' | '🎯' | '🏀' | '⚽' | '🎳' | '🎰'
+}
+export const Dice: Data.Case.Constructor<Dice, '_tag'> = Data.tagged<Dice>('Dice')
 
 /**
- * Content of a sticker message.
- *
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_sticker.html TDLib • td_api.inputMessageSticker}
  * @see {@link https://core.telegram.org/bots/api#sendsticker Bot API • sendSticker}
  */
-const _Sticker: ReturnType<typeof Data.TaggedClass<'Sticker'>> = Data.TaggedClass('Sticker')
-export class Sticker extends _Sticker<{
-  file: File.FileId | File.External | File.InputFile
-  emoji: Option.Option<string>
-}> {}
+export interface Sticker {
+  readonly _tag: 'Sticker'
+  readonly file: File.FileId | File.External | File.InputFile
+  readonly emoji: Option.Option<string>
+}
+export const Sticker: Data.Case.Constructor<Sticker, '_tag'> = Data.tagged<Sticker>('Sticker')
 
 // ——— Constructors ——————————————————————————————————————————————————————————
 
@@ -227,7 +214,7 @@ export const text = (
   options?: {
     linkPreview?: LinkPreview.LinkPreview
   },
-): Text => new Text({
+): Text => Text({
   text,
   linkPreview: Option.fromNullable(options?.linkPreview),
 })
@@ -239,7 +226,7 @@ export const photo = (
     layout?: 'caption-above' | 'caption-below'
     spoiler?: boolean
   },
-): Photo => new Photo({
+): Photo => Photo({
   file,
   caption: Option.fromNullable(options.caption),
   layout: options.layout ?? 'caption-below',
@@ -255,7 +242,7 @@ export const audio = (
     title?: string
     thumbnail?: File.InputFile
   },
-): Audio => new Audio({
+): Audio => Audio({
   file,
   caption: Option.fromNullable(options.caption),
   duration: Option.fromNullable(options.duration),
@@ -271,7 +258,7 @@ export const document = (
     thumbnail?: File.InputFile
     contentTypeDetection?: boolean
   },
-): Document => new Document({
+): Document => Document({
   file,
   caption: Option.fromNullable(options.caption),
   thumbnail: Option.fromNullable(options.thumbnail),
@@ -292,7 +279,7 @@ export const video = (
     startAt?: Duration.Duration
     supportsStreaming?: boolean
   },
-): Video => new Video({
+): Video => Video({
   file,
   caption: Option.fromNullable(options.caption),
   layout: options.layout ?? 'caption-below',
@@ -317,7 +304,7 @@ export const animation = (
     height?: number
     thumbnail?: File.InputFile
   },
-): Animation => new Animation({
+): Animation => Animation({
   file,
   caption: Option.fromNullable(options.caption),
   layout: options.layout ?? 'caption-below',
@@ -334,7 +321,7 @@ export const voice = (
     caption?: Text_.Text
     duration?: Duration.Duration
   },
-): Voice => new Voice({
+): Voice => Voice({
   file,
   caption: Option.fromNullable(options.caption),
   duration: Option.fromNullable(options.duration),
@@ -347,7 +334,7 @@ export const videoNote = (
     diameter?: number
     thumbnail?: File.InputFile
   },
-): VideoNote => new VideoNote({
+): VideoNote => VideoNote({
   file,
   duration: Option.fromNullable(options.duration),
   diameter: Option.fromNullable(options.diameter),
@@ -358,7 +345,7 @@ export const location = (options: {
   latitude: number
   longitude: number
   uncertaintyRadius?: number
-}): Location => new Location({
+}): Location => Location({
   latitude: options.latitude,
   longitude: options.longitude,
   uncertaintyRadius: Option.fromNullable(options.uncertaintyRadius),
@@ -374,7 +361,7 @@ export const liveLocation = (options: {
   livePeriod: Duration.Duration
   heading?: number
   proximityAlertRadius?: number
-}): Location => new Location({
+}): Location => Location({
   latitude: options.latitude,
   longitude: options.longitude,
   uncertaintyRadius: Option.fromNullable(options.uncertaintyRadius),
@@ -392,7 +379,7 @@ export const venue = (options: {
   foursquareType?: string
   googlePlaceId?: string
   googlePlaceType?: string
-}): Venue => new Venue({
+}): Venue => Venue({
   latitude: options.latitude,
   longitude: options.longitude,
   title: options.title,
@@ -408,16 +395,16 @@ export const contact = (options: {
   firstName: string
   lastName?: string
   vcard?: string
-}): Contact => new Contact({
+}): Contact => Contact({
   phoneNumber: options.phoneNumber,
   firstName: options.firstName,
   lastName: Option.fromNullable(options.lastName),
   vcard: Option.fromNullable(options.vcard),
 })
 
-export const dice = (emoji: Dice['emoji']): Dice => new Dice({ emoji })
+export const dice = (emoji: Dice['emoji']): Dice => Dice({ emoji })
 
 export const sticker = (
   file: File.FileId | File.External | File.InputFile,
   emoji?: string,
-): Sticker => new Sticker({ file, emoji: Option.fromNullable(emoji) })
+): Sticker => Sticker({ file, emoji: Option.fromNullable(emoji) })
