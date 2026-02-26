@@ -16,7 +16,8 @@ export const FileId: Brand.Brand.Constructor<FileId> = Brand.nominal<FileId>()
 export type External = URL & Brand.Brand<'External'>
 export const External: Brand.Brand.Constructor<External> = Brand.nominal<External>()
 
-export class InputFile extends Data.TaggedClass('InputFile')<{
+const _InputFile: ReturnType<typeof Data.TaggedClass<'InputFile'>> = Data.TaggedClass('InputFile')
+export class InputFile extends _InputFile<{
   stream: Stream.Stream<Uint8Array>
   filename: string
   mimeType?: string

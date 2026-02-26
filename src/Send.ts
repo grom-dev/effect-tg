@@ -116,10 +116,8 @@ export const message = (content: Content.Content, params?: {
 /**
  * Target dialog for sending messages.
  */
-export class TargetDialog extends Context.Tag('@grom.js/effect-tg/Send/TargetDialog')<
-  TargetDialog,
-  Dialog.Dialog | Dialog.DialogId
->() {}
+const _TargetDialog: Context.TagClass<TargetDialog, '@grom.js/effect-tg/Send/TargetDialog', Dialog.Dialog | Dialog.DialogId> = Context.Tag('@grom.js/effect-tg/Send/TargetDialog')<TargetDialog, Dialog.Dialog | Dialog.DialogId>()
+export class TargetDialog extends _TargetDialog {}
 
 /**
  * Provides the target dialog for sending messages.

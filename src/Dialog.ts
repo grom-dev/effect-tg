@@ -14,17 +14,20 @@ export type Dialog =
   | ForumTopic
   | ChannelDm
 
-export class PrivateTopic extends Data.TaggedClass('PrivateTopic')<{
+const _PrivateTopic: ReturnType<typeof Data.TaggedClass<'PrivateTopic'>> = Data.TaggedClass('PrivateTopic')
+export class PrivateTopic extends _PrivateTopic<{
   user: User
   topicId: number
 }> {}
 
-export class ForumTopic extends Data.TaggedClass('ForumTopic')<{
+const _ForumTopic: ReturnType<typeof Data.TaggedClass<'ForumTopic'>> = Data.TaggedClass('ForumTopic')
+export class ForumTopic extends _ForumTopic<{
   supergroup: Supergroup
   topicId: number
 }> {}
 
-export class ChannelDm extends Data.TaggedClass('ChannelDm')<{
+const _ChannelDm: ReturnType<typeof Data.TaggedClass<'ChannelDm'>> = Data.TaggedClass('ChannelDm')
+export class ChannelDm extends _ChannelDm<{
   channel: Channel
   topicId: number
 }> {}
@@ -39,7 +42,8 @@ export type Peer =
   | Channel
   | Supergroup
 
-export class User extends Data.TaggedClass('User')<{
+const _User: ReturnType<typeof Data.TaggedClass<'User'>> = Data.TaggedClass('User')
+export class User extends _User<{
   id: UserId
 }> {
   public dialogId(): DialogId {
@@ -51,7 +55,8 @@ export class User extends Data.TaggedClass('User')<{
   }
 }
 
-export class Group extends Data.TaggedClass('Group')<{
+const _Group: ReturnType<typeof Data.TaggedClass<'Group'>> = Data.TaggedClass('Group')
+export class Group extends _Group<{
   id: GroupId
 }> {
   public dialogId(): DialogId {
@@ -59,7 +64,8 @@ export class Group extends Data.TaggedClass('Group')<{
   }
 }
 
-export class Channel extends Data.TaggedClass('Channel')<{
+const _Channel: ReturnType<typeof Data.TaggedClass<'Channel'>> = Data.TaggedClass('Channel')
+export class Channel extends _Channel<{
   id: ChannelId
 }> {
   public dialogId(): DialogId {
@@ -71,7 +77,8 @@ export class Channel extends Data.TaggedClass('Channel')<{
   }
 }
 
-export class Supergroup extends Data.TaggedClass('Supergroup')<{
+const _Supergroup: ReturnType<typeof Data.TaggedClass<'Supergroup'>> = Data.TaggedClass('Supergroup')
+export class Supergroup extends _Supergroup<{
   id: SupergroupId
 }> {
   public dialogId(): DialogId {

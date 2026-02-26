@@ -11,20 +11,24 @@ export type Text =
   | Markdown
   | Tgx
 
-export class Plain extends Data.TaggedClass('Plain')<{
+const _Plain: ReturnType<typeof Data.TaggedClass<'Plain'>> = Data.TaggedClass('Plain')
+export class Plain extends _Plain<{
   text: string
   entities?: Array<Types.MessageEntity>
 }> {}
 
-export class Html extends Data.TaggedClass('Html')<{
+const _Html: ReturnType<typeof Data.TaggedClass<'Html'>> = Data.TaggedClass('Html')
+export class Html extends _Html<{
   html: string
 }> {}
 
-export class Markdown extends Data.TaggedClass('Markdown')<{
+const _Markdown: ReturnType<typeof Data.TaggedClass<'Markdown'>> = Data.TaggedClass('Markdown')
+export class Markdown extends _Markdown<{
   markdown: string
 }> {}
 
-export class Tgx extends Data.TaggedClass('Tgx')<{
+const _Tgx: ReturnType<typeof Data.TaggedClass<'Tgx'>> = Data.TaggedClass('Tgx')
+export class Tgx extends _Tgx<{
   tgx: TgxElement
 }> {}
 

@@ -33,7 +33,8 @@ export type Content =
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_text.html TDLib • td_api.inputMessageText}
  * @see {@link https://core.telegram.org/bots/api#sendmessage Bot API • sendMessage}
  */
-export class Text extends Data.TaggedClass('Text')<{
+const _Text: ReturnType<typeof Data.TaggedClass<'Text'>> = Data.TaggedClass('Text')
+export class Text extends _Text<{
   text: Text_.Text
   linkPreview: Option.Option<LinkPreview.LinkPreview>
 }> {}
@@ -44,7 +45,8 @@ export class Text extends Data.TaggedClass('Text')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_photo.html TDLib • td_api.inputMessagePhoto}
  * @see {@link https://core.telegram.org/bots/api#sendphoto Bot API • sendPhoto}
  */
-export class Photo extends Data.TaggedClass('Photo')<{
+const _Photo: ReturnType<typeof Data.TaggedClass<'Photo'>> = Data.TaggedClass('Photo')
+export class Photo extends _Photo<{
   file: File.FileId | File.External | File.InputFile
   caption: Option.Option<Text_.Text>
   layout: 'caption-above' | 'caption-below'
@@ -57,7 +59,8 @@ export class Photo extends Data.TaggedClass('Photo')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_audio.html TDLib • td_api.inputMessageAudio}
  * @see {@link https://core.telegram.org/bots/api#sendaudio Bot API • sendAudio}
  */
-export class Audio extends Data.TaggedClass('Audio')<{
+const _Audio: ReturnType<typeof Data.TaggedClass<'Audio'>> = Data.TaggedClass('Audio')
+export class Audio extends _Audio<{
   file: File.FileId | File.External | File.InputFile
   caption: Option.Option<Text_.Text>
   duration: Option.Option<Duration.Duration>
@@ -72,7 +75,8 @@ export class Audio extends Data.TaggedClass('Audio')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_document.html TDLib • td_api.inputMessageDocument}
  * @see {@link https://core.telegram.org/bots/api#senddocument Bot API • sendDocument}
  */
-export class Document extends Data.TaggedClass('Document')<{
+const _Document: ReturnType<typeof Data.TaggedClass<'Document'>> = Data.TaggedClass('Document')
+export class Document extends _Document<{
   file: File.FileId | File.External | File.InputFile
   caption: Option.Option<Text_.Text>
   thumbnail: Option.Option<File.InputFile>
@@ -85,7 +89,8 @@ export class Document extends Data.TaggedClass('Document')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_video.html TDLib • td_api.inputMessageVideo}
  * @see {@link https://core.telegram.org/bots/api#sendvideo Bot API • sendVideo}
  */
-export class Video extends Data.TaggedClass('Video')<{
+const _Video: ReturnType<typeof Data.TaggedClass<'Video'>> = Data.TaggedClass('Video')
+export class Video extends _Video<{
   file: File.FileId | File.External | File.InputFile
   caption: Option.Option<Text_.Text>
   layout: 'caption-above' | 'caption-below'
@@ -105,7 +110,8 @@ export class Video extends Data.TaggedClass('Video')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_animation.html TDLib • td_api.inputMessageAnimation}
  * @see {@link https://core.telegram.org/bots/api#sendanimation Bot API • sendAnimation}
  */
-export class Animation extends Data.TaggedClass('Animation')<{
+const _Animation: ReturnType<typeof Data.TaggedClass<'Animation'>> = Data.TaggedClass('Animation')
+export class Animation extends _Animation<{
   file: File.FileId | File.External | File.InputFile
   caption: Option.Option<Text_.Text>
   layout: 'caption-above' | 'caption-below'
@@ -122,7 +128,8 @@ export class Animation extends Data.TaggedClass('Animation')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_voice_note.html TDLib • td_api.inputMessageVoiceNote}
  * @see {@link https://core.telegram.org/bots/api#sendvoice Bot API • sendVoice}
  */
-export class Voice extends Data.TaggedClass('Voice')<{
+const _Voice: ReturnType<typeof Data.TaggedClass<'Voice'>> = Data.TaggedClass('Voice')
+export class Voice extends _Voice<{
   file: File.FileId | File.External | File.InputFile
   caption: Option.Option<Text_.Text>
   duration: Option.Option<Duration.Duration>
@@ -134,7 +141,8 @@ export class Voice extends Data.TaggedClass('Voice')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_video_note.html TDLib • td_api.inputMessageVideoNote}
  * @see {@link https://core.telegram.org/bots/api#sendvideonote Bot API • sendVideoNote}
  */
-export class VideoNote extends Data.TaggedClass('VideoNote')<{
+const _VideoNote: ReturnType<typeof Data.TaggedClass<'VideoNote'>> = Data.TaggedClass('VideoNote')
+export class VideoNote extends _VideoNote<{
   file: File.FileId | File.InputFile
   duration: Option.Option<Duration.Duration>
   diameter: Option.Option<number>
@@ -147,7 +155,8 @@ export class VideoNote extends Data.TaggedClass('VideoNote')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_location.html TDLib • td_api.inputMessageLocation}
  * @see {@link https://core.telegram.org/bots/api#sendlocation Bot API • sendLocation}
  */
-export class Location extends Data.TaggedClass('Location')<{
+const _Location: ReturnType<typeof Data.TaggedClass<'Location'>> = Data.TaggedClass('Location')
+export class Location extends _Location<{
   latitude: number
   longitude: number
   uncertaintyRadius: Option.Option<number>
@@ -162,7 +171,8 @@ export class Location extends Data.TaggedClass('Location')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_venue.html TDLib • td_api.inputMessageVenue}
  * @see {@link https://core.telegram.org/bots/api#sendvenue Bot API • sendVenue}
  */
-export class Venue extends Data.TaggedClass('Venue')<{
+const _Venue: ReturnType<typeof Data.TaggedClass<'Venue'>> = Data.TaggedClass('Venue')
+export class Venue extends _Venue<{
   latitude: number
   longitude: number
   title: string
@@ -179,7 +189,8 @@ export class Venue extends Data.TaggedClass('Venue')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_contact.html TDLib • td_api.inputMessageContact}
  * @see {@link https://core.telegram.org/bots/api#sendcontact Bot API • sendContact}
  */
-export class Contact extends Data.TaggedClass('Contact')<{
+const _Contact: ReturnType<typeof Data.TaggedClass<'Contact'>> = Data.TaggedClass('Contact')
+export class Contact extends _Contact<{
   phoneNumber: string
   firstName: string
   lastName: Option.Option<string>
@@ -192,7 +203,8 @@ export class Contact extends Data.TaggedClass('Contact')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_dice.html TDLib • td_api.inputMessageDice}
  * @see {@link https://core.telegram.org/bots/api#senddice Bot API • sendDice}
  */
-export class Dice extends Data.TaggedClass('Dice')<{
+const _Dice: ReturnType<typeof Data.TaggedClass<'Dice'>> = Data.TaggedClass('Dice')
+export class Dice extends _Dice<{
   emoji: '🎲' | '🎯' | '🏀' | '⚽' | '🎳' | '🎰'
 }> {}
 
@@ -202,7 +214,8 @@ export class Dice extends Data.TaggedClass('Dice')<{
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_sticker.html TDLib • td_api.inputMessageSticker}
  * @see {@link https://core.telegram.org/bots/api#sendsticker Bot API • sendSticker}
  */
-export class Sticker extends Data.TaggedClass('Sticker')<{
+const _Sticker: ReturnType<typeof Data.TaggedClass<'Sticker'>> = Data.TaggedClass('Sticker')
+export class Sticker extends _Sticker<{
   file: File.FileId | File.External | File.InputFile
   emoji: Option.Option<string>
 }> {}

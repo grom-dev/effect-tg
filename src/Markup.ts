@@ -14,11 +14,13 @@ export type Markup =
   | ReplyKeyboardRemove
   | ForceReply
 
-export class InlineKeyboard extends Data.TaggedClass('InlineKeyboard')<{
+const _InlineKeyboard: ReturnType<typeof Data.TaggedClass<'InlineKeyboard'>> = Data.TaggedClass('InlineKeyboard')
+export class InlineKeyboard extends _InlineKeyboard<{
   readonly rows: ReadonlyArray<ReadonlyArray<InlineButton>>
 }> {}
 
-export class ReplyKeyboard extends Data.TaggedClass('ReplyKeyboard')<{
+const _ReplyKeyboard: ReturnType<typeof Data.TaggedClass<'ReplyKeyboard'>> = Data.TaggedClass('ReplyKeyboard')
+export class ReplyKeyboard extends _ReplyKeyboard<{
   readonly rows: ReadonlyArray<ReadonlyArray<ReplyButton>>
   readonly persistent: boolean
   readonly resizable: boolean
@@ -27,11 +29,13 @@ export class ReplyKeyboard extends Data.TaggedClass('ReplyKeyboard')<{
   readonly inputPlaceholder: Option.Option<string>
 }> {}
 
-export class ReplyKeyboardRemove extends Data.TaggedClass('ReplyKeyboardRemove')<{
+const _ReplyKeyboardRemove: ReturnType<typeof Data.TaggedClass<'ReplyKeyboardRemove'>> = Data.TaggedClass('ReplyKeyboardRemove')
+export class ReplyKeyboardRemove extends _ReplyKeyboardRemove<{
   readonly selective: boolean
 }> {}
 
-export class ForceReply extends Data.TaggedClass('ForceReply')<{
+const _ForceReply: ReturnType<typeof Data.TaggedClass<'ForceReply'>> = Data.TaggedClass('ForceReply')
+export class ForceReply extends _ForceReply<{
   readonly selective: boolean
   readonly inputPlaceholder: Option.Option<string>
 }> {}

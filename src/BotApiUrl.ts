@@ -1,9 +1,7 @@
 import * as Context from 'effect/Context'
 
-export class BotApiUrl extends Context.Tag('@grom.js/effect-tg/BotApiUrl')<
-  BotApiUrl,
-  Service
->() {}
+const _BotApiUrl: Context.TagClass<BotApiUrl, '@grom.js/effect-tg/BotApiUrl', Service> = Context.Tag('@grom.js/effect-tg/BotApiUrl')<BotApiUrl, Service>()
+export class BotApiUrl extends _BotApiUrl {}
 
 export interface Service {
   toMethod: (method: string) => URL

@@ -19,10 +19,8 @@ import * as internal from './internal/botApi.ts'
 
 export type { MethodParams, MethodResults, Service, Types }
 
-export class BotApi extends Context.Tag('@grom.js/effect-tg/BotApi')<
-  BotApi,
-  Service
->() {}
+const _BotApi: Context.TagClass<BotApi, '@grom.js/effect-tg/BotApi', Service> = Context.Tag('@grom.js/effect-tg/BotApi')<BotApi, Service>()
+export class BotApi extends _BotApi {}
 
 export interface BotApiMethod<TMethod extends keyof MethodParams> {
   (...args: MethodArgs<TMethod>): Effect.Effect<
