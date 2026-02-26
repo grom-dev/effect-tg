@@ -11,32 +11,40 @@ export type Text =
   | Markdown
   | Tgx
 
-export class Plain extends Data.TaggedClass('Plain')<{
-  text: string
-  entities?: Array<Types.MessageEntity>
-}> {}
+export interface Plain {
+  readonly _tag: 'Plain'
+  readonly text: string
+  readonly entities?: Array<Types.MessageEntity>
+}
+export const Plain: Data.Case.Constructor<Plain, '_tag'> = Data.tagged<Plain>('Plain')
 
-export class Html extends Data.TaggedClass('Html')<{
-  html: string
-}> {}
+export interface Html {
+  readonly _tag: 'Html'
+  readonly html: string
+}
+export const Html: Data.Case.Constructor<Html, '_tag'> = Data.tagged<Html>('Html')
 
-export class Markdown extends Data.TaggedClass('Markdown')<{
-  markdown: string
-}> {}
+export interface Markdown {
+  readonly _tag: 'Markdown'
+  readonly markdown: string
+}
+export const Markdown: Data.Case.Constructor<Markdown, '_tag'> = Data.tagged<Markdown>('Markdown')
 
-export class Tgx extends Data.TaggedClass('Tgx')<{
-  tgx: TgxElement
-}> {}
+export interface Tgx {
+  readonly _tag: 'Tgx'
+  readonly tgx: TgxElement
+}
+export const Tgx: Data.Case.Constructor<Tgx, '_tag'> = Data.tagged<Tgx>('Tgx')
 
 // ———— Constructors ———————————————————————————————————————————————————————————
 
 export const plain = (
   text: string,
   entities?: Array<Types.MessageEntity>,
-): Plain => new Plain({ text, entities })
+): Plain => Plain({ text, entities })
 
-export const html = (html: string): Html => new Html({ html })
+export const html = (html: string): Html => Html({ html })
 
-export const markdown = (markdown: string): Markdown => new Markdown({ markdown })
+export const markdown = (markdown: string): Markdown => Markdown({ markdown })
 
-export const tgx = (tgx: TgxElement): Tgx => new Tgx({ tgx })
+export const tgx = (tgx: TgxElement): Tgx => Tgx({ tgx })

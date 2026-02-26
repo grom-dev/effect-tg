@@ -1,6 +1,7 @@
 import type * as BotApi from './BotApi.ts'
 import * as Brand from 'effect/Brand'
 import * as Data from 'effect/Data'
+import * as Match from 'effect/Match'
 import * as Option from 'effect/Option'
 import * as internal from './internal/dialog.ts'
 
@@ -14,20 +15,26 @@ export type Dialog =
   | ForumTopic
   | ChannelDm
 
-export class PrivateTopic extends Data.TaggedClass('PrivateTopic')<{
-  user: User
-  topicId: number
-}> {}
+export interface PrivateTopic {
+  readonly _tag: 'PrivateTopic'
+  readonly user: User
+  readonly topicId: number
+}
+export const PrivateTopic: Data.Case.Constructor<PrivateTopic, '_tag'> = Data.tagged<PrivateTopic>('PrivateTopic')
 
-export class ForumTopic extends Data.TaggedClass('ForumTopic')<{
-  supergroup: Supergroup
-  topicId: number
-}> {}
+export interface ForumTopic {
+  readonly _tag: 'ForumTopic'
+  readonly supergroup: Supergroup
+  readonly topicId: number
+}
+export const ForumTopic: Data.Case.Constructor<ForumTopic, '_tag'> = Data.tagged<ForumTopic>('ForumTopic')
 
-export class ChannelDm extends Data.TaggedClass('ChannelDm')<{
-  channel: Channel
-  topicId: number
-}> {}
+export interface ChannelDm {
+  readonly _tag: 'ChannelDm'
+  readonly channel: Channel
+  readonly topicId: number
+}
+export const ChannelDm: Data.Case.Constructor<ChannelDm, '_tag'> = Data.tagged<ChannelDm>('ChannelDm')
 
 // =============================================================================
 // Peer
@@ -39,49 +46,42 @@ export type Peer =
   | Channel
   | Supergroup
 
-export class User extends Data.TaggedClass('User')<{
-  id: UserId
-}> {
-  public dialogId(): DialogId {
-    return Option.getOrThrow(internal.encodePeerId('user', this.id))
-  }
-
-  public topic(topicId: number): PrivateTopic {
-    return new PrivateTopic({ user: this, topicId })
-  }
+export interface User {
+  readonly _tag: 'User'
+  readonly id: UserId
 }
+export const User: Data.Case.Constructor<User, '_tag'> = Data.tagged<User>('User')
 
-export class Group extends Data.TaggedClass('Group')<{
-  id: GroupId
-}> {
-  public dialogId(): DialogId {
-    return Option.getOrThrow(internal.encodePeerId('group', this.id))
-  }
+export interface Group {
+  readonly _tag: 'Group'
+  readonly id: GroupId
 }
+export const Group: Data.Case.Constructor<Group, '_tag'> = Data.tagged<Group>('Group')
 
-export class Channel extends Data.TaggedClass('Channel')<{
-  id: ChannelId
-}> {
-  public dialogId(): DialogId {
-    return Option.getOrThrow(internal.encodePeerId('channel', this.id))
-  }
-
-  public directMessages(topicId: number): ChannelDm {
-    return new ChannelDm({ channel: this, topicId })
-  }
+export interface Channel {
+  readonly _tag: 'Channel'
+  readonly id: ChannelId
 }
+export const Channel: Data.Case.Constructor<Channel, '_tag'> = Data.tagged<Channel>('Channel')
 
-export class Supergroup extends Data.TaggedClass('Supergroup')<{
-  id: SupergroupId
-}> {
-  public dialogId(): DialogId {
-    return Option.getOrThrow(internal.encodePeerId('channel', this.id))
-  }
-
-  public topic(topicId: number): ForumTopic {
-    return new ForumTopic({ supergroup: this, topicId })
-  }
+export interface Supergroup {
+  readonly _tag: 'Supergroup'
+  readonly id: SupergroupId
 }
+export const Supergroup: Data.Case.Constructor<Supergroup, '_tag'> = Data.tagged<Supergroup>('Supergroup')
+
+// =============================================================================
+// Peer Functions
+// =============================================================================
+
+export const dialogId: (peer: Peer) => DialogId = Match.type<Peer>().pipe(
+  Match.tagsExhaustive({
+    User: u => Option.getOrThrow(internal.encodePeerId('user', u.id)),
+    Group: g => Option.getOrThrow(internal.encodePeerId('group', g.id)),
+    Channel: c => Option.getOrThrow(internal.encodePeerId('channel', c.id)),
+    Supergroup: s => Option.getOrThrow(internal.encodePeerId('channel', s.id)),
+  }),
+)
 
 // =============================================================================
 // Brands
@@ -157,19 +157,19 @@ export const encodePeerId: (
 // =============================================================================
 
 export const user: (id: number) => User = (id) => {
-  return new User({ id: UserId(id) })
+  return User({ id: UserId(id) })
 }
 
 export const group: (id: number) => Group = (id) => {
-  return new Group({ id: GroupId(id) })
+  return Group({ id: GroupId(id) })
 }
 
 export const channel: (id: number) => Channel = (id) => {
-  return new Channel({ id: ChannelId(id) })
+  return Channel({ id: ChannelId(id) })
 }
 
 export const supergroup: (id: number) => Supergroup = (id) => {
-  return new Supergroup({ id: ChannelId(id) })
+  return Supergroup({ id: ChannelId(id) })
 }
 
 export const ofMessage: (
