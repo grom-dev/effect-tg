@@ -72,7 +72,7 @@ const program = Effect.gen(function* () {
 
 `BotApi` has a layered architecture:
 
-```
+```text
 ┌• BotApi — typed interface that delegates calls to BotApiTransport.
 └─┬• BotApiTransport — serializes parameters, sends HTTP requests, parses responses.
   ├──• BotApiUrl — constructs endpoint URLs to methods and files.
