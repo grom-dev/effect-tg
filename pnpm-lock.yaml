@@ -18,8 +18,8 @@ importers:
         specifier: 0.94.5
         version: 0.94.5(effect@3.19.19)
       '@grom.js/bot-api-spec':
-        specifier: 0.7.1
-        version: 0.7.1
+        specifier: 0.8.0
+        version: 0.8.0
       '@grom.js/tgx':
         specifier: 1.1.0
         version: 1.1.0
@@ -418,8 +418,8 @@ packages:
     resolution: {integrity: sha512-bIZEUzOI1jkhviX2cp5vNyXQc6olzb2ohewQubuYlMXZ2Q/XjBO0x0XhGPvc9fjSIiUN0vw+0hq53BJ4eQSJKQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@grom.js/bot-api-spec@0.7.1':
-    resolution: {integrity: sha512-R522EMLJbrOHswclDXOvNenQFO9Twyv0BudgxRA37lIczKNyCPfs0zZbKsDsmY9Wvwcxy719B2TRxsYY5ljb7g==}
+  '@grom.js/bot-api-spec@0.8.0':
+    resolution: {integrity: sha512-b+YW1AW0TQCxTGuRVpq4ZILBkS2aY1/ZnSDE2cKYsrutmCOAo3JCUqL5KxUZp4ExAm+MIkC8Pu5a5GjkCHxWcA==}
     engines: {node: '>=22.18'}
 
   '@grom.js/tgx@1.1.0':
@@ -2778,7 +2778,7 @@ snapshots:
       '@eslint/core': 1.1.0
       levn: 0.4.1
 
-  '@grom.js/bot-api-spec@0.7.1': {}
+  '@grom.js/bot-api-spec@0.8.0': {}
 
   '@grom.js/tgx@1.1.0': {}
 
@@ -3154,7 +3154,7 @@ snapshots:
       eslint: 9.39.3(jiti@2.6.1)
       json-stable-stringify-without-jsonify: 1.0.1
       lodash.merge: 4.6.2
-      semver: 7.7.3
+      semver: 7.7.4
     transitivePeerDependencies:
       - supports-color
       - typescript

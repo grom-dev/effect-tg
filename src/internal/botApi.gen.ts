@@ -82,7 +82,7 @@ export interface BotApi {
   sendChecklist: BotApiMethod<'sendChecklist'>
   /** Use this method to send an animated emoji that will display a random value. On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned. */
   sendDice: BotApiMethod<'sendDice'>
-  /** Use this method to stream a partial message to a user while the message is being generated; supported only for bots with forum topic mode enabled. Returns _True_ on success. */
+  /** Use this method to stream a partial message to a user while the message is being generated. Returns _True_ on success. */
   sendMessageDraft: BotApiMethod<'sendMessageDraft'>
   /**
    * Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns _True_ on success.
@@ -116,6 +116,8 @@ export interface BotApi {
   promoteChatMember: BotApiMethod<'promoteChatMember'>
   /** Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns _True_ on success. */
   setChatAdministratorCustomTitle: BotApiMethod<'setChatAdministratorCustomTitle'>
+  /** Use this method to set a tag for a regular member in a group or a supergroup. The bot must be an administrator in the chat for this to work and must have the _can\_manage\_tags_ administrator right. Returns _True_ on success. */
+  setChatMemberTag: BotApiMethod<'setChatMemberTag'>
   /** Use this method to ban a channel chat in a supergroup or a channel. Until the chat is [unbanned](https://core.telegram.org/bots/api#unbanchatsenderchat), the owner of the banned chat won't be able to send messages on behalf of **any of their channels**. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns _True_ on success. */
   banChatSenderChat: BotApiMethod<'banChatSenderChat'>
   /** Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights. Returns _True_ on success. */
@@ -667,6 +669,8 @@ export declare namespace Types {
     sender_boost_count?: number
     /** The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account. */
     sender_business_bot?: Types.User
+    /** Tag or custom title of the sender of the message; for supergroups only */
+    sender_tag?: string
     /** Date the message was sent in Unix time. It is always a positive number, representing a valid date. */
     date: number
     /** Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier. */
@@ -699,7 +703,7 @@ export declare namespace Types {
     is_from_offline?: true
     /** _True_, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited. */
     is_paid_post?: true
-    /** The unique identifier of a media message group this message belongs to */
+    /** The unique identifier inside this chat of a media message group this message belongs to */
     media_group_id?: string
     /** Signature of the post author for messages in channels, or the custom title of an anonymous group administrator */
     author_signature?: string
@@ -861,7 +865,7 @@ export declare namespace Types {
     video_chat_participants_invited?: Types.VideoChatParticipantsInvited
     /** Service message: data sent by a Web App */
     web_app_data?: Types.WebAppData
-    /** Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons. */
+    /** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message. `login_url` buttons are represented as ordinary `url` buttons. */
     reply_markup?: Types.InlineKeyboardMarkup
   }
 
@@ -891,8 +895,8 @@ export declare namespace Types {
 
   /** This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc. */
   export interface MessageEntity {
-    /** Type of the entity. Currently, can be “mention” (`@username`), “hashtag” (`#hashtag` or `#hashtag@chatusername`), “cashtag” (`$USD` or `$USD@chatusername`), “bot\_command” (`/start@jobs_bot`), “url” (`https://telegram.org`), “email” (`do-not-reply@telegram.org`), “phone\_number” (`+1-212-555-0123`), “bold” (**bold text**), “italic” (_italic text_), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable\_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text\_link” (for clickable text URLs), “text\_mention” (for users [without usernames](https://telegram.org/blog/edit#new-mentions)), “custom\_emoji” (for inline custom emoji stickers) */
-    type: 'mention' | 'hashtag' | 'cashtag' | 'bot_command' | 'url' | 'email' | 'phone_number' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler' | 'blockquote' | 'expandable_blockquote' | 'code' | 'pre' | 'text_link' | 'text_mention' | 'custom_emoji'
+    /** Type of the entity. Currently, can be “mention” (`@username`), “hashtag” (`#hashtag` or `#hashtag@chatusername`), “cashtag” (`$USD` or `$USD@chatusername`), “bot\_command” (`/start@jobs_bot`), “url” (`https://telegram.org`), “email” (`do-not-reply@telegram.org`), “phone\_number” (`+1-212-555-0123`), “bold” (**bold text**), “italic” (_italic text_), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable\_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text\_link” (for clickable text URLs), “text\_mention” (for users [without usernames](https://telegram.org/blog/edit#new-mentions)), “custom\_emoji” (for inline custom emoji stickers), or “date\_time” (for formatted date and time) */
+    type: 'mention' | 'hashtag' | 'cashtag' | 'bot_command' | 'url' | 'email' | 'phone_number' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler' | 'blockquote' | 'expandable_blockquote' | 'code' | 'pre' | 'text_link' | 'text_mention' | 'custom_emoji' | 'date_time'
     /** Offset in [UTF-16 code units](https://core.telegram.org/api/entities#entity-length) to the start of the entity */
     offset: number
     /** Length of the entity in [UTF-16 code units](https://core.telegram.org/api/entities#entity-length) */
@@ -905,6 +909,10 @@ export declare namespace Types {
     language?: string
     /** For “custom\_emoji” only, unique identifier of the custom emoji. Use [getCustomEmojiStickers](https://core.telegram.org/bots/api#getcustomemojistickers) to get full information about the sticker */
     custom_emoji_id?: string
+    /** For “date\_time” only, the Unix time associated with the entity */
+    unix_time?: number
+    /** For “date\_time” only, the string that defines the formatting of the date and time. See [date-time entity formatting](https://core.telegram.org/bots/api#date-time-entity-formatting) for more details. */
+    date_time_format?: string
   }
 
   /** This object contains information about the quoted part of a message that is replied to by the given message. */
@@ -2204,6 +2212,8 @@ export declare namespace Types {
     can_manage_topics?: boolean
     /** _True_, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only */
     can_manage_direct_messages?: boolean
+    /** _True_, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of can\_pin\_messages. */
+    can_manage_tags?: boolean
   }
 
   /** This object represents changes in the status of a chat member. */
@@ -2290,6 +2300,8 @@ export declare namespace Types {
     can_manage_topics?: boolean
     /** _True_, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only */
     can_manage_direct_messages?: boolean
+    /** _True_, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of can\_pin\_messages. */
+    can_manage_tags?: boolean
     /** Custom title for this user */
     custom_title?: string
   }
@@ -2298,6 +2310,8 @@ export declare namespace Types {
   export interface ChatMemberMember {
     /** The member's status in the chat, always “member” */
     status: 'member'
+    /** Tag of the member */
+    tag?: string
     /** Information about the user */
     user: Types.User
     /** Date when the user's subscription will expire; Unix time */
@@ -2308,6 +2322,8 @@ export declare namespace Types {
   export interface ChatMemberRestricted {
     /** The member's status in the chat, always “restricted” */
     status: 'restricted'
+    /** Tag of the member */
+    tag?: string
     /** Information about the user */
     user: Types.User
     /** _True_, if the user is a member of the chat at the moment of the request */
@@ -2332,6 +2348,8 @@ export declare namespace Types {
     can_send_other_messages: boolean
     /** _True_, if the user is allowed to add web page previews to their messages */
     can_add_web_page_previews: boolean
+    /** _True_, if the user is allowed to edit their own tag */
+    can_edit_tag: boolean
     /** _True_, if the user is allowed to change the chat title, photo and other settings */
     can_change_info: boolean
     /** _True_, if the user is allowed to invite new users to the chat */
@@ -2400,6 +2418,8 @@ export declare namespace Types {
     can_send_other_messages?: boolean
     /** _True_, if the user is allowed to add web page previews to their messages */
     can_add_web_page_previews?: boolean
+    /** _True_, if the user is allowed to edit their own tag */
+    can_edit_tag?: boolean
     /** _True_, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups */
     can_change_info?: boolean
     /** _True_, if the user is allowed to invite new users to the chat */
@@ -3792,7 +3812,7 @@ export declare namespace Types {
     mime_type: 'application/pdf' | 'application/zip'
     /** Short description of the result */
     description?: string
-    /** Inline keyboard attached to the message */
+    /** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
     reply_markup?: Types.InlineKeyboardMarkup
     /** Content of the message to be sent instead of the file */
     input_message_content?: Types.InputMessageContent
@@ -5401,7 +5421,7 @@ export interface MethodParams {
     message_effect_id?: string
     /** An object for description of the message to reply to */
     reply_parameters?: Types.ReplyParameters
-    /** An object for an inline keyboard */
+    /** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) */
     reply_markup?: Types.InlineKeyboardMarkup
   }
   sendDice: {
@@ -5559,6 +5579,8 @@ export interface MethodParams {
     can_manage_topics?: boolean
     /** Pass _True_ if the administrator can manage direct messages within the channel and decline suggested posts; for channels only */
     can_manage_direct_messages?: boolean
+    /** Pass _True_ if the administrator can edit the tags of regular members; for groups and supergroups only */
+    can_manage_tags?: boolean
   }
   setChatAdministratorCustomTitle: {
     /** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
@@ -5567,6 +5589,14 @@ export interface MethodParams {
     user_id: number
     /** New custom title for the administrator; 0-16 characters, emoji are not allowed */
     custom_title: string
+  }
+  setChatMemberTag: {
+    /** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+    chat_id: number | string
+    /** Unique identifier of the target user */
+    user_id: number
+    /** New tag for the member; 0-16 characters, emoji are not allowed */
+    tag?: string
   }
   banChatSenderChat: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
@@ -6268,7 +6298,7 @@ export interface MethodParams {
     message_id: number
     /** An object for the new checklist */
     checklist: Types.InputChecklist
-    /** An object for the new inline keyboard for the message */
+    /** An object for the new [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) for the message */
     reply_markup?: Types.InlineKeyboardMarkup
   }
   editMessageReplyMarkup: void | {
@@ -6730,6 +6760,7 @@ export interface MethodResults {
   restrictChatMember: true
   promoteChatMember: true
   setChatAdministratorCustomTitle: true
+  setChatMemberTag: true
   banChatSenderChat: true
   unbanChatSenderChat: true
   setChatPermissions: true
