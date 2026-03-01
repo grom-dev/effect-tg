@@ -18,7 +18,6 @@ export default antfu({
       }],
     },
   },
-}, {
   rules: {
     'curly': ['error', 'all'],
     'antfu/top-level-function': 'off',
