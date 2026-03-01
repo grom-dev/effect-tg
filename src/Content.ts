@@ -214,7 +214,7 @@ export const text = (
   options?: {
     linkPreview?: LinkPreview.LinkPreview
   },
-) => new Text({
+): Text => new Text({
   text,
   linkPreview: Option.fromNullable(options?.linkPreview),
 })

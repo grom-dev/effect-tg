@@ -1,3 +1,5 @@
+import type * as Effect from 'effect/Effect'
+import type * as BotApiError from '../BotApiError.ts'
 import type * as Content from '../Content.ts'
 import type * as Dialog from '../Dialog.ts'
 import type * as Markup from '../Markup.ts'
@@ -7,7 +9,6 @@ import type * as Text from '../Text.ts'
 import type { Types } from './botApi.gen.ts'
 import * as Tgx from '@grom.js/tgx'
 import * as Duration from 'effect/Duration'
-import * as Effect from 'effect/Effect'
 import * as Match from 'effect/Match'
 import * as Option from 'effect/Option'
 import * as BotApi from '../BotApi.ts'
@@ -491,21 +492,29 @@ const paramsOptions = (options: Send.Options): ParamsOptions => {
 // Send Methods
 // =============================================================================
 
-export const sendMessage = Effect.fnUntraced(function* (params: {
+export const sendMessage: (params: {
   content: Content.Content
   dialog: Dialog.Dialog | Dialog.DialogId
   markup?: Markup.Markup
   reply?: Reply.Reply
   options?: Send.Options
-}) {
-  return yield* BotApi.callMethod(
-    methodByContent[params.content._tag],
-    {
-      ...paramsContent(params.content),
-      ...paramsDialog(params.dialog),
-      ...(params.markup ? paramsMarkup(params.markup) : {}),
-      ...(params.reply ? paramsReply(params.reply) : {}),
-      ...(params.options ? paramsOptions(params.options) : {}),
-    },
-  )
-})
+}) => Effect.Effect<
+  Types.Message,
+  BotApiError.BotApiError,
+  BotApi.BotApi
+> = ({
+  content,
+  dialog,
+  markup,
+  reply,
+  options,
+}) => BotApi.callMethod(
+  methodByContent[content._tag],
+  {
+    ...paramsContent(content),
+    ...paramsDialog(dialog),
+    ...(markup ? paramsMarkup(markup) : {}),
+    ...(reply ? paramsReply(reply) : {}),
+    ...(options ? paramsOptions(options) : {}),
+  },
+)
