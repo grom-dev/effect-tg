@@ -21,8 +21,8 @@ importers:
         specifier: 0.8.0
         version: 0.8.0
       '@grom.js/tgx':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.2.0
+        version: 1.2.0
       '@types/node':
         specifier: 22.19.13
         version: 22.19.13
@@ -422,8 +422,8 @@ packages:
     resolution: {integrity: sha512-b+YW1AW0TQCxTGuRVpq4ZILBkS2aY1/ZnSDE2cKYsrutmCOAo3JCUqL5KxUZp4ExAm+MIkC8Pu5a5GjkCHxWcA==}
     engines: {node: '>=22.18'}
 
-  '@grom.js/tgx@1.1.0':
-    resolution: {integrity: sha512-XIF+yd29m1FPZhUzsECQe26giOcbSS1gnZWP7zlOFnx2HSmElpKUe6bwVaUuGqpiyIe6McEoaiHmj4GJbjJwAg==}
+  '@grom.js/tgx@1.2.0':
+    resolution: {integrity: sha512-A5FZkNkcvq8LtFkgiPTK9j8bKUgl86oXwFI8EXDaZ/G/NKHgRMjtDeFZdDlRKvxahk8gRkIweWDawp5OMOfQ4A==}
     engines: {node: 22.x}
 
   '@humanfs/core@0.19.1':
@@ -2780,7 +2780,7 @@ snapshots:
 
   '@grom.js/bot-api-spec@0.8.0': {}
 
-  '@grom.js/tgx@1.1.0': {}
+  '@grom.js/tgx@1.2.0': {}
 
   '@humanfs/core@0.19.1': {}
 
