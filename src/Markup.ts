@@ -39,11 +39,6 @@ export interface ForceReply {
   readonly inputPlaceholder: Option.Option<string>
 }
 
-// export const InlineKeyboard: Data.Case.Constructor<InlineKeyboard, '_tag'> = Data.tagged<InlineKeyboard>('InlineKeyboard')
-// export const ReplyKeyboard: Data.Case.Constructor<ReplyKeyboard, '_tag'> = Data.tagged<ReplyKeyboard>('ReplyKeyboard')
-// export const ReplyKeyboardRemove: Data.Case.Constructor<ReplyKeyboardRemove, '_tag'> = Data.tagged<ReplyKeyboardRemove>('ReplyKeyboardRemove')
-// export const ForceReply: Data.Case.Constructor<ForceReply, '_tag'> = Data.tagged<ForceReply>('ForceReply')
-
 // =============================================================================
 // Constructors
 // =============================================================================
