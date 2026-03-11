@@ -1,4 +1,3 @@
-import * as Data from 'effect/Data'
 import * as Option from 'effect/Option'
 
 // =============================================================================
@@ -18,7 +17,6 @@ export interface InlineKeyboard {
   readonly _tag: 'InlineKeyboard'
   readonly rows: ReadonlyArray<ReadonlyArray<InlineButton>>
 }
-export const InlineKeyboard: Data.Case.Constructor<InlineKeyboard, '_tag'> = Data.tagged<InlineKeyboard>('InlineKeyboard')
 
 export interface ReplyKeyboard {
   readonly _tag: 'ReplyKeyboard'
@@ -29,20 +27,22 @@ export interface ReplyKeyboard {
   readonly selective: boolean
   readonly inputPlaceholder: Option.Option<string>
 }
-export const ReplyKeyboard: Data.Case.Constructor<ReplyKeyboard, '_tag'> = Data.tagged<ReplyKeyboard>('ReplyKeyboard')
 
 export interface ReplyKeyboardRemove {
   readonly _tag: 'ReplyKeyboardRemove'
   readonly selective: boolean
 }
-export const ReplyKeyboardRemove: Data.Case.Constructor<ReplyKeyboardRemove, '_tag'> = Data.tagged<ReplyKeyboardRemove>('ReplyKeyboardRemove')
 
 export interface ForceReply {
   readonly _tag: 'ForceReply'
   readonly selective: boolean
   readonly inputPlaceholder: Option.Option<string>
 }
-export const ForceReply: Data.Case.Constructor<ForceReply, '_tag'> = Data.tagged<ForceReply>('ForceReply')
+
+// export const InlineKeyboard: Data.Case.Constructor<InlineKeyboard, '_tag'> = Data.tagged<InlineKeyboard>('InlineKeyboard')
+// export const ReplyKeyboard: Data.Case.Constructor<ReplyKeyboard, '_tag'> = Data.tagged<ReplyKeyboard>('ReplyKeyboard')
+// export const ReplyKeyboardRemove: Data.Case.Constructor<ReplyKeyboardRemove, '_tag'> = Data.tagged<ReplyKeyboardRemove>('ReplyKeyboardRemove')
+// export const ForceReply: Data.Case.Constructor<ForceReply, '_tag'> = Data.tagged<ForceReply>('ForceReply')
 
 // =============================================================================
 // Constructors
@@ -50,7 +50,10 @@ export const ForceReply: Data.Case.Constructor<ForceReply, '_tag'> = Data.tagged
 
 export const inlineKeyboard = (
   rows: ReadonlyArray<ReadonlyArray<InlineButton>>,
-): InlineKeyboard => InlineKeyboard({ rows })
+): InlineKeyboard => ({
+  _tag: 'InlineKeyboard',
+  rows,
+})
 
 export const replyKeyboard = (
   rows: ReadonlyArray<ReadonlyArray<ReplyButton>>,
@@ -61,27 +64,31 @@ export const replyKeyboard = (
     readonly selective?: boolean
     readonly inputPlaceholder?: string
   },
-): ReplyKeyboard =>
-  ReplyKeyboard({
-    rows,
-    persistent: options?.persistent ?? false,
-    resizable: options?.resizable ?? false,
-    oneTime: options?.oneTime ?? false,
-    selective: options?.selective ?? false,
-    inputPlaceholder: Option.fromNullable(options?.inputPlaceholder),
-  })
+): ReplyKeyboard => ({
+  _tag: 'ReplyKeyboard',
+  rows,
+  persistent: options?.persistent ?? false,
+  resizable: options?.resizable ?? false,
+  oneTime: options?.oneTime ?? false,
+  selective: options?.selective ?? false,
+  inputPlaceholder: Option.fromNullable(options?.inputPlaceholder),
+})
 
-export const replyKeyboardRemove = (options?: { readonly selective?: boolean }): ReplyKeyboardRemove =>
-  ReplyKeyboardRemove({ selective: options?.selective ?? false })
+export const replyKeyboardRemove = (options?: {
+  readonly selective?: boolean
+}): ReplyKeyboardRemove => ({
+  _tag: 'ReplyKeyboardRemove',
+  selective: options?.selective ?? false,
+})
 
 export const forceReply = (options?: {
   readonly selective?: boolean
   readonly inputPlaceholder?: string
-}): ForceReply =>
-  ForceReply({
-    selective: options?.selective ?? false,
-    inputPlaceholder: Option.fromNullable(options?.inputPlaceholder),
-  })
+}): ForceReply => ({
+  _tag: 'ForceReply',
+  selective: options?.selective ?? false,
+  inputPlaceholder: Option.fromNullable(options?.inputPlaceholder),
+})
 
 // =============================================================================
 // Inline button
