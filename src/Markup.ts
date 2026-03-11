@@ -1,4 +1,3 @@
-import * as Data from 'effect/Data'
 import * as Option from 'effect/Option'
 
 // =============================================================================
@@ -14,27 +13,31 @@ export type Markup =
   | ReplyKeyboardRemove
   | ForceReply
 
-export class InlineKeyboard extends Data.TaggedClass('InlineKeyboard')<{
+export interface InlineKeyboard {
+  readonly _tag: 'InlineKeyboard'
   readonly rows: ReadonlyArray<ReadonlyArray<InlineButton>>
-}> {}
+}
 
-export class ReplyKeyboard extends Data.TaggedClass('ReplyKeyboard')<{
+export interface ReplyKeyboard {
+  readonly _tag: 'ReplyKeyboard'
   readonly rows: ReadonlyArray<ReadonlyArray<ReplyButton>>
   readonly persistent: boolean
   readonly resizable: boolean
   readonly oneTime: boolean
   readonly selective: boolean
   readonly inputPlaceholder: Option.Option<string>
-}> {}
+}
 
-export class ReplyKeyboardRemove extends Data.TaggedClass('ReplyKeyboardRemove')<{
+export interface ReplyKeyboardRemove {
+  readonly _tag: 'ReplyKeyboardRemove'
   readonly selective: boolean
-}> {}
+}
 
-export class ForceReply extends Data.TaggedClass('ForceReply')<{
+export interface ForceReply {
+  readonly _tag: 'ForceReply'
   readonly selective: boolean
   readonly inputPlaceholder: Option.Option<string>
-}> {}
+}
 
 // =============================================================================
 // Constructors
@@ -42,7 +45,10 @@ export class ForceReply extends Data.TaggedClass('ForceReply')<{
 
 export const inlineKeyboard = (
   rows: ReadonlyArray<ReadonlyArray<InlineButton>>,
-): InlineKeyboard => new InlineKeyboard({ rows })
+): InlineKeyboard => ({
+  _tag: 'InlineKeyboard',
+  rows,
+})
 
 export const replyKeyboard = (
   rows: ReadonlyArray<ReadonlyArray<ReplyButton>>,
@@ -53,27 +59,31 @@ export const replyKeyboard = (
     readonly selective?: boolean
     readonly inputPlaceholder?: string
   },
-): ReplyKeyboard =>
-  new ReplyKeyboard({
-    rows,
-    persistent: options?.persistent ?? false,
-    resizable: options?.resizable ?? false,
-    oneTime: options?.oneTime ?? false,
-    selective: options?.selective ?? false,
-    inputPlaceholder: Option.fromNullable(options?.inputPlaceholder),
-  })
+): ReplyKeyboard => ({
+  _tag: 'ReplyKeyboard',
+  rows,
+  persistent: options?.persistent ?? false,
+  resizable: options?.resizable ?? false,
+  oneTime: options?.oneTime ?? false,
+  selective: options?.selective ?? false,
+  inputPlaceholder: Option.fromNullable(options?.inputPlaceholder),
+})
 
-export const replyKeyboardRemove = (options?: { readonly selective?: boolean }): ReplyKeyboardRemove =>
-  new ReplyKeyboardRemove({ selective: options?.selective ?? false })
+export const replyKeyboardRemove = (options?: {
+  readonly selective?: boolean
+}): ReplyKeyboardRemove => ({
+  _tag: 'ReplyKeyboardRemove',
+  selective: options?.selective ?? false,
+})
 
 export const forceReply = (options?: {
   readonly selective?: boolean
   readonly inputPlaceholder?: string
-}): ForceReply =>
-  new ForceReply({
-    selective: options?.selective ?? false,
-    inputPlaceholder: Option.fromNullable(options?.inputPlaceholder),
-  })
+}): ForceReply => ({
+  _tag: 'ForceReply',
+  selective: options?.selective ?? false,
+  inputPlaceholder: Option.fromNullable(options?.inputPlaceholder),
+})
 
 // =============================================================================
 // Inline button

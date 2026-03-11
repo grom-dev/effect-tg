@@ -80,34 +80,26 @@ export const ofMessage: (
 ) => Dialog.Dialog = (m) => {
   switch (m.chat.type) {
     case 'private': {
-      const user = new Dialog.User({
-        id: Option.getOrThrow(decodePeerId('user', m.chat.id)),
-      })
+      const user = Dialog.user(Option.getOrThrow(decodePeerId('user', m.chat.id)))
       if (m.message_thread_id != null) {
-        return user.topic(m.message_thread_id)
+        return Dialog.privateTopic(user, m.message_thread_id)
       }
       return user
     }
     case 'group': {
-      return new Dialog.Group({
-        id: Option.getOrThrow(decodePeerId('group', m.chat.id)),
-      })
+      return Dialog.group(Option.getOrThrow(decodePeerId('group', m.chat.id)))
     }
     case 'channel': {
-      const channel = new Dialog.Channel({
-        id: Option.getOrThrow(decodePeerId('channel', m.chat.id)),
-      })
+      const channel = Dialog.channel(Option.getOrThrow(decodePeerId('channel', m.chat.id)))
       if (m.direct_messages_topic != null) {
-        return channel.directMessages(m.direct_messages_topic.topic_id)
+        return Dialog.channelDm(channel, m.direct_messages_topic.topic_id)
       }
       return channel
     }
     case 'supergroup': {
-      const supergroup = new Dialog.Supergroup({
-        id: Option.getOrThrow(decodePeerId('channel', m.chat.id)),
-      })
+      const supergroup = Dialog.supergroup(Option.getOrThrow(decodePeerId('channel', m.chat.id)))
       if (m.message_thread_id != null) {
-        return supergroup.topic(m.message_thread_id)
+        return Dialog.forumTopic(supergroup, m.message_thread_id)
       }
       return supergroup
     }

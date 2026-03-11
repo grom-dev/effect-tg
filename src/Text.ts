@@ -1,6 +1,5 @@
 import type { TgxElement } from '@grom.js/tgx'
 import type { Types } from './BotApi.ts'
-import * as Data from 'effect/Data'
 
 /**
  * Formatted text.
@@ -11,32 +10,36 @@ export type Text =
   | Markdown
   | Tgx
 
-export class Plain extends Data.TaggedClass('Plain')<{
-  text: string
-  entities?: Array<Types.MessageEntity>
-}> {}
+export interface Plain {
+  readonly _tag: 'Plain'
+  readonly text: string
+  readonly entities?: Array<Types.MessageEntity>
+}
 
-export class Html extends Data.TaggedClass('Html')<{
-  html: string
-}> {}
+export interface Html {
+  readonly _tag: 'Html'
+  readonly html: string
+}
 
-export class Markdown extends Data.TaggedClass('Markdown')<{
-  markdown: string
-}> {}
+export interface Markdown {
+  readonly _tag: 'Markdown'
+  readonly markdown: string
+}
 
-export class Tgx extends Data.TaggedClass('Tgx')<{
-  tgx: TgxElement
-}> {}
+export interface Tgx {
+  readonly _tag: 'Tgx'
+  readonly tgx: TgxElement
+}
 
 // ———— Constructors ———————————————————————————————————————————————————————————
 
 export const plain = (
   text: string,
   entities?: Array<Types.MessageEntity>,
-): Plain => new Plain({ text, entities })
+): Plain => ({ _tag: 'Plain', text, entities })
 
-export const html = (html: string): Html => new Html({ html })
+export const html = (html: string): Html => ({ _tag: 'Html', html })
 
-export const markdown = (markdown: string): Markdown => new Markdown({ markdown })
+export const markdown = (markdown: string): Markdown => ({ _tag: 'Markdown', markdown })
 
-export const tgx = (tgx: TgxElement): Tgx => new Tgx({ tgx })
+export const tgx = (tgx: TgxElement): Tgx => ({ _tag: 'Tgx', tgx })
