@@ -7,17 +7,14 @@ import * as Layer from 'effect/Layer'
 import * as BotApiUrl from './BotApiUrl.ts'
 import * as internal from './internal/botApiTransport.ts'
 
-export class BotApiTransport extends Context.Tag('@grom.js/effect-tg/BotApiTransport')<
-  BotApiTransport,
-  Service
->() {}
-
-export interface Service {
-  sendRequest: (
+export interface BotApiTransport {
+  readonly sendRequest: (
     method: string,
     params: unknown,
   ) => Effect.Effect<BotApiResponse, BotApiError.TransportError>
 }
+
+export const BotApiTransport: Context.Tag<BotApiTransport, BotApiTransport> = Context.GenericTag<BotApiTransport>('@grom.js/effect-tg/BotApiTransport')
 
 /**
  * @see https://core.telegram.org/bots/api#making-requests
@@ -36,8 +33,8 @@ export type BotApiResponse =
 
 export const make: (options: {
   httpClient: HttpClient.HttpClient
-  botApiUrl: BotApiUrl.Service
-}) => Service = internal.make
+  botApiUrl: BotApiUrl.BotApiUrl
+}) => BotApiTransport = internal.make
 
 export const layer: Layer.Layer<
   BotApiTransport,

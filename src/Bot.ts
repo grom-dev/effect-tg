@@ -4,10 +4,9 @@ import * as Context from 'effect/Context'
 
 export type Bot<E = never, R = never> = Effect.Effect<void, E, R | Update>
 
-export class Update extends Context.Tag('@grom.js/effect-tg/Bot/Update')<
-  Update,
-  BotApi.Types.Update
->() {}
+export interface Update extends Readonly<BotApi.Types.Update> {}
+
+export const Update: Context.Tag<Update, Update> = Context.GenericTag<Update>('@grom.js/effect-tg/Bot/Update')
 
 export interface Middleware {
   <E, R>(self: Bot<E, R>): Bot<any, any>

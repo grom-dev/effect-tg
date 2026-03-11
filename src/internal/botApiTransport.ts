@@ -108,8 +108,8 @@ export const make = ({
   botApiUrl,
 }: {
   httpClient: HttpClient.HttpClient
-  botApiUrl: BotApiUrl.Service
-}): BotApiTransport.Service => ({
+  botApiUrl: BotApiUrl.BotApiUrl
+}): BotApiTransport.BotApiTransport => ({
   sendRequest: (method, params) => (
     Effect.gen(function* () {
       const body = yield* makeHttpBody(params)
