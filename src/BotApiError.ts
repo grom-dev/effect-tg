@@ -25,15 +25,13 @@ export type BotApiError =
 /**
  * Error caused by the transport when accessing Bot API.
  */
-const TransportError_base: ReturnType<typeof Data.TaggedError<'TransportError'>> = Data.TaggedError('TransportError')
-// eslint-disable-next-line ts/no-unsafe-declaration-merging
-export interface TransportError { readonly [TypeId]: TypeId }
-// eslint-disable-next-line ts/no-unsafe-declaration-merging
-export class TransportError extends TransportError_base<{
+export class TransportError extends Data.TaggedError('TransportError')<{
   cause:
     | HttpClientError.HttpClientError
     | HttpBody.HttpBodyError
 }> {
+  readonly [TypeId]: TypeId = TypeId
+
   override get message(): string {
     return Match.value(this.cause).pipe(
       Match.tagsExhaustive({
@@ -49,58 +47,45 @@ export class TransportError extends TransportError_base<{
     )
   }
 }
-Object.defineProperty(TransportError.prototype, TypeId, { value: TypeId })
 
-const MethodFailed_base: ReturnType<typeof Data.TaggedError<'MethodFailed'>> = Data.TaggedError('MethodFailed')
-// eslint-disable-next-line ts/no-unsafe-declaration-merging
-export interface MethodFailed { readonly [TypeId]: TypeId }
-// eslint-disable-next-line ts/no-unsafe-declaration-merging
-export class MethodFailed extends MethodFailed_base<{
+export class MethodFailed extends Data.TaggedError('MethodFailed')<{
   response: FailureResponse
   possibleReason: MethodFailureReason
 }> {
-  override get message(): string {
+  readonly [TypeId]: TypeId = TypeId
+
+  override get message() {
     return `(${this.response.error_code}) ${this.response.description}`
   }
 }
-Object.defineProperty(MethodFailed.prototype, TypeId, { value: TypeId })
 
-const GroupUpgraded_base: ReturnType<typeof Data.TaggedError<'GroupUpgraded'>> = Data.TaggedError('GroupUpgraded')
-// eslint-disable-next-line ts/no-unsafe-declaration-merging
-export interface GroupUpgraded { readonly [TypeId]: TypeId }
-// eslint-disable-next-line ts/no-unsafe-declaration-merging
-export class GroupUpgraded extends GroupUpgraded_base<{
+export class GroupUpgraded extends Data.TaggedError('GroupUpgraded')<{
   response: FailureResponse
   supergroup: Dialog.Supergroup
 }> {
-  override get message(): string {
+  readonly [TypeId]: TypeId = TypeId
+
+  override get message() {
     return `Group has been upgraded to a supergroup with ID ${this.supergroup.id}.`
   }
 }
-Object.defineProperty(GroupUpgraded.prototype, TypeId, { value: TypeId })
 
-const RateLimited_base: ReturnType<typeof Data.TaggedError<'RateLimited'>> = Data.TaggedError('RateLimited')
-// eslint-disable-next-line ts/no-unsafe-declaration-merging
-export interface RateLimited { readonly [TypeId]: TypeId }
-// eslint-disable-next-line ts/no-unsafe-declaration-merging
-export class RateLimited extends RateLimited_base<{
+export class RateLimited extends Data.TaggedError('RateLimited')<{
   response: FailureResponse
   retryAfter: Duration.Duration
 }> {
-  override get message(): string {
+  readonly [TypeId]: TypeId = TypeId
+
+  override get message() {
     return `Flood limit exceeded. Should wait for ${Duration.format(this.retryAfter)} before retrying.`
   }
 }
-Object.defineProperty(RateLimited.prototype, TypeId, { value: TypeId })
 
-const InternalServerError_base: ReturnType<typeof Data.TaggedError<'InternalServerError'>> = Data.TaggedError('InternalServerError')
-// eslint-disable-next-line ts/no-unsafe-declaration-merging
-export interface InternalServerError { readonly [TypeId]: TypeId }
-// eslint-disable-next-line ts/no-unsafe-declaration-merging
-export class InternalServerError extends InternalServerError_base<{
+export class InternalServerError extends Data.TaggedError('InternalServerError')<{
   response: FailureResponse
-}> {}
-Object.defineProperty(InternalServerError.prototype, TypeId, { value: TypeId })
+}> {
+  readonly [TypeId]: TypeId = TypeId
+}
 
 export const fromResponse = (response: FailureResponse): BotApiError => {
   if (response.error_code === 429 && response.parameters?.retry_after != null) {
