@@ -2,7 +2,6 @@ import type * as Duration from 'effect/Duration'
 import type * as File from './File.ts'
 import type * as LinkPreview from './LinkPreview.ts'
 import type * as Text_ from './Text.ts'
-import * as Data from 'effect/Data'
 import * as Option from 'effect/Option'
 
 /**
@@ -36,7 +35,6 @@ export interface Text {
   readonly text: Text_.Text
   readonly linkPreview: Option.Option<LinkPreview.LinkPreview>
 }
-export const Text: Data.Case.Constructor<Text, '_tag'> = Data.tagged<Text>('Text')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_photo.html TDLib • td_api.inputMessagePhoto}
@@ -49,7 +47,6 @@ export interface Photo {
   readonly layout: 'caption-above' | 'caption-below'
   readonly spoiler: boolean
 }
-export const Photo: Data.Case.Constructor<Photo, '_tag'> = Data.tagged<Photo>('Photo')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_audio.html TDLib • td_api.inputMessageAudio}
@@ -64,7 +61,6 @@ export interface Audio {
   readonly title: Option.Option<string>
   readonly thumbnail: Option.Option<File.InputFile>
 }
-export const Audio: Data.Case.Constructor<Audio, '_tag'> = Data.tagged<Audio>('Audio')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_document.html TDLib • td_api.inputMessageDocument}
@@ -77,7 +73,6 @@ export interface Document {
   readonly thumbnail: Option.Option<File.InputFile>
   readonly contentTypeDetection: boolean
 }
-export const Document: Data.Case.Constructor<Document, '_tag'> = Data.tagged<Document>('Document')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_video.html TDLib • td_api.inputMessageVideo}
@@ -97,7 +92,6 @@ export interface Video {
   readonly startAt: Option.Option<Duration.Duration>
   readonly supportsStreaming: boolean
 }
-export const Video: Data.Case.Constructor<Video, '_tag'> = Data.tagged<Video>('Video')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_animation.html TDLib • td_api.inputMessageAnimation}
@@ -114,7 +108,6 @@ export interface Animation {
   readonly height: Option.Option<number>
   readonly thumbnail: Option.Option<File.InputFile>
 }
-export const Animation: Data.Case.Constructor<Animation, '_tag'> = Data.tagged<Animation>('Animation')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_voice_note.html TDLib • td_api.inputMessageVoiceNote}
@@ -126,7 +119,6 @@ export interface Voice {
   readonly caption: Option.Option<Text_.Text>
   readonly duration: Option.Option<Duration.Duration>
 }
-export const Voice: Data.Case.Constructor<Voice, '_tag'> = Data.tagged<Voice>('Voice')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_video_note.html TDLib • td_api.inputMessageVideoNote}
@@ -139,7 +131,6 @@ export interface VideoNote {
   readonly diameter: Option.Option<number>
   readonly thumbnail: Option.Option<File.InputFile>
 }
-export const VideoNote: Data.Case.Constructor<VideoNote, '_tag'> = Data.tagged<VideoNote>('VideoNote')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_location.html TDLib • td_api.inputMessageLocation}
@@ -154,7 +145,6 @@ export interface Location {
   readonly heading: Option.Option<number>
   readonly proximityAlertRadius: Option.Option<number>
 }
-export const Location: Data.Case.Constructor<Location, '_tag'> = Data.tagged<Location>('Location')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_venue.html TDLib • td_api.inputMessageVenue}
@@ -171,7 +161,6 @@ export interface Venue {
   readonly googlePlaceId: Option.Option<string>
   readonly googlePlaceType: Option.Option<string>
 }
-export const Venue: Data.Case.Constructor<Venue, '_tag'> = Data.tagged<Venue>('Venue')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_contact.html TDLib • td_api.inputMessageContact}
@@ -184,7 +173,6 @@ export interface Contact {
   readonly lastName: Option.Option<string>
   readonly vcard: Option.Option<string>
 }
-export const Contact: Data.Case.Constructor<Contact, '_tag'> = Data.tagged<Contact>('Contact')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_dice.html TDLib • td_api.inputMessageDice}
@@ -194,7 +182,6 @@ export interface Dice {
   readonly _tag: 'Dice'
   readonly emoji: '🎲' | '🎯' | '🏀' | '⚽' | '🎳' | '🎰'
 }
-export const Dice: Data.Case.Constructor<Dice, '_tag'> = Data.tagged<Dice>('Dice')
 
 /**
  * @see {@link https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1input_message_sticker.html TDLib • td_api.inputMessageSticker}
@@ -205,7 +192,6 @@ export interface Sticker {
   readonly file: File.FileId | File.External | File.InputFile
   readonly emoji: Option.Option<string>
 }
-export const Sticker: Data.Case.Constructor<Sticker, '_tag'> = Data.tagged<Sticker>('Sticker')
 
 // ——— Constructors ——————————————————————————————————————————————————————————
 
@@ -214,7 +200,8 @@ export const text = (
   options?: {
     linkPreview?: LinkPreview.LinkPreview
   },
-): Text => Text({
+): Text => ({
+  _tag: 'Text',
   text,
   linkPreview: Option.fromNullable(options?.linkPreview),
 })
@@ -226,7 +213,8 @@ export const photo = (
     layout?: 'caption-above' | 'caption-below'
     spoiler?: boolean
   },
-): Photo => Photo({
+): Photo => ({
+  _tag: 'Photo',
   file,
   caption: Option.fromNullable(options.caption),
   layout: options.layout ?? 'caption-below',
@@ -242,7 +230,8 @@ export const audio = (
     title?: string
     thumbnail?: File.InputFile
   },
-): Audio => Audio({
+): Audio => ({
+  _tag: 'Audio',
   file,
   caption: Option.fromNullable(options.caption),
   duration: Option.fromNullable(options.duration),
@@ -258,7 +247,8 @@ export const document = (
     thumbnail?: File.InputFile
     contentTypeDetection?: boolean
   },
-): Document => Document({
+): Document => ({
+  _tag: 'Document',
   file,
   caption: Option.fromNullable(options.caption),
   thumbnail: Option.fromNullable(options.thumbnail),
@@ -279,7 +269,8 @@ export const video = (
     startAt?: Duration.Duration
     supportsStreaming?: boolean
   },
-): Video => Video({
+): Video => ({
+  _tag: 'Video',
   file,
   caption: Option.fromNullable(options.caption),
   layout: options.layout ?? 'caption-below',
@@ -304,7 +295,8 @@ export const animation = (
     height?: number
     thumbnail?: File.InputFile
   },
-): Animation => Animation({
+): Animation => ({
+  _tag: 'Animation',
   file,
   caption: Option.fromNullable(options.caption),
   layout: options.layout ?? 'caption-below',
@@ -321,7 +313,8 @@ export const voice = (
     caption?: Text_.Text
     duration?: Duration.Duration
   },
-): Voice => Voice({
+): Voice => ({
+  _tag: 'Voice',
   file,
   caption: Option.fromNullable(options.caption),
   duration: Option.fromNullable(options.duration),
@@ -334,7 +327,8 @@ export const videoNote = (
     diameter?: number
     thumbnail?: File.InputFile
   },
-): VideoNote => VideoNote({
+): VideoNote => ({
+  _tag: 'VideoNote',
   file,
   duration: Option.fromNullable(options.duration),
   diameter: Option.fromNullable(options.diameter),
@@ -345,7 +339,8 @@ export const location = (options: {
   latitude: number
   longitude: number
   uncertaintyRadius?: number
-}): Location => Location({
+}): Location => ({
+  _tag: 'Location',
   latitude: options.latitude,
   longitude: options.longitude,
   uncertaintyRadius: Option.fromNullable(options.uncertaintyRadius),
@@ -361,7 +356,8 @@ export const liveLocation = (options: {
   livePeriod: Duration.Duration
   heading?: number
   proximityAlertRadius?: number
-}): Location => Location({
+}): Location => ({
+  _tag: 'Location',
   latitude: options.latitude,
   longitude: options.longitude,
   uncertaintyRadius: Option.fromNullable(options.uncertaintyRadius),
@@ -379,7 +375,8 @@ export const venue = (options: {
   foursquareType?: string
   googlePlaceId?: string
   googlePlaceType?: string
-}): Venue => Venue({
+}): Venue => ({
+  _tag: 'Venue',
   latitude: options.latitude,
   longitude: options.longitude,
   title: options.title,
@@ -395,16 +392,17 @@ export const contact = (options: {
   firstName: string
   lastName?: string
   vcard?: string
-}): Contact => Contact({
+}): Contact => ({
+  _tag: 'Contact',
   phoneNumber: options.phoneNumber,
   firstName: options.firstName,
   lastName: Option.fromNullable(options.lastName),
   vcard: Option.fromNullable(options.vcard),
 })
 
-export const dice = (emoji: Dice['emoji']): Dice => Dice({ emoji })
+export const dice = (emoji: Dice['emoji']): Dice => ({ _tag: 'Dice', emoji })
 
 export const sticker = (
   file: File.FileId | File.External | File.InputFile,
   emoji?: string,
-): Sticker => Sticker({ file, emoji: Option.fromNullable(emoji) })
+): Sticker => ({ _tag: 'Sticker', file, emoji: Option.fromNullable(emoji) })
