@@ -1,6 +1,5 @@
 import type * as BotApi from './BotApi.ts'
 import * as Brand from 'effect/Brand'
-import * as Data from 'effect/Data'
 import * as Match from 'effect/Match'
 import * as Option from 'effect/Option'
 import * as internal from './internal/dialog.ts'
@@ -20,21 +19,18 @@ export interface PrivateTopic {
   readonly user: User
   readonly topicId: number
 }
-export const PrivateTopic: Data.Case.Constructor<PrivateTopic, '_tag'> = Data.tagged<PrivateTopic>('PrivateTopic')
 
 export interface ForumTopic {
   readonly _tag: 'ForumTopic'
   readonly supergroup: Supergroup
   readonly topicId: number
 }
-export const ForumTopic: Data.Case.Constructor<ForumTopic, '_tag'> = Data.tagged<ForumTopic>('ForumTopic')
 
 export interface ChannelDm {
   readonly _tag: 'ChannelDm'
   readonly channel: Channel
   readonly topicId: number
 }
-export const ChannelDm: Data.Case.Constructor<ChannelDm, '_tag'> = Data.tagged<ChannelDm>('ChannelDm')
 
 // =============================================================================
 // Peer
@@ -50,25 +46,21 @@ export interface User {
   readonly _tag: 'User'
   readonly id: UserId
 }
-export const User: Data.Case.Constructor<User, '_tag'> = Data.tagged<User>('User')
 
 export interface Group {
   readonly _tag: 'Group'
   readonly id: GroupId
 }
-export const Group: Data.Case.Constructor<Group, '_tag'> = Data.tagged<Group>('Group')
 
 export interface Channel {
   readonly _tag: 'Channel'
   readonly id: ChannelId
 }
-export const Channel: Data.Case.Constructor<Channel, '_tag'> = Data.tagged<Channel>('Channel')
 
 export interface Supergroup {
   readonly _tag: 'Supergroup'
   readonly id: SupergroupId
 }
-export const Supergroup: Data.Case.Constructor<Supergroup, '_tag'> = Data.tagged<Supergroup>('Supergroup')
 
 // =============================================================================
 // Peer Functions
@@ -110,11 +102,6 @@ export const GroupId: Brand.Brand.Constructor<GroupId> = Brand.refined<GroupId>(
   n => Brand.error(`Invalid group ID: ${n}`),
 )
 
-/**
- * ID for channels (including supergroups).
- *
- * @see {@link https://core.telegram.org/api/bots/ids Telegram API • Bot API dialog IDs}
- */
 export type ChannelId = number & Brand.Brand<'@grom.js/effect-tg/ChannelId'>
 export const ChannelId: Brand.Brand.Constructor<ChannelId> = Brand.refined<ChannelId>(
   n => Option.isSome(internal.encodePeerId('channel', n)),
@@ -156,21 +143,40 @@ export const encodePeerId: (
 // Constructors
 // =============================================================================
 
-export const user: (id: number) => User = (id) => {
-  return User({ id: UserId(id) })
-}
+export const user: (id: number) => User = id => ({ _tag: 'User', id: UserId(id) })
 
-export const group: (id: number) => Group = (id) => {
-  return Group({ id: GroupId(id) })
-}
+export const group: (id: number) => Group = id => ({ _tag: 'Group', id: GroupId(id) })
 
-export const channel: (id: number) => Channel = (id) => {
-  return Channel({ id: ChannelId(id) })
-}
+export const channel: (id: number) => Channel = id => ({ _tag: 'Channel', id: ChannelId(id) })
 
-export const supergroup: (id: number) => Supergroup = (id) => {
-  return Supergroup({ id: ChannelId(id) })
-}
+export const supergroup: (id: number) => Supergroup = id => ({ _tag: 'Supergroup', id: ChannelId(id) })
+
+export const privateTopic: (
+  user: User,
+  topicId: number,
+) => PrivateTopic = (user, topicId) => ({
+  _tag: 'PrivateTopic',
+  user,
+  topicId,
+})
+
+export const forumTopic: (
+  supergroup: Supergroup,
+  topicId: number,
+) => ForumTopic = (supergroup, topicId) => ({
+  _tag: 'ForumTopic',
+  supergroup,
+  topicId,
+})
+
+export const channelDm: (
+  channel: Channel,
+  topicId: number,
+) => ChannelDm = (channel, topicId) => ({
+  _tag: 'ChannelDm',
+  channel,
+  topicId,
+})
 
 export const ofMessage: (
   message: BotApi.Types.Message,
