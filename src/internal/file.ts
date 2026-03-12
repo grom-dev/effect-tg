@@ -1,11 +1,14 @@
-import type { FileId } from '../File.ts'
+import type * as File from '../File.ts'
 import * as HttpClient from '@effect/platform/HttpClient'
 import * as Effect from 'effect/Effect'
 import * as BotApi from '../BotApi.ts'
 import * as BotApiUrl from '../BotApiUrl.ts'
 
+/**
+ * @internal
+ */
 export const download = Effect.fnUntraced(
-  function* (fileId: FileId) {
+  function* (fileId: File.FileId) {
     const file = yield* BotApi.callMethod('getFile', { file_id: fileId })
     if (file.file_path == null) {
       return yield* Effect.die(new Error(`Bot API returned no file path for file "${fileId}".`))

@@ -17,12 +17,11 @@ import * as BotApiTransport from './BotApiTransport.ts'
 import * as BotApiUrl from './BotApiUrl.ts'
 import * as internal from './internal/botApi.ts'
 
-export type { MethodParams, MethodResults, Service, Types }
+export type { MethodParams, MethodResults, Types }
 
-export class BotApi extends Context.Tag('@grom.js/effect-tg/BotApi')<
-  BotApi,
-  Service
->() {}
+export interface BotApi extends Readonly<Service> {}
+
+export const BotApi: Context.Tag<BotApi, BotApi> = Context.GenericTag<BotApi>('@grom.js/effect-tg/BotApi')
 
 export interface BotApiMethod<TMethod extends keyof MethodParams> {
   (...args: MethodArgs<TMethod>): Effect.Effect<
@@ -47,8 +46,8 @@ export const callMethod: <TMethod extends keyof MethodParams>(
 ) as any
 
 export const make: (args: {
-  transport: BotApiTransport.Service
-}) => Service = internal.make
+  transport: BotApiTransport.BotApiTransport
+}) => BotApi = internal.make
 
 export const layer: Layer.Layer<
   BotApi,
@@ -95,7 +94,7 @@ export const layerConfig = (options: {
    * - Adding custom retry logic or error handling
    * - Integrating with monitoring or debugging tools
    */
-  readonly transformTransport?: (transport: BotApiTransport.Service) => BotApiTransport.Service
+  readonly transformTransport?: (transport: BotApiTransport.BotApiTransport) => BotApiTransport.BotApiTransport
 }): Layer.Layer<BotApi, ConfigError.ConfigError, HttpClient.HttpClient> => {
   const {
     token,

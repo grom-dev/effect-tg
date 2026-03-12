@@ -1,5 +1,4 @@
 import type * as Content from '../Content.ts'
-import type * as Dialog from '../Dialog.ts'
 import type * as Markup from '../Markup.ts'
 import type * as Reply from '../Reply.ts'
 import type * as Send from '../Send.ts'
@@ -7,10 +6,10 @@ import type * as Text from '../Text.ts'
 import type { Types } from './botApi.gen.ts'
 import * as Tgx from '@grom.js/tgx'
 import * as Duration from 'effect/Duration'
-import * as Effect from 'effect/Effect'
 import * as Match from 'effect/Match'
 import * as Option from 'effect/Option'
 import * as BotApi from '../BotApi.ts'
+import * as Dialog from '../Dialog.ts'
 import * as LinkPreview from '../LinkPreview.ts'
 
 // =============================================================================
@@ -245,27 +244,27 @@ const paramsDialog: (
   })),
   Match.tagsExhaustive({
     User: user => ({
-      chat_id: user.dialogId(),
+      chat_id: Dialog.dialogId(user),
     }),
     Group: group => ({
-      chat_id: group.dialogId(),
+      chat_id: Dialog.dialogId(group),
     }),
     Channel: channel => ({
-      chat_id: channel.dialogId(),
+      chat_id: Dialog.dialogId(channel),
     }),
     Supergroup: supergroup => ({
-      chat_id: supergroup.dialogId(),
+      chat_id: Dialog.dialogId(supergroup),
     }),
     PrivateTopic: topic => ({
-      chat_id: topic.user.dialogId(),
+      chat_id: Dialog.dialogId(topic.user),
       message_thread_id: topic.topicId,
     }),
     ForumTopic: topic => ({
-      chat_id: topic.supergroup.dialogId(),
+      chat_id: Dialog.dialogId(topic.supergroup),
       message_thread_id: topic.topicId,
     }),
     ChannelDm: dm => ({
-      chat_id: dm.channel.dialogId(),
+      chat_id: Dialog.dialogId(dm.channel),
       direct_messages_topic_id: dm.topicId,
     }),
   }),
@@ -465,7 +464,7 @@ const paramsReply = (
   reply_parameters: {
     chat_id: Match.value(reply.dialog).pipe(
       Match.when(Match.number, id => id),
-      Match.orElse(peer => peer.dialogId()),
+      Match.orElse(peer => Dialog.dialogId(peer)),
     ),
     message_id: reply.messageId,
     checklist_task_id: Option.getOrUndefined(reply.taskId),
@@ -491,21 +490,22 @@ const paramsOptions = (options: Send.Options): ParamsOptions => {
 // Send Methods
 // =============================================================================
 
-export const sendMessage = Effect.fnUntraced(function* (params: {
+/**
+ * @internal
+ */
+export const sendMessage = ({ content, dialog, markup, reply, options }: {
   content: Content.Content
   dialog: Dialog.Dialog | Dialog.DialogId
   markup?: Markup.Markup
   reply?: Reply.Reply
   options?: Send.Options
-}) {
-  return yield* BotApi.callMethod(
-    methodByContent[params.content._tag],
-    {
-      ...paramsContent(params.content),
-      ...paramsDialog(params.dialog),
-      ...(params.markup ? paramsMarkup(params.markup) : {}),
-      ...(params.reply ? paramsReply(params.reply) : {}),
-      ...(params.options ? paramsOptions(params.options) : {}),
-    },
-  )
-})
+}) => BotApi.callMethod(
+  methodByContent[content._tag],
+  {
+    ...paramsContent(content),
+    ...paramsDialog(dialog),
+    ...(markup ? paramsMarkup(markup) : {}),
+    ...(reply ? paramsReply(reply) : {}),
+    ...(options ? paramsOptions(options) : {}),
+  },
+)

@@ -7,20 +7,51 @@ import type * as BotApi from './BotApi.ts'
 import type * as BotApiError from './BotApiError.ts'
 import type * as BotApiUrl from './BotApiUrl.ts'
 import * as Brand from 'effect/Brand'
-import * as Data from 'effect/Data'
+import * as Predicate from 'effect/Predicate'
 import * as internal from './internal/file.ts'
 
 export type FileId = string & Brand.Brand<'FileId'>
-export const FileId = Brand.nominal<FileId>()
+export const FileId: Brand.Brand.Constructor<FileId> = Brand.nominal<FileId>()
 
 export type External = URL & Brand.Brand<'External'>
-export const External = Brand.nominal<External>()
+export const External: Brand.Brand.Constructor<External> = Brand.nominal<External>()
 
-export class InputFile extends Data.TaggedClass('InputFile')<{
+// =============================================================================
+// InputFile
+// =============================================================================
+
+const InputFileTypeId: unique symbol = Symbol.for('effect-tg/InputFile')
+
+export type InputFileTypeId = typeof InputFileTypeId
+
+export interface InputFile {
+  readonly [InputFileTypeId]: InputFileTypeId
+  readonly stream: Stream.Stream<Uint8Array>
+  readonly filename: string
+  readonly mimeType?: string
+}
+
+const InputFileProto = {
+  [InputFileTypeId]: InputFileTypeId,
+}
+
+export const make: (args: {
   stream: Stream.Stream<Uint8Array>
   filename: string
   mimeType?: string
-}> {}
+}) => InputFile = ({ stream, filename, mimeType }) => {
+  const file = Object.create(InputFileProto)
+  file.stream = stream
+  file.filename = filename
+  file.mimeType = mimeType
+  return file
+}
+
+export const isInputFile = (u: unknown): u is InputFile => Predicate.hasProperty(u, InputFileTypeId)
+
+// =============================================================================
+// Utilities
+// =============================================================================
 
 /**
  * Downloads a file from the Bot API server.

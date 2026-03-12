@@ -37,6 +37,32 @@ export const sendMessage: (params: {
 > = internal.sendMessage
 
 // =============================================================================
+// TargetDialog
+// =============================================================================
+
+/**
+ * Target dialog for sending messages.
+ */
+export interface TargetDialog {
+  readonly dialog: Dialog.Dialog | Dialog.DialogId
+}
+
+export const TargetDialog: Context.Tag<TargetDialog, TargetDialog> = Context.GenericTag<TargetDialog>('@grom.js/effect-tg/Send/TargetDialog')
+
+/**
+ * Provides the target dialog for sending messages.
+ */
+export const to: {
+  (dialog: Dialog.Dialog | Dialog.DialogId): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, Exclude<R, TargetDialog>>
+  <A, E, R>(effect: Effect.Effect<A, E, R>, dialog: Dialog.Dialog | Dialog.DialogId): Effect.Effect<A, E, Exclude<R, TargetDialog>>
+} = Function.dual(2, <A, E, R>(
+  effect: Effect.Effect<A, E, R>,
+  dialog: Dialog.Dialog | Dialog.DialogId,
+): Effect.Effect<A, E, Exclude<R, TargetDialog>> => (
+  Effect.provideService(effect, TargetDialog, { dialog })
+))
+
+// =============================================================================
 // MessageToSend
 // =============================================================================
 
@@ -71,7 +97,7 @@ const MessageToSendProto = {
   commit(this: MessageToSend) {
     return Effect.flatMap(
       TargetDialog,
-      dialog => sendMessage({
+      ({ dialog }) => sendMessage({
         dialog,
         content: this.content,
         markup: this.markup,
@@ -108,31 +134,6 @@ export const message = (content: Content.Content, params?: {
   self.options = params?.options
   return self
 }
-
-// =============================================================================
-// TargetDialog
-// =============================================================================
-
-/**
- * Target dialog for sending messages.
- */
-export class TargetDialog extends Context.Tag('@grom.js/effect-tg/Send/TargetDialog')<
-  TargetDialog,
-  Dialog.Dialog | Dialog.DialogId
->() {}
-
-/**
- * Provides the target dialog for sending messages.
- */
-export const to: {
-  (dialog: Dialog.Dialog): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, Exclude<R, TargetDialog>>
-  <A, E, R>(effect: Effect.Effect<A, E, R>, dialog: Dialog.Dialog): Effect.Effect<A, E, Exclude<R, TargetDialog>>
-} = Function.dual(2, <A, E, R>(
-  effect: Effect.Effect<A, E, R>,
-  dialog: Dialog.Dialog,
-): Effect.Effect<A, E, Exclude<R, TargetDialog>> => (
-  Effect.provideService(effect, TargetDialog, dialog)
-))
 
 // =============================================================================
 // Reply Markup

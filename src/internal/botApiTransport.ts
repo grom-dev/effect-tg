@@ -18,7 +18,7 @@ interface ExtractedFile {
  * {@linkcode File.InputFile InputFile} instances.
  */
 const hasInputFile = (value: unknown): boolean => {
-  if (value instanceof File.InputFile) {
+  if (File.isInputFile(value)) {
     return true
   }
   if (Array.isArray(value)) {
@@ -34,7 +34,7 @@ const cloneAndExtract = (
   value: unknown,
   files: ExtractedFile[],
 ): unknown => {
-  if (value instanceof File.InputFile) {
+  if (File.isInputFile(value)) {
     const attachId = String(files.length + 1)
     files.push({ attachId, file: value })
     return `attach://${attachId}`
@@ -108,8 +108,8 @@ export const make = ({
   botApiUrl,
 }: {
   httpClient: HttpClient.HttpClient
-  botApiUrl: BotApiUrl.Service
-}): BotApiTransport.Service => ({
+  botApiUrl: BotApiUrl.BotApiUrl
+}): BotApiTransport.BotApiTransport => ({
   sendRequest: (method, params) => (
     Effect.gen(function* () {
       const body = yield* makeHttpBody(params)
