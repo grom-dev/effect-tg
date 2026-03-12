@@ -238,7 +238,7 @@ const program = Effect.gen(function* () {
     // DM channel
     yield* Send.sendMessage({
       content: Content.text(Text.plain(`User 382713 rolled ${rolled}.`)),
-      dialog: Dialog.channel(100200).directMessages(42),
+      dialog: Dialog.channelDm(Dialog.channel(100200), 42),
     })
   }
   else {
@@ -282,11 +282,11 @@ const program = Effect.gen(function* () {
 - `Dialog.supergroup(id)` — supergroup chat.
 - `Dialog.channel(id)` — channel.
 
-To target a specific topic, chain a method on the peer:
+Targeting a specific topic:
 
-- `Dialog.user(id).topic(topicId)` — topic in a private chat.
-- `Dialog.supergroup(id).topic(topicId)` — topic in a forum supergroup.
-- `Dialog.channel(id).directMessages(topicId)` — channel direct messages.
+- `Dialog.privateTopic(user, topicId)` — topic in a private chat.
+- `Dialog.forumTopic(supergroup, topicId)` — topic in a forum supergroup.
+- `Dialog.channelDm(channel, topicId)` — channel direct messages.
 
 `Dialog.ofMessage` helper extracts the dialog from an incoming `Message` object.
 
@@ -352,7 +352,7 @@ const reply = Markup.replyKeyboard(
 **Example:** Creating and sending prepared messages.
 
 ```ts
-import { Content, Dialog, Send, Text } from '@grom.js/effect-tg'
+import { Content, Dialog, Markup, Send, Text } from '@grom.js/effect-tg'
 import { Effect } from 'effect'
 
 // Reusable template
@@ -378,7 +378,7 @@ const greet2 = Effect.gen(function* () {
   yield* welcomeMessage.pipe(Send.withoutNotification)
   yield* welcomeMessage.pipe(Send.withContentProtection)
 }).pipe(
-  Send.to(Dialog.supergroup(4).topic(2)),
+  Send.to(Dialog.forumTopic(Dialog.supergroup(4), 2)),
 )
 ```
 
@@ -421,11 +421,11 @@ import { Text } from '@grom.js/effect-tg'
 // Plain text — sent as is
 Text.plain('*Not bold*. _Not italic_.')
 
-// HTML — sent with 'HTML' parse mode
-Text.html('<b>Bold</b> and <i>italic</i>.')
-
 // Markdown — sent with 'MarkdownV2' parse mode
 Text.markdown('*Bold* and _italic_.')
+
+// HTML — sent with 'HTML' parse mode
+Text.html('<b>Bold</b> and <i>italic</i>.')
 ```
 
 #### JSX syntax
@@ -476,9 +476,8 @@ When `Send.sendMessage` encounters an instance of `Text.Tgx`, it converts inner 
 **Example:** Composing reusable messages with JSX.
 
 ```tsx
-import type { PropsWithChildren } from '@grom.js/tgx/types'
+import type { PropsWithChildren } from '@grom.js/tgx'
 import { Content, Dialog, Send, Text } from '@grom.js/effect-tg'
-import { pipe } from 'effect'
 
 // Reusable component for a key-value field
 const Field = (props: PropsWithChildren<{ label: string }>) => (
