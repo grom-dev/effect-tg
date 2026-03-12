@@ -15,7 +15,7 @@ export const decodeDialogId = (dialogId: number): Option.Option<
 > => {
   if (Number.isSafeInteger(dialogId)) {
     if (1 <= dialogId && dialogId <= 0xFFFFFFFFFF) {
-      return Option.some({ peer: 'user', id: +dialogId as Dialog.UserId })
+      return Option.some({ peer: 'user', id: dialogId as Dialog.UserId })
     }
     if (-999999999999 <= dialogId && dialogId <= -1) {
       return Option.some({ peer: 'group', id: -dialogId as Dialog.GroupId })

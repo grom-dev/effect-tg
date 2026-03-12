@@ -114,9 +114,8 @@ export const make = ({
     Effect.gen(function* () {
       const body = yield* makeHttpBody(params)
       const response = yield* httpClient.post(botApiUrl.toMethod(method), { body })
-      const responseJson = yield* response.json
       // We trust Bot API and don't want to introduce overhead with validation.
-      return responseJson as BotApiTransport.BotApiResponse
+      return (yield* response.json) as BotApiTransport.BotApiResponse
     }).pipe(
       Effect.catchAll(cause => (
         Effect.fail(new BotApiError.TransportError({ cause }))
