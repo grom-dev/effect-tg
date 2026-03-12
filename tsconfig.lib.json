@@ -50,7 +50,6 @@
     "outDir": "dist",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedDeclarations": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
   },

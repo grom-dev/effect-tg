@@ -27,5 +27,6 @@ export default antfu({
     'test/prefer-lowercase-title': ['error', {
       ignore: ['describe'],
     }],
+    'unicorn/throw-new-error': 'off',
   },
 })

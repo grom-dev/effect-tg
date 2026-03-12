@@ -20,7 +20,7 @@ export const External: Brand.Brand.Constructor<External> = Brand.nominal<Externa
 // InputFile
 // =============================================================================
 
-const InputFileTypeId: unique symbol = Symbol.for('effect-tg/InputFile') as InputFileTypeId
+const InputFileTypeId: unique symbol = Symbol.for('effect-tg/InputFile')
 
 export type InputFileTypeId = typeof InputFileTypeId
 
