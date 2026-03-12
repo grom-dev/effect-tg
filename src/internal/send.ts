@@ -1,5 +1,3 @@
-import type * as Effect from 'effect/Effect'
-import type * as BotApiError from '../BotApiError.ts'
 import type * as Content from '../Content.ts'
 import type * as Markup from '../Markup.ts'
 import type * as Reply from '../Reply.ts'
@@ -492,22 +490,15 @@ const paramsOptions = (options: Send.Options): ParamsOptions => {
 // Send Methods
 // =============================================================================
 
-export const sendMessage: (params: {
+/**
+ * @internal
+ */
+export const sendMessage = ({ content, dialog, markup, reply, options }: {
   content: Content.Content
   dialog: Dialog.Dialog | Dialog.DialogId
   markup?: Markup.Markup
   reply?: Reply.Reply
   options?: Send.Options
-}) => Effect.Effect<
-  Types.Message,
-  BotApiError.BotApiError,
-  BotApi.BotApi
-> = ({
-  content,
-  dialog,
-  markup,
-  reply,
-  options,
 }) => BotApi.callMethod(
   methodByContent[content._tag],
   {
