@@ -12,8 +12,8 @@ importers:
         specifier: 7.7.3
         version: 7.7.3(@typescript-eslint/rule-tester@8.56.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/typescript-estree@8.57.2(typescript@5.9.3))(@typescript-eslint/utils@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(@vue/compiler-sfc@3.5.24)(eslint-plugin-format@2.0.1(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)(vitest@4.1.2(@types/node@22.19.15)(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(yaml@2.8.2)))
       '@effect/language-service':
-        specifier: 0.77.0
-        version: 0.77.0
+        specifier: 0.84.2
+        version: 0.84.2
       '@effect/platform':
         specifier: 0.96.0
         version: 0.96.0(effect@3.21.0)
@@ -178,8 +178,8 @@ packages:
       oxlint:
         optional: true
 
-  '@effect/language-service@0.77.0':
-    resolution: {integrity: sha512-QP2bri8DdcK7Eo+SqFS2yNeD0Ch9kKHYxq2jeE9CaPpBknevCNFb3+hT6qSsPt2P6yOkhNP83KMy5Uk7DGBXlg==}
+  '@effect/language-service@0.84.2':
+    resolution: {integrity: sha512-l04qNxpiA8rY5yXWckRPJ7Mk5MNerXuNymSFf+IdflfI5i8jgL1bpBNLuP6ijg7wgjdHc/KmTnCj2kT0SCntuA==}
     hasBin: true
 
   '@effect/platform@0.96.0':
@@ -2706,7 +2706,7 @@ snapshots:
     optionalDependencies:
       eslint: 9.39.4(jiti@2.6.1)
 
-  '@effect/language-service@0.77.0': {}
+  '@effect/language-service@0.84.2': {}
 
   '@effect/platform@0.96.0(effect@3.21.0)':
     dependencies:
