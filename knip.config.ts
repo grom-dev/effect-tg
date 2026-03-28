@@ -14,7 +14,6 @@ const config: KnipConfig = {
     unresolved: 'error',
     exports: 'error',
     nsExports: 'error',
-    classMembers: 'error',
     enumMembers: 'error',
     types: 'error',
     nsTypes: 'error',

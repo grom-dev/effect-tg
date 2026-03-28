@@ -29,7 +29,7 @@
     "./src/"
   ],
   "engines": {
-    "node": "22.x"
+    "node": ">=22.x <25"
   },
   "scripts": {
     "prepare": "effect-language-service patch",
@@ -44,26 +44,26 @@
     "release": "bumpp"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.94.0",
+    "@effect/platform": "^0.96.0",
     "@grom.js/tgx": "^1.0.0",
-    "effect": "^3.19.0"
+    "effect": "^3.0.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "7.6.1",
+    "@antfu/eslint-config": "7.7.3",
     "@effect/language-service": "0.77.0",
-    "@effect/platform": "0.94.5",
+    "@effect/platform": "0.96.0",
     "@grom.js/bot-api-spec": "0.8.0",
-    "@grom.js/tgx": "1.2.0",
-    "@types/node": "22.19.13",
-    "@vitest/coverage-v8": "4.0.18",
-    "bumpp": "10.4.1",
-    "effect": "3.19.19",
-    "eslint": "9.39.3",
-    "eslint-plugin-format": "1.5.0",
-    "knip": "5.85.0",
-    "taze": "19.9.2",
+    "@grom.js/tgx": "1.4.1",
+    "@types/node": "22.19.15",
+    "@vitest/coverage-v8": "4.1.2",
+    "bumpp": "11.0.1",
+    "effect": "3.21.0",
+    "eslint": "9.39.4",
+    "eslint-plugin-format": "2.0.1",
+    "knip": "6.1.0",
+    "taze": "19.10.0",
     "ts-morph": "27.0.2",
     "typescript": "5.9.3",
-    "vitest": "4.0.18"
+    "vitest": "4.1.2"
   }
 }
