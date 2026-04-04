@@ -208,6 +208,10 @@ export interface BotApi {
   getUserChatBoosts: BotApiMethod<'getUserChatBoosts'>
   /** Use this method to get information about the connection of the bot with a business account. Returns a [BusinessConnection](https://core.telegram.org/bots/api#businessconnection) object on success. */
   getBusinessConnection: BotApiMethod<'getBusinessConnection'>
+  /** Use this method to get the token of a managed bot. Returns the token as _String_ on success. */
+  getManagedBotToken: BotApiMethod<'getManagedBotToken'>
+  /** Use this method to revoke the current token of a managed bot and generate a new one. Returns the new token as _String_ on success. */
+  replaceManagedBotToken: BotApiMethod<'replaceManagedBotToken'>
   /** Use this method to change the list of the bot's commands. See [this manual](https://core.telegram.org/bots/features#commands) for more details about bot commands. Returns _True_ on success. */
   setMyCommands: BotApiMethod<'setMyCommands'>
   /** Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, [higher level commands](https://core.telegram.org/bots/api#determining-list-of-commands) will be shown to affected users. Returns _True_ on success. */
@@ -292,6 +296,12 @@ export interface BotApi {
   editStory: BotApiMethod<'editStory'>
   /** Deletes a story previously posted by the bot on behalf of a managed business account. Requires the _can\_manage\_stories_ business bot right. Returns _True_ on success. */
   deleteStory: BotApiMethod<'deleteStory'>
+  /** Use this method to set the result of an interaction with a [Web App](https://core.telegram.org/bots/webapps) and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a [SentWebAppMessage](https://core.telegram.org/bots/api#sentwebappmessage) object is returned. */
+  answerWebAppQuery: BotApiMethod<'answerWebAppQuery'>
+  /** Stores a message that can be sent by a user of a Mini App. Returns a [PreparedInlineMessage](https://core.telegram.org/bots/api#preparedinlinemessage) object. */
+  savePreparedInlineMessage: BotApiMethod<'savePreparedInlineMessage'>
+  /** Stores a keyboard button that can be used by a user within a Mini App. Returns a [PreparedKeyboardButton](https://core.telegram.org/bots/api#preparedkeyboardbutton) object. */
+  savePreparedKeyboardButton: BotApiMethod<'savePreparedKeyboardButton'>
   /** Use this method to edit text and [game](https://core.telegram.org/bots/api#games) messages. On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api#message) is returned, otherwise _True_ is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within **48 hours** from the time they were sent. */
   editMessageText: BotApiMethod<'editMessageText'>
   /** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api#message) is returned, otherwise _True_ is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within **48 hours** from the time they were sent. */
@@ -376,10 +386,6 @@ export interface BotApi {
    * No more than **50** results per query are allowed.
    */
   answerInlineQuery: BotApiMethod<'answerInlineQuery'>
-  /** Use this method to set the result of an interaction with a [Web App](https://core.telegram.org/bots/webapps) and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a [SentWebAppMessage](https://core.telegram.org/bots/api#sentwebappmessage) object is returned. */
-  answerWebAppQuery: BotApiMethod<'answerWebAppQuery'>
-  /** Stores a message that can be sent by a user of a Mini App. Returns a [PreparedInlineMessage](https://core.telegram.org/bots/api#preparedinlinemessage) object. */
-  savePreparedInlineMessage: BotApiMethod<'savePreparedInlineMessage'>
   /** Use this method to send invoices. On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned. */
   sendInvoice: BotApiMethod<'sendInvoice'>
   /** Use this method to create a link for an invoice. Returns the created invoice link as _String_ on success. */
@@ -469,6 +475,8 @@ export declare namespace Types {
     chat_boost?: Types.ChatBoostUpdated
     /** A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates. */
     removed_chat_boost?: Types.ChatBoostRemoved
+    /** A new bot was created to be managed by the bot or token of a bot was changed */
+    managed_bot?: Types.ManagedBotUpdated
   }
 
   /** Describes the current status of a webhook. */
@@ -525,6 +533,8 @@ export declare namespace Types {
     has_topics_enabled?: boolean
     /** _True_, if the bot allows users to create and delete topics in private chats. Returned only in [getMe](https://core.telegram.org/bots/api#getme). */
     allows_users_to_create_topics?: boolean
+    /** _True_, if other bots can be created to be controlled by the bot. Returned only in [getMe](https://core.telegram.org/bots/api#getme). */
+    can_manage_bots?: boolean
   }
 
   /** This object represents a chat. */
@@ -693,6 +703,8 @@ export declare namespace Types {
     reply_to_story?: Types.Story
     /** Identifier of the specific checklist task that is being replied to */
     reply_to_checklist_task_id?: number
+    /** Persistent identifier of the specific poll option that is being replied to */
+    reply_to_poll_option_id?: string
     /** Bot through which the message was sent */
     via_bot?: Types.User
     /** Date the message was last edited in Unix time */
@@ -843,8 +855,14 @@ export declare namespace Types {
     giveaway_winners?: Types.GiveawayWinners
     /** Service message: a giveaway without public winners was completed */
     giveaway_completed?: Types.GiveawayCompleted
+    /** Service message: user created a bot that will be managed by the current bot */
+    managed_bot_created?: Types.ManagedBotCreated
     /** Service message: the price for paid messages has changed in the chat */
     paid_message_price_changed?: Types.PaidMessagePriceChanged
+    /** Service message: answer option was added to a poll */
+    poll_option_added?: Types.PollOptionAdded
+    /** Service message: answer option was deleted from a poll */
+    poll_option_deleted?: Types.PollOptionDeleted
     /** Service message: a suggested post was approved */
     suggested_post_approved?: Types.SuggestedPostApproved
     /** Service message: approval of a suggested post has failed */
@@ -919,7 +937,7 @@ export declare namespace Types {
   export interface TextQuote {
     /** Text of the quoted part of a message that is replied to by the given message */
     text: string
-    /** Special entities that appear in the quote. Currently, only _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, and _custom\_emoji_ entities are kept in quotes. */
+    /** Special entities that appear in the quote. Currently, only _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, _custom\_emoji_, and _date\_time_ entities are kept in quotes. */
     entities?: Array<Types.MessageEntity>
     /** Approximate quote position in the original message in UTF-16 code units as specified by the sender */
     position: number
@@ -989,7 +1007,7 @@ export declare namespace Types {
     chat_id?: number | string
     /** Pass _True_ if the message should be sent even if the specified message to be replied to is not found. Always _False_ for replies in another chat or forum topic. Always _True_ for messages sent on behalf of a business account. */
     allow_sending_without_reply?: boolean
-    /** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, and _custom\_emoji_ entities. The message will fail to send if the quote isn't found in the original message. */
+    /** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, _custom\_emoji_, and _date\_time_ entities. The message will fail to send if the quote isn't found in the original message. */
     quote?: string
     /** Mode for parsing entities in the quote. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
     quote_parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
@@ -999,6 +1017,8 @@ export declare namespace Types {
     quote_position?: number
     /** Identifier of the specific checklist task to be replied to */
     checklist_task_id?: number
+    /** Persistent identifier of the specific poll option to be replied to */
+    poll_option_id?: string
   }
 
   /**
@@ -1282,12 +1302,20 @@ export declare namespace Types {
 
   /** This object contains information about one answer option in a poll. */
   export interface PollOption {
+    /** Unique identifier of the option, persistent on option addition and deletion */
+    persistent_id: string
     /** Option text, 1-100 characters */
     text: string
     /** Special entities that appear in the option _text_. Currently, only custom emoji entities are allowed in poll option texts */
     text_entities?: Array<Types.MessageEntity>
-    /** Number of users that voted for this option */
+    /** Number of users who voted for this option; may be 0 if unknown */
     voter_count: number
+    /** User who added the option; omitted if the option wasn't added by a user after poll creation */
+    added_by_user?: Types.User
+    /** Chat that added the option; omitted if the option wasn't added by a chat after poll creation */
+    added_by_chat?: Types.Chat
+    /** Point in time (Unix timestamp) when the option was added; omitted if the option existed in the original poll */
+    addition_date?: number
   }
 
   /** This object contains information about one answer option in a poll to be sent. */
@@ -1310,6 +1338,8 @@ export declare namespace Types {
     user?: Types.User
     /** 0-based identifiers of chosen answer options. May be empty if the vote was retracted. */
     option_ids: Array<number>
+    /** Persistent identifiers of the chosen answer options. May be empty if the vote was retracted. */
+    option_persistent_ids: Array<string>
   }
 
   /** This object contains information about a poll. */
@@ -1332,8 +1362,10 @@ export declare namespace Types {
     type: 'regular' | 'quiz'
     /** _True_, if the poll allows multiple answers */
     allows_multiple_answers: boolean
-    /** 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot. */
-    correct_option_id?: number
+    /** _True_, if the poll allows to change the chosen answer options */
+    allows_revoting: boolean
+    /** Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot. */
+    correct_option_ids?: Array<number>
     /** Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters */
     explanation?: string
     /** Special entities like usernames, URLs, bot commands, etc. that appear in the _explanation_ */
@@ -1342,6 +1374,10 @@ export declare namespace Types {
     open_period?: number
     /** Point in time (Unix timestamp) when the poll will be automatically closed */
     close_date?: number
+    /** Description of the poll; for polls inside the [Message](https://core.telegram.org/bots/api#message) object only */
+    description?: string
+    /** Special entities like usernames, URLs, bot commands, etc. that appear in the description */
+    description_entities?: Array<Types.MessageEntity>
   }
 
   /** Describes a task in a checklist. */
@@ -1382,7 +1418,7 @@ export declare namespace Types {
     text: string
     /** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
     parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
-    /** List of special entities that appear in the text, which can be specified instead of parse\_mode. Currently, only _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, and _custom\_emoji_ entities are allowed. */
+    /** List of special entities that appear in the text, which can be specified instead of parse\_mode. Currently, only _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, _custom\_emoji_, and _date\_time_ entities are allowed. */
     text_entities?: Array<Types.MessageEntity>
   }
 
@@ -1392,7 +1428,7 @@ export declare namespace Types {
     title: string
     /** Mode for parsing entities in the title. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
     parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
-    /** List of special entities that appear in the title, which can be specified instead of parse\_mode. Currently, only _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, and _custom\_emoji_ entities are allowed. */
+    /** List of special entities that appear in the title, which can be specified instead of parse\_mode. Currently, only _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, _custom\_emoji_, and _date\_time_ entities are allowed. */
     title_entities?: Array<Types.MessageEntity>
     /** List of 1-30 tasks in the checklist */
     tasks: Array<Types.InputChecklistTask>
@@ -1476,6 +1512,44 @@ export declare namespace Types {
   export interface MessageAutoDeleteTimerChanged {
     /** New auto-delete time for messages in the chat; in seconds */
     message_auto_delete_time: number
+  }
+
+  /** This object contains information about the bot that was created to be managed by the current bot. */
+  export interface ManagedBotCreated {
+    /** Information about the bot. The bot's token can be fetched using the method [getManagedBotToken](https://core.telegram.org/bots/api#getmanagedbottoken). */
+    bot: Types.User
+  }
+
+  /** This object contains information about the creation or token update of a bot that is managed by the current bot. */
+  export interface ManagedBotUpdated {
+    /** User that created the bot */
+    user: Types.User
+    /** Information about the bot. Token of the bot can be fetched using the method [getManagedBotToken](https://core.telegram.org/bots/api#getmanagedbottoken). */
+    bot: Types.User
+  }
+
+  /** Describes a service message about an option added to a poll. */
+  export interface PollOptionAdded {
+    /** Message containing the poll to which the option was added, if known. Note that the [Message](https://core.telegram.org/bots/api#message) object in this field will not contain the _reply\_to\_message_ field even if it itself is a reply. */
+    poll_message?: Types.MaybeInaccessibleMessage
+    /** Unique identifier of the added option */
+    option_persistent_id: string
+    /** Option text */
+    option_text: string
+    /** Special entities that appear in the _option\_text_ */
+    option_text_entities?: Array<Types.MessageEntity>
+  }
+
+  /** Describes a service message about an option deleted from a poll. */
+  export interface PollOptionDeleted {
+    /** Message containing the poll from which the option was deleted, if known. Note that the [Message](https://core.telegram.org/bots/api#message) object in this field will not contain the _reply\_to\_message_ field even if it itself is a reply. */
+    poll_message?: Types.MaybeInaccessibleMessage
+    /** Unique identifier of the deleted option */
+    option_persistent_id: string
+    /** Option text */
+    option_text: string
+    /** Special entities that appear in the _option\_text_ */
+    option_text_entities?: Array<Types.MessageEntity>
   }
 
   /** This object represents a service message about a user boosting a chat. */
@@ -1935,6 +2009,8 @@ export declare namespace Types {
     request_users?: Types.KeyboardButtonRequestUsers
     /** If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a “chat\_shared” service message. Available in private chats only. */
     request_chat?: Types.KeyboardButtonRequestChat
+    /** If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the [@BotFather](https://t.me/BotFather) Mini App. Available in private chats only. */
+    request_managed_bot?: Types.KeyboardButtonRequestManagedBot
     /** If _True_, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only. */
     request_contact?: boolean
     /** If _True_, the user's current location will be sent when the button is pressed. Available in private chats only. */
@@ -1987,6 +2063,16 @@ export declare namespace Types {
     request_username?: boolean
     /** Pass _True_ to request the chat's photo */
     request_photo?: boolean
+  }
+
+  /** This object defines the parameters for the creation of a managed bot. Information about the created bot will be shared with the bot using the update _managed\_bot_ and a [Message](https://core.telegram.org/bots/api#message) with the field _managed\_bot\_created_. */
+  export interface KeyboardButtonRequestManagedBot {
+    /** Signed 32-bit identifier of the request. Must be unique within the message */
+    request_id: number
+    /** Suggested name for the bot */
+    suggested_name?: string
+    /** Suggested username for the bot */
+    suggested_username?: string
   }
 
   /** This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed. */
@@ -3217,6 +3303,26 @@ export declare namespace Types {
     message_ids: Array<number>
   }
 
+  /** Describes an inline message sent by a [Web App](https://core.telegram.org/bots/webapps) on behalf of a user. */
+  export interface SentWebAppMessage {
+    /** Identifier of the sent inline message. Available only if there is an [inline keyboard](https://core.telegram.org/bots/api#inlinekeyboardmarkup) attached to the message. */
+    inline_message_id?: string
+  }
+
+  /** Describes an inline message to be sent by a user of a Mini App. */
+  export interface PreparedInlineMessage {
+    /** Unique identifier of the prepared message */
+    id: string
+    /** Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used */
+    expiration_date: number
+  }
+
+  /** Describes a keyboard button to be used by a user of a Mini App. */
+  export interface PreparedKeyboardButton {
+    /** Unique identifier of the keyboard button */
+    id: string
+  }
+
   /** Describes why a request was unsuccessful. */
   export interface ResponseParameters {
     /** The group has been migrated to a supergroup with the specified identifier. */
@@ -4239,20 +4345,6 @@ export declare namespace Types {
     inline_message_id?: string
     /** The query that was used to obtain the result */
     query: string
-  }
-
-  /** Describes an inline message sent by a [Web App](https://core.telegram.org/bots/webapps) on behalf of a user. */
-  export interface SentWebAppMessage {
-    /** Identifier of the sent inline message. Available only if there is an [inline keyboard](https://core.telegram.org/bots/api#inlinekeyboardmarkup) attached to the message. */
-    inline_message_id?: string
-  }
-
-  /** Describes an inline message to be sent by a user of a Mini App. */
-  export interface PreparedInlineMessage {
-    /** Unique identifier of the prepared message */
-    id: string
-    /** Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used */
-    expiration_date: number
   }
 
   /** This object represents a portion of the price for goods or services. */
@@ -5377,22 +5469,36 @@ export interface MethodParams {
     is_anonymous?: boolean
     /** Poll type, “quiz” or “regular”, defaults to “regular” */
     type?: 'quiz' | 'regular'
-    /** _True_, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to _False_ */
+    /** Pass _True_, if the poll allows multiple answers, defaults to _False_ */
     allows_multiple_answers?: boolean
-    /** 0-based identifier of the correct answer option, required for polls in quiz mode */
-    correct_option_id?: number
+    /** Pass _True_, if the poll allows to change chosen answer options, defaults to _False_ for quizzes and to _True_ for regular polls */
+    allows_revoting?: boolean
+    /** Pass _True_, if the poll options must be shown in random order */
+    shuffle_options?: boolean
+    /** Pass _True_, if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes */
+    allow_adding_options?: boolean
+    /** Pass _True_, if poll results must be shown only after the poll closes */
+    hide_results_until_closes?: boolean
+    /** An array of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode */
+    correct_option_ids?: Array<number>
     /** Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing */
     explanation?: string
     /** Mode for parsing entities in the explanation. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
     explanation_parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the poll explanation. It can be specified instead of _explanation\_parse\_mode_ */
     explanation_entities?: Array<Types.MessageEntity>
-    /** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with _close\_date_. */
+    /** Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with _close\_date_. */
     open_period?: number
-    /** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with _open\_period_. */
+    /** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with _open\_period_. */
     close_date?: number
     /** Pass _True_ if the poll needs to be immediately closed. This can be useful for poll preview. */
     is_closed?: boolean
+    /** Description of the poll to be sent, 0-1024 characters after entities parsing */
+    description?: string
+    /** Mode for parsing entities in the poll description. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
+    description_parse_mode?: string
+    /** An array of special entities that appear in the poll description, which can be specified instead of _description\_parse\_mode_ */
+    description_entities?: Array<Types.MessageEntity>
     /** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
     disable_notification?: boolean
     /** Protects the contents of the sent message from forwarding and saving */
@@ -5857,6 +5963,14 @@ export interface MethodParams {
     /** Unique identifier of the business connection */
     business_connection_id: string
   }
+  getManagedBotToken: {
+    /** User identifier of the managed bot whose token will be returned */
+    user_id: number
+  }
+  replaceManagedBotToken: {
+    /** User identifier of the managed bot whose token will be replaced */
+    user_id: number
+  }
   setMyCommands: {
     /** An array of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified. */
     commands: Array<Types.BotCommand>
@@ -5944,7 +6058,7 @@ export interface MethodParams {
     pay_for_upgrade?: boolean
     /** Text that will be shown along with the gift; 0-128 characters */
     text?: string
-    /** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored. */
+    /** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom\_emoji”, and “date\_time” are ignored. */
     text_parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the gift text. It can be specified instead of _text\_parse\_mode_. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored. */
     text_entities?: Array<Types.MessageEntity>
@@ -5958,7 +6072,7 @@ export interface MethodParams {
     star_count: 1000 | 1500 | 2500
     /** Text that will be shown along with the service message about the subscription; 0-128 characters */
     text?: string
-    /** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored. */
+    /** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom\_emoji”, and “date\_time” are ignored. */
     text_parse_mode?: 'HTML' | 'MarkdownV2' | 'Markdown'
     /** An array of special entities that appear in the gift text. It can be specified instead of _text\_parse\_mode_. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored. */
     text_entities?: Array<Types.MessageEntity>
@@ -6198,6 +6312,32 @@ export interface MethodParams {
     business_connection_id: string
     /** Unique identifier of the story to delete */
     story_id: number
+  }
+  answerWebAppQuery: {
+    /** Unique identifier for the query to be answered */
+    web_app_query_id: string
+    /** An object describing the message to be sent */
+    result: Types.InlineQueryResult
+  }
+  savePreparedInlineMessage: {
+    /** Unique identifier of the target user that can use the prepared message */
+    user_id: number
+    /** An object describing the message to be sent */
+    result: Types.InlineQueryResult
+    /** Pass _True_ if the message can be sent to private chats with users */
+    allow_user_chats?: boolean
+    /** Pass _True_ if the message can be sent to private chats with bots */
+    allow_bot_chats?: boolean
+    /** Pass _True_ if the message can be sent to group and supergroup chats */
+    allow_group_chats?: boolean
+    /** Pass _True_ if the message can be sent to channel chats */
+    allow_channel_chats?: boolean
+  }
+  savePreparedKeyboardButton: {
+    /** Unique identifier of the target user that can use the button */
+    user_id: number
+    /** An object describing the button to be saved. The button must be of the type _request\_users_, _request\_chat_, or _request\_managed\_bot_ */
+    button: Types.KeyboardButton
   }
   editMessageText: {
     /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
@@ -6495,26 +6635,6 @@ export interface MethodParams {
     /** An object describing a button to be shown above inline query results */
     button?: Types.InlineQueryResultsButton
   }
-  answerWebAppQuery: {
-    /** Unique identifier for the query to be answered */
-    web_app_query_id: string
-    /** An object describing the message to be sent */
-    result: Types.InlineQueryResult
-  }
-  savePreparedInlineMessage: {
-    /** Unique identifier of the target user that can use the prepared message */
-    user_id: number
-    /** An object describing the message to be sent */
-    result: Types.InlineQueryResult
-    /** Pass _True_ if the message can be sent to private chats with users */
-    allow_user_chats?: boolean
-    /** Pass _True_ if the message can be sent to private chats with bots */
-    allow_bot_chats?: boolean
-    /** Pass _True_ if the message can be sent to group and supergroup chats */
-    allow_group_chats?: boolean
-    /** Pass _True_ if the message can be sent to channel chats */
-    allow_channel_chats?: boolean
-  }
   sendInvoice: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string
@@ -6802,6 +6922,8 @@ export interface MethodResults {
   answerCallbackQuery: true
   getUserChatBoosts: Types.UserChatBoosts
   getBusinessConnection: Types.BusinessConnection
+  getManagedBotToken: string
+  replaceManagedBotToken: string
   setMyCommands: true
   deleteMyCommands: true
   getMyCommands: Array<Types.BotCommand>
@@ -6844,6 +6966,9 @@ export interface MethodResults {
   repostStory: Types.Story
   editStory: Types.Story
   deleteStory: true
+  answerWebAppQuery: Types.SentWebAppMessage
+  savePreparedInlineMessage: Types.PreparedInlineMessage
+  savePreparedKeyboardButton: Types.PreparedKeyboardButton
   editMessageText: Types.Message | true
   editMessageCaption: Types.Message | true
   editMessageMedia: Types.Message | true
@@ -6873,8 +6998,6 @@ export interface MethodResults {
   setCustomEmojiStickerSetThumbnail: true
   deleteStickerSet: true
   answerInlineQuery: true
-  answerWebAppQuery: Types.SentWebAppMessage
-  savePreparedInlineMessage: Types.PreparedInlineMessage
   sendInvoice: Types.Message
   createInvoiceLink: string
   answerShippingQuery: true

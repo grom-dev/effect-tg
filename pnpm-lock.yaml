@@ -18,8 +18,8 @@ importers:
         specifier: 0.96.0
         version: 0.96.0(effect@3.21.0)
       '@grom.js/bot-api-spec':
-        specifier: 0.8.0
-        version: 0.8.0
+        specifier: 0.9.0
+        version: 0.9.0
       '@grom.js/tgx':
         specifier: 1.4.1
         version: 1.4.1
@@ -433,8 +433,8 @@ packages:
     resolution: {integrity: sha512-bIZEUzOI1jkhviX2cp5vNyXQc6olzb2ohewQubuYlMXZ2Q/XjBO0x0XhGPvc9fjSIiUN0vw+0hq53BJ4eQSJKQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@grom.js/bot-api-spec@0.8.0':
-    resolution: {integrity: sha512-b+YW1AW0TQCxTGuRVpq4ZILBkS2aY1/ZnSDE2cKYsrutmCOAo3JCUqL5KxUZp4ExAm+MIkC8Pu5a5GjkCHxWcA==}
+  '@grom.js/bot-api-spec@0.9.0':
+    resolution: {integrity: sha512-Fb9j51Bu8zwLadXJQ+JkEDhhZP3AKfU0FxECG5Wd5ICGUQQqmxvEyZijUW+xSZe5zlax1dT8Uj+Q2iXnXgP7uQ==}
     engines: {node: '>=22.18'}
 
   '@grom.js/tgx@1.4.1':
@@ -2912,7 +2912,7 @@ snapshots:
       '@eslint/core': 1.1.0
       levn: 0.4.1
 
-  '@grom.js/bot-api-spec@0.8.0': {}
+  '@grom.js/bot-api-spec@0.9.0': {}
 
   '@grom.js/tgx@1.4.1':
     dependencies:
