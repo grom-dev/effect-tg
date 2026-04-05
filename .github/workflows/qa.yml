@@ -19,7 +19,7 @@ jobs:
           run_install: false
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
@@ -34,7 +34,7 @@ jobs:
           run_install: false
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run typecheck
@@ -49,7 +49,7 @@ jobs:
           run_install: false
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run test --coverage
@@ -86,7 +86,7 @@ jobs:
           run_install: false
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run knip
