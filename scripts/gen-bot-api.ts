@@ -54,6 +54,8 @@ function genBotApi(f: SourceFile): void {
         return `${t.types.map(t => genValueType(t)).join(' | ')}`
     }
   }
+
+  const optionalPropType = (base: string): string => `${base} | undefined`
   // #endregion ValueType
 
   // #region BotApi
@@ -87,7 +89,7 @@ function genBotApi(f: SourceFile): void {
         docs: [type.description.markdown],
         properties: type.fields.map(field => ({
           name: field.name,
-          type: genValueType(field.type),
+          type: field.required ? genValueType(field.type) : optionalPropType(genValueType(field.type)),
           hasQuestionToken: !field.required,
           docs: [field.description.markdown],
         })),
@@ -124,7 +126,7 @@ function genBotApi(f: SourceFile): void {
             .map(param => ({
               name: param.name,
               docs: [param.description.markdown],
-              type: genValueType(param.type),
+              type: param.required ? genValueType(param.type) : optionalPropType(genValueType(param.type)),
               hasQuestionToken: !param.required,
             })),
         })
