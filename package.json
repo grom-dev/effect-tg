@@ -52,7 +52,7 @@
     "@antfu/eslint-config": "7.7.3",
     "@effect/language-service": "0.85.1",
     "@effect/platform": "0.96.1",
-    "@grom.js/bot-api-spec": "0.10.0",
+    "@grom.js/bot-api-spec": "0.10.1",
     "@grom.js/tgx": "1.4.3",
     "@types/node": "22.19.18",
     "@vitest/coverage-v8": "4.1.5",

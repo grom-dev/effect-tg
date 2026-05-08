@@ -1195,7 +1195,7 @@ export declare namespace Types {
     duration: number
     /** MIME type of the file as defined by the sender */
     mime_type?: string | undefined
-    /** File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value. */
+    /** File size in bytes. */
     file_size?: number | undefined
   }
 
@@ -1391,9 +1391,7 @@ export declare namespace Types {
    * -   [InputMediaVenue](https://core.telegram.org/bots/api#inputmediavenue)
    * -   [InputMediaVideo](https://core.telegram.org/bots/api#inputmediavideo)
    */
-  export interface InputPollMedia {
-  }
-
+  export type InputPollMedia = Types.InputMediaAnimation | Types.InputMediaAudio | Types.InputMediaDocument | Types.InputMediaLivePhoto | Types.InputMediaLocation | Types.InputMediaPhoto | Types.InputMediaVenue | Types.InputMediaVideo
   /**
    * This object represents the content of a poll option to be sent. It should be one of
    *
@@ -1405,8 +1403,7 @@ export declare namespace Types {
    * -   [InputMediaVenue](https://core.telegram.org/bots/api#inputmediavenue)
    * -   [InputMediaVideo](https://core.telegram.org/bots/api#inputmediavideo)
    */
-  export interface InputPollOptionMedia {
-  }
+  export type InputPollOptionMedia = Types.InputMediaAnimation | Types.InputMediaLivePhoto | Types.InputMediaLocation | Types.InputMediaPhoto | Types.InputMediaSticker | Types.InputMediaVenue | Types.InputMediaVideo
 
   /** This object contains information about one answer option in a poll. */
   export interface PollOption {
