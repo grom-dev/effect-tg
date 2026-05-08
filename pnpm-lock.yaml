@@ -18,8 +18,8 @@ importers:
         specifier: 0.96.1
         version: 0.96.1(effect@3.21.2)
       '@grom.js/bot-api-spec':
-        specifier: 0.9.0
-        version: 0.9.0
+        specifier: 0.10.0
+        version: 0.10.0
       '@grom.js/tgx':
         specifier: 1.4.3
         version: 1.4.3
@@ -442,8 +442,8 @@ packages:
     resolution: {integrity: sha512-bIZEUzOI1jkhviX2cp5vNyXQc6olzb2ohewQubuYlMXZ2Q/XjBO0x0XhGPvc9fjSIiUN0vw+0hq53BJ4eQSJKQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@grom.js/bot-api-spec@0.9.0':
-    resolution: {integrity: sha512-Fb9j51Bu8zwLadXJQ+JkEDhhZP3AKfU0FxECG5Wd5ICGUQQqmxvEyZijUW+xSZe5zlax1dT8Uj+Q2iXnXgP7uQ==}
+  '@grom.js/bot-api-spec@0.10.0':
+    resolution: {integrity: sha512-mwBtpYEj6M0FeHk9eJbXZq1wMIqqHdrwWdphv93YPk9vNwnrB3YRO1rXq6Cu7LExlu36fvfAA6D0wpss4SlKmQ==}
     engines: {node: '>=22.18'}
 
   '@grom.js/tgx@1.4.3':
@@ -2906,7 +2906,7 @@ snapshots:
       '@eslint/core': 1.1.0
       levn: 0.4.1
 
-  '@grom.js/bot-api-spec@0.9.0': {}
+  '@grom.js/bot-api-spec@0.10.0': {}
 
   '@grom.js/tgx@1.4.3':
     dependencies:
@@ -5081,11 +5081,11 @@ snapshots:
   vite@7.3.1(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.8.4):
     dependencies:
       esbuild: 0.27.2
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
       postcss: 8.5.6
       rollup: 4.57.0
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.16
     optionalDependencies:
       '@types/node': 22.19.18
       fsevents: 2.3.3
