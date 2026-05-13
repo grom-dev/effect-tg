@@ -1,6 +1,6 @@
 import type * as File from '../File.ts'
-import * as HttpClient from '@effect/platform/HttpClient'
 import * as Effect from 'effect/Effect'
+import * as HttpClient from 'effect/unstable/http/HttpClient'
 import * as BotApi from '../BotApi.ts'
 import * as BotApiUrl from '../BotApiUrl.ts'
 

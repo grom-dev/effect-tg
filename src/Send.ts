@@ -9,7 +9,6 @@ import type * as Dialog from './Dialog.ts'
 import type * as Markup from './Markup.ts'
 import type * as Reply from './Reply.ts'
 import * as Context from 'effect/Context'
-import * as Data from 'effect/Data'
 import * as Effect from 'effect/Effect'
 import * as Effectable from 'effect/Effectable'
 import * as Function from 'effect/Function'
@@ -47,7 +46,7 @@ export interface TargetDialog {
   readonly dialog: Dialog.Dialog | Dialog.DialogId
 }
 
-export const TargetDialog: Context.Tag<TargetDialog, TargetDialog> = Context.GenericTag<TargetDialog>('@grom.js/effect-tg/Send/TargetDialog')
+export const TargetDialog: Context.Service<TargetDialog, TargetDialog> = Context.Service<TargetDialog>('@grom.js/effect-tg/Send/TargetDialog')
 
 /**
  * Provides the target dialog for sending messages.
@@ -88,15 +87,11 @@ export interface MessageToSend extends
   readonly options?: Options
 }
 
-const MessageToSendProto = {
-  ...Inspectable.BaseProto,
-  ...Effectable.CommitPrototype,
-
-  [MessageToSendTypeId]: MessageToSendTypeId,
-
-  commit(this: MessageToSend) {
+const MessageToSendEffectProto = Effectable.Prototype<MessageToSend>({
+  label: '@grom.js/effect-tg/Send/MessageToSend',
+  evaluate(this: MessageToSend, _fiber) {
     return Effect.flatMap(
-      TargetDialog,
+      TargetDialog.asEffect(),
       ({ dialog }) => sendMessage({
         dialog,
         content: this.content,
@@ -106,17 +101,26 @@ const MessageToSendProto = {
       }),
     )
   },
+})
 
-  toJSON(this: MessageToSend) {
-    return {
-      _id: this[MessageToSendTypeId].description,
-      content: this.content,
-      markup: this.markup,
-      reply: this.reply,
-      options: this.options,
-    }
+const MessageToSendProto = Object.assign(
+  Object.create(MessageToSendEffectProto),
+  {
+    ...Inspectable.BaseProto,
+
+    [MessageToSendTypeId]: MessageToSendTypeId,
+
+    toJSON(this: MessageToSend) {
+      return {
+        _id: this[MessageToSendTypeId].description,
+        content: this.content,
+        markup: this.markup,
+        reply: this.reply,
+        options: this.options,
+      }
+    },
   },
-}
+)
 
 /**
  * Creates a message prepared to be sent with the specified content
@@ -200,17 +204,11 @@ export const withoutReply: (
 /**
  * Options for sending a message.
  */
-export class Options extends Data.Class<{
+export interface Options {
   disableNotification?: boolean
   protectContent?: boolean
   allowPaidBroadcast?: boolean
-}> {}
-
-export const options = (args: {
-  disableNotification?: boolean
-  protectContent?: boolean
-  allowPaidBroadcast?: boolean
-}): Options => new Options(args)
+}
 
 /**
  * Modifies the options for sending a message by merging with existing options.
@@ -229,10 +227,10 @@ export const withOptions: {
 ): MessageToSend => message(self.content, {
   markup: self.markup,
   reply: self.reply,
-  options: new Options({
+  options: {
     ...self.options,
     ...options,
-  }),
+  },
 }))
 
 /**

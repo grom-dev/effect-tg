@@ -1,8 +1,8 @@
-import type * as HttpClient from '@effect/platform/HttpClient'
-import type * as HttpClientError from '@effect/platform/HttpClientError'
-import type * as HttpClientResponse from '@effect/platform/HttpClientResponse'
 import type * as Effect from 'effect/Effect'
 import type * as Stream from 'effect/Stream'
+import type * as HttpClient from 'effect/unstable/http/HttpClient'
+import type * as HttpClientError from 'effect/unstable/http/HttpClientError'
+import type * as HttpClientResponse from 'effect/unstable/http/HttpClientResponse'
 import type * as BotApi from './BotApi.ts'
 import type * as BotApiError from './BotApiError.ts'
 import type * as BotApiUrl from './BotApiUrl.ts'
@@ -11,10 +11,10 @@ import * as Predicate from 'effect/Predicate'
 import * as internal from './internal/file.ts'
 
 export type FileId = string & Brand.Brand<'FileId'>
-export const FileId: Brand.Brand.Constructor<FileId> = Brand.nominal<FileId>()
+export const FileId: Brand.Constructor<FileId> = Brand.nominal<FileId>()
 
 export type External = URL & Brand.Brand<'External'>
-export const External: Brand.Brand.Constructor<External> = Brand.nominal<External>()
+export const External: Brand.Constructor<External> = Brand.nominal<External>()
 
 // =============================================================================
 // InputFile

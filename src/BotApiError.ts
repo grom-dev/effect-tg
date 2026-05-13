@@ -1,9 +1,8 @@
-import type * as HttpBody from '@effect/platform/HttpBody'
-import type * as HttpClientError from '@effect/platform/HttpClientError'
+import type * as HttpBody from 'effect/unstable/http/HttpBody'
+import type * as HttpClientError from 'effect/unstable/http/HttpClientError'
 import type * as BotApiTransport from './BotApiTransport.ts'
-import { TypeIdError } from '@effect/platform/Error'
+import * as Data from 'effect/Data'
 import * as Duration from 'effect/Duration'
-import * as Match from 'effect/Match'
 import * as Option from 'effect/Option'
 import * as Predicate from 'effect/Predicate'
 import * as Dialog from './Dialog.ts'
@@ -25,57 +24,51 @@ export type BotApiError =
 /**
  * Error caused by the transport when accessing Bot API.
  */
-export class TransportError extends TypeIdError(TypeId, 'TransportError')<{
+export class TransportError extends Data.TaggedError('TransportError')<{
   readonly cause:
     | HttpClientError.HttpClientError
     | HttpBody.HttpBodyError
 }> {
+  readonly [TypeId]: typeof TypeId = TypeId
   override get message(): string {
-    return Match.value(this.cause).pipe(
-      Match.tagsExhaustive({
-        RequestError: e => e.message,
-        ResponseError: e => e.message,
-        HttpBodyError: e => Match.value(e.reason).pipe(
-          Match.tagsExhaustive({
-            SchemaError: e => e.error.message,
-            JsonError: e => `JsonError: ${e.error}`,
-          }),
-        ),
-      }),
-    )
+    return this.cause.message
   }
 }
 
-export class MethodFailed extends TypeIdError(TypeId, 'MethodFailed')<{
+export class MethodFailed extends Data.TaggedError('MethodFailed')<{
   readonly response: FailureResponse
   readonly possibleReason: MethodFailureReason
 }> {
+  readonly [TypeId]: typeof TypeId = TypeId
   override get message() {
     return `(${this.response.error_code}) ${this.response.description}`
   }
 }
 
-export class GroupUpgraded extends TypeIdError(TypeId, 'GroupUpgraded')<{
+export class GroupUpgraded extends Data.TaggedError('GroupUpgraded')<{
   readonly response: FailureResponse
   readonly supergroup: Dialog.Supergroup
 }> {
+  readonly [TypeId]: typeof TypeId = TypeId
   override get message() {
     return `Group has been upgraded to a supergroup with ID ${this.supergroup.id}.`
   }
 }
 
-export class RateLimited extends TypeIdError(TypeId, 'RateLimited')<{
+export class RateLimited extends Data.TaggedError('RateLimited')<{
   readonly response: FailureResponse
   readonly retryAfter: Duration.Duration
 }> {
+  readonly [TypeId]: typeof TypeId = TypeId
   override get message() {
     return `Flood limit exceeded. Should wait for ${Duration.format(this.retryAfter)} before retrying.`
   }
 }
 
-export class InternalServerError extends TypeIdError(TypeId, 'InternalServerError')<{
+export class InternalServerError extends Data.TaggedError('InternalServerError')<{
   readonly response: FailureResponse
 }> {
+  readonly [TypeId]: typeof TypeId = TypeId
   override get message() {
     return `Internal error (${this.response.error_code}): ${this.response.description}`
   }

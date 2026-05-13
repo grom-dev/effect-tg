@@ -1,10 +1,9 @@
-import type * as HttpClient from '@effect/platform/HttpClient'
+import type * as HttpClient from 'effect/unstable/http/HttpClient'
 import type * as BotApiTransport from '../BotApiTransport.ts'
 import type * as BotApiUrl from '../BotApiUrl.ts'
-import * as HttpBody from '@effect/platform/HttpBody'
-import * as Chunk from 'effect/Chunk'
 import * as Effect from 'effect/Effect'
 import * as Stream from 'effect/Stream'
+import * as HttpBody from 'effect/unstable/http/HttpBody'
 import * as BotApiError from '../BotApiError.ts'
 import * as File from '../File.ts'
 
@@ -96,7 +95,7 @@ const makeHttpBody = Effect.fnUntraced(function* (params: unknown) {
   // TODO: Make sure current implementation constructs blob efficiently.
   for (const { attachId, file } of files) {
     const chunks = yield* Stream.runCollect(file.stream)
-    const bytes = new Uint8Array(Chunk.toReadonlyArray(chunks).flatMap(chunk => [...chunk]))
+    const bytes = new Uint8Array(chunks.flatMap(chunk => [...chunk]))
     const blob = new Blob([bytes], { type: file.mimeType ?? 'application/octet-stream' })
     formData.append(attachId, blob, file.filename)
   }
@@ -117,7 +116,7 @@ export const make = ({
       // We trust Bot API and don't want to introduce overhead with validation.
       return (yield* response.json) as BotApiTransport.BotApiResponse
     }).pipe(
-      Effect.catchAll(cause => (
+      Effect.catch(cause => (
         Effect.fail(new BotApiError.TransportError({ cause }))
       )),
     )

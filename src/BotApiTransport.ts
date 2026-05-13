@@ -1,9 +1,9 @@
 import type * as BotApi from './BotApi.ts'
 import type * as BotApiError from './BotApiError.ts'
-import * as HttpClient from '@effect/platform/HttpClient'
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
+import * as HttpClient from 'effect/unstable/http/HttpClient'
 import * as BotApiUrl from './BotApiUrl.ts'
 import * as internal from './internal/botApiTransport.ts'
 
@@ -14,7 +14,7 @@ export interface BotApiTransport {
   ) => Effect.Effect<BotApiResponse, BotApiError.TransportError>
 }
 
-export const BotApiTransport: Context.Tag<BotApiTransport, BotApiTransport> = Context.GenericTag<BotApiTransport>('@grom.js/effect-tg/BotApiTransport')
+export const BotApiTransport: Context.Service<BotApiTransport, BotApiTransport> = Context.Service<BotApiTransport>('@grom.js/effect-tg/BotApiTransport')
 
 /**
  * @see https://core.telegram.org/bots/api#making-requests
@@ -42,9 +42,9 @@ export const layer: Layer.Layer<
   HttpClient.HttpClient | BotApiUrl.BotApiUrl
 > = Layer.effect(
   BotApiTransport,
-  Effect.all([HttpClient.HttpClient, BotApiUrl.BotApiUrl]).pipe(
-    Effect.andThen(([httpClient, botApiUrl]) => (
-      internal.make({ httpClient, botApiUrl })),
-    ),
-  ),
+  Effect.gen(function* () {
+    const httpClient = yield* HttpClient.HttpClient
+    const botApiUrl = yield* BotApiUrl.BotApiUrl
+    return internal.make({ httpClient, botApiUrl })
+  }),
 )
