@@ -27,7 +27,14 @@ jobs:
       - run: npm install -g npm@latest
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - run: pnpm publish --access=public --provenance --no-git-checks
+      - run: |
+          VERSION="${{ github.ref_name }}"
+          if echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            pnpm publish --access=public --provenance --no-git-checks
+          else
+            TAG=$(echo "$VERSION" | sed 's/^v[0-9]*\.[0-9]*\.[0-9]*-//' | sed 's/\..*//')
+            pnpm publish --access=public --provenance --no-git-checks --tag "$TAG"
+          fi
 
   changelog:
     runs-on: ubuntu-latest
