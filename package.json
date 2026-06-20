@@ -50,7 +50,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "7.7.3",
     "@effect/language-service": "0.86.2",
-    "@grom.js/bot-api-spec": "0.10.1",
+    "@grom.js/bot-api-spec": "0.11.1",
     "@grom.js/tgx": "1.4.3",
     "@types/node": "22.20.0",
     "@vitest/coverage-v8": "4.1.9",

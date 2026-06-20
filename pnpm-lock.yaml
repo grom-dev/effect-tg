@@ -15,8 +15,8 @@ importers:
         specifier: 0.86.2
         version: 0.86.2
       '@grom.js/bot-api-spec':
-        specifier: 0.10.1
-        version: 0.10.1
+        specifier: 0.11.1
+        version: 0.11.1
       '@grom.js/tgx':
         specifier: 1.4.3
         version: 1.4.3
@@ -434,8 +434,8 @@ packages:
     resolution: {integrity: sha512-bIZEUzOI1jkhviX2cp5vNyXQc6olzb2ohewQubuYlMXZ2Q/XjBO0x0XhGPvc9fjSIiUN0vw+0hq53BJ4eQSJKQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@grom.js/bot-api-spec@0.10.1':
-    resolution: {integrity: sha512-eLR0vX3ZDWiRKkbT5PmNxH5n9UxpV6C8LDLej6p2sOstVIJ0pNYBR17zF5cFSj4WjgS6In2WXCP5y3bwhgacow==}
+  '@grom.js/bot-api-spec@0.11.1':
+    resolution: {integrity: sha512-JN8yIhJr/HN9RlmuVCAWrKeQp3VamMin/azw2imR8pScAYT0KeIhXR2kPoGdzZXLTxadfrDE4ER4onzarjXBTA==}
     engines: {node: '>=22.18'}
 
   '@grom.js/tgx@1.4.3':
@@ -2899,7 +2899,7 @@ snapshots:
       '@eslint/core': 1.1.0
       levn: 0.4.1
 
-  '@grom.js/bot-api-spec@0.10.1': {}
+  '@grom.js/bot-api-spec@0.11.1': {}
 
   '@grom.js/tgx@1.4.3':
     dependencies:
@@ -5092,7 +5092,7 @@ snapshots:
       picomatch: 4.0.4
       postcss: 8.5.6
       rollup: 4.57.0
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
     optionalDependencies:
       '@types/node': 22.20.0
       fsevents: 2.3.3
