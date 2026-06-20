@@ -49,19 +49,19 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "7.7.3",
-    "@effect/language-service": "0.85.1",
+    "@effect/language-service": "0.86.2",
     "@grom.js/bot-api-spec": "0.10.1",
     "@grom.js/tgx": "1.4.3",
-    "@types/node": "22.19.18",
-    "@vitest/coverage-v8": "4.1.5",
+    "@types/node": "22.20.0",
+    "@vitest/coverage-v8": "4.1.9",
     "bumpp": "11.1.0",
-    "effect": "4.0.0-beta.64",
+    "effect": "4.0.0-beta.85",
     "eslint": "9.39.4",
     "eslint-plugin-format": "2.0.1",
-    "knip": "6.12.1",
-    "taze": "19.11.0",
-    "ts-morph": "27.0.2",
+    "knip": "6.17.1",
+    "taze": "19.14.1",
+    "ts-morph": "28.0.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.5"
+    "vitest": "4.1.9"
   }
 }

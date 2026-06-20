@@ -91,7 +91,7 @@ const MessageToSendEffectProto = Effectable.Prototype<MessageToSend>({
   label: '@grom.js/effect-tg/Send/MessageToSend',
   evaluate(this: MessageToSend, _fiber) {
     return Effect.flatMap(
-      TargetDialog.asEffect(),
+      TargetDialog,
       ({ dialog }) => sendMessage({
         dialog,
         content: this.content,
