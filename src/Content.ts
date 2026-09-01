@@ -1,6 +1,7 @@
 import type * as Duration from 'effect/Duration'
 import type * as File from './File.ts'
 import type * as LinkPreview from './LinkPreview.ts'
+import type * as RichText_ from './RichText.ts'
 import type * as Text_ from './Text.ts'
 import * as Option from 'effect/Option'
 
@@ -13,6 +14,7 @@ import * as Option from 'effect/Option'
  */
 export type Content =
   | Text
+  | RichText
   | Photo
   | Audio
   | Document
@@ -34,6 +36,16 @@ export interface Text {
   readonly _tag: 'Text'
   readonly text: Text_.Text
   readonly linkPreview: Option.Option<LinkPreview.LinkPreview>
+}
+
+/**
+ * @see {@link https://core.telegram.org/bots/api#sendrichmessage Bot API • sendRichMessage}
+ */
+export interface RichText {
+  readonly _tag: 'RichText'
+  readonly richText: RichText_.RichText
+  readonly isRtl: boolean
+  readonly skipEntityDetection: boolean
 }
 
 /**
@@ -204,6 +216,19 @@ export const text = (
   _tag: 'Text',
   text,
   linkPreview: Option.fromNullishOr(options?.linkPreview),
+})
+
+export const richText = (
+  richText: RichText_.RichText,
+  options?: {
+    isRtl?: boolean
+    skipEntityDetection?: boolean
+  },
+): RichText => ({
+  _tag: 'RichText',
+  richText,
+  isRtl: options?.isRtl ?? false,
+  skipEntityDetection: options?.skipEntityDetection ?? false,
 })
 
 export const photo = (

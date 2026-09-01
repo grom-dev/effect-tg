@@ -1,6 +1,7 @@
 import type * as Content from '../Content.ts'
 import type * as Markup from '../Markup.ts'
 import type * as Reply from '../Reply.ts'
+import type * as RichText from '../RichText.ts'
 import type * as Send from '../Send.ts'
 import type * as Text from '../Text.ts'
 import type { Types } from './botApi.gen.ts'
@@ -18,6 +19,7 @@ import * as LinkPreview from '../LinkPreview.ts'
 
 const methodByContent: Record<Content.Content['_tag'], SendMethod> = {
   Text: 'sendMessage',
+  RichText: 'sendRichMessage',
   Photo: 'sendPhoto',
   Audio: 'sendAudio',
   Document: 'sendDocument',
@@ -35,6 +37,7 @@ const methodByContent: Record<Content.Content['_tag'], SendMethod> = {
 type SendMethod = Extract<
   keyof BotApi.MethodParams,
   | 'sendMessage'
+  | 'sendRichMessage'
   | 'sendPhoto'
   | 'sendAudio'
   | 'sendDocument'
@@ -89,11 +92,29 @@ const paramsCaption = (
 )
 
 // =============================================================================
+// Parameters (Rich Text)
+// =============================================================================
+
+type ParamsRichMessage = Pick<Types.InputRichMessage, 'html' | 'markdown' | 'blocks'>
+
+const paramsRichMessage: (
+  richText: RichText.RichText,
+) => ParamsRichMessage = Match.type<RichText.RichText>().pipe(
+  Match.withReturnType<ParamsRichMessage>(),
+  Match.tagsExhaustive({
+    Html: ({ html }) => ({ html }),
+    Markdown: ({ markdown }) => ({ markdown }),
+    Blocks: ({ blocks }) => ({ blocks }),
+  }),
+)
+
+// =============================================================================
 // Parameters (Content)
 // =============================================================================
 
 type ParamsContent =
   | PickMethodParams<'sendMessage', 'text' | 'entities' | 'parse_mode' | 'link_preview_options'>
+  | PickMethodParams<'sendRichMessage', 'rich_message'>
   | PickMethodParams<'sendPhoto', 'photo' | 'caption' | 'caption_entities' | 'parse_mode' | 'show_caption_above_media' | 'has_spoiler'>
   | PickMethodParams<'sendAudio', 'audio' | 'caption' | 'caption_entities' | 'parse_mode' | 'duration' | 'performer' | 'title' | 'thumbnail'>
   | PickMethodParams<'sendDocument', 'document' | 'thumbnail' | 'caption' | 'parse_mode' | 'caption_entities' | 'disable_content_type_detection'>
@@ -118,6 +139,13 @@ const paramsContent: (
         onNone: () => ({ is_disabled: true }),
         onSome: linkPreview => LinkPreview.options(linkPreview),
       }),
+    }),
+    RichText: ({ richText, isRtl, skipEntityDetection }) => ({
+      rich_message: {
+        ...paramsRichMessage(richText),
+        is_rtl: isRtl || undefined,
+        skip_entity_detection: skipEntityDetection || undefined,
+      },
     }),
     Photo: ({ file, caption, layout, spoiler }) => ({
       ...paramsCaption(caption),
