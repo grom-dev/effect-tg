@@ -2,7 +2,7 @@
   "name": "@grom.js/effect-tg",
   "type": "module",
   "version": "1.0.0-beta.3",
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@11.25.0",
   "description": "Effectful library for crafting Telegram bots.",
   "author": {
     "name": "Vladislav Deryabkin",
@@ -45,23 +45,23 @@
   },
   "peerDependencies": {
     "@grom.js/tgx": "^1.0.0",
-    "effect": "^4.0.0-beta.64"
+    "effect": "^4.0.0-rc.112"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "7.7.3",
-    "@effect/language-service": "0.86.2",
-    "@grom.js/bot-api-spec": "0.11.1",
+    "@antfu/eslint-config": "9.3.0",
+    "@effect/language-service": "0.87.2",
+    "@grom.js/bot-api-spec": "0.12.0",
     "@grom.js/tgx": "1.4.3",
-    "@types/node": "22.20.0",
-    "@vitest/coverage-v8": "4.1.9",
-    "bumpp": "11.1.0",
-    "effect": "4.0.0-beta.85",
-    "eslint": "9.39.4",
+    "@types/node": "26.4.0",
+    "@vitest/coverage-v8": "4.1.11",
+    "bumpp": "12.2.2",
+    "effect": "4.0.0-rc.112",
+    "eslint": "10.9.1",
     "eslint-plugin-format": "2.0.1",
-    "knip": "6.17.1",
-    "taze": "19.14.1",
+    "knip": "6.32.3",
+    "taze": "21.1.0",
     "ts-morph": "28.0.0",
-    "typescript": "5.9.3",
-    "vitest": "4.1.9"
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
   }
 }
