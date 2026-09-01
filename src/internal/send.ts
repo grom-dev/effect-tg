@@ -351,6 +351,8 @@ const paramsChatAdminRights = (
   can_pin_messages: rights.canPinMessages,
   can_manage_topics: rights.canManageTopics,
   can_manage_direct_messages: rights.canManageDirectMessages,
+  can_manage_tags: rights.canManageTags,
+  can_send_welcome_messages: rights.canSendWelcomeMessages,
 })
 
 const paramsReplyButton = (btn: Markup.ReplyButton): string | Types.KeyboardButton => {

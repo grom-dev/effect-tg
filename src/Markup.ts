@@ -263,6 +263,8 @@ export interface ChatAdminRights {
   readonly canPinMessages?: boolean
   readonly canManageTopics?: boolean
   readonly canManageDirectMessages?: boolean
+  readonly canManageTags?: boolean
+  readonly canSendWelcomeMessages: boolean
 }
 
 /**
