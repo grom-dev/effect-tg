@@ -2,10 +2,10 @@ import * as Config from 'effect/Config'
 import * as ConfigProvider from 'effect/ConfigProvider'
 import * as Effect from 'effect/Effect'
 import * as Exit from 'effect/Exit'
+import * as HttpClient from 'effect/http/HttpClient'
+import * as HttpClientResponse from 'effect/http/HttpClientResponse'
 import * as Layer from 'effect/Layer'
 import * as Redacted from 'effect/Redacted'
-import * as HttpClient from 'effect/unstable/http/HttpClient'
-import * as HttpClientResponse from 'effect/unstable/http/HttpClientResponse'
 import { describe, expect, it } from 'vitest'
 import { BotApi } from '../src/index.ts'
 
@@ -28,7 +28,7 @@ describe('BotApi.layerConfig', () => {
         yield* api.getMe()
       })
       await program.pipe(
-        Effect.provide(BotApi.layerConfig({ token: Config.redacted('BOT_TOKEN') })),
+        Effect.provide(BotApi.layerConfig({ token: Config.Redacted('BOT_TOKEN') })),
         Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
         Effect.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({ BOT_TOKEN: 'test-token-123' }))),
         Effect.runPromise,
@@ -45,7 +45,7 @@ describe('BotApi.layerConfig', () => {
         yield* api.getMe()
       })
       const exit = await program.pipe(
-        Effect.provide(BotApi.layerConfig({ token: Config.redacted('MISSING_TOKEN') })),
+        Effect.provide(BotApi.layerConfig({ token: Config.Redacted('MISSING_TOKEN') })),
         Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
         Effect.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({}))),
         Effect.exit,

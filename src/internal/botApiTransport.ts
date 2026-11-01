@@ -1,9 +1,9 @@
-import type * as HttpClient from 'effect/unstable/http/HttpClient'
+import type * as HttpClient from 'effect/http/HttpClient'
 import type * as BotApiTransport from '../BotApiTransport.ts'
 import type * as BotApiUrl from '../BotApiUrl.ts'
 import * as Effect from 'effect/Effect'
+import * as HttpBody from 'effect/http/HttpBody'
 import * as Stream from 'effect/Stream'
-import * as HttpBody from 'effect/unstable/http/HttpBody'
 import * as BotApiError from '../BotApiError.ts'
 import * as File from '../File.ts'
 

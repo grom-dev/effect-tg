@@ -18,13 +18,13 @@ Effectful library for crafting Telegram bots.
 
 ```sh
 # Install the library
-npm install @grom.js/effect-tg
+pnpm add @grom.js/effect-tg
 
-# Install Effect dependencies
-npm install effect @effect/platform
+# Install Effect
+pnpm add effect@^4.1.0
 
 # Install JSX runtime for formatted text
-npm install @grom.js/tgx
+pnpm add @grom.js/tgx
 ```
 
 ## Working with Bot API
@@ -88,13 +88,13 @@ This design enables:
 **Example:** Constructing `BotApi` layer with method call tracing.
 
 ```ts
-import { FetchHttpClient } from '@effect/platform'
 import { BotApi } from '@grom.js/effect-tg'
 import { Config, Effect, Layer } from 'effect'
+import { FetchHttpClient } from 'effect/http'
 
 const BotApiLive = Layer.provide(
   BotApi.layerConfig({
-    token: Config.redacted('BOT_TOKEN'),
+    token: Config.Redacted('BOT_TOKEN'),
     environment: 'prod',
     transformTransport: transport => ({
       sendRequest: (method, params) =>
@@ -256,23 +256,23 @@ const program = Effect.gen(function* () {
 
 `Content` module provides constructors for creating objects that represent the content of a message. `Send.sendMessage` uses the content type to choose the appropriate Bot API method automatically.
 
-| Constructor            | Bot API method     | Description             |
-| ---------------------- | ------------------- | ----------------------- |
-| `Content.text`         | `sendMessage`      | Text                    |
-| `Content.richText`     | `sendRichMessage`  | Rich formatted message  |
-| `Content.photo`        | `sendPhoto`        | Photo                   |
-| `Content.video`        | `sendVideo`        | Video                   |
-| `Content.animation`    | `sendAnimation`    | GIF or video w/o sound  |
-| `Content.audio`        | `sendAudio`        | Audio file              |
-| `Content.voice`        | `sendVoice`        | Voice note              |
-| `Content.videoNote`    | `sendVideoNote`    | Round video note        |
-| `Content.document`     | `sendDocument`     | File of any type        |
-| `Content.sticker`      | `sendSticker`      | Sticker                 |
-| `Content.location`     | `sendLocation`     | Static location         |
-| `Content.liveLocation` | `sendLocation`     | Live location           |
-| `Content.venue`        | `sendVenue`        | Venue with address      |
-| `Content.contact`      | `sendContact`      | Phone contact           |
-| `Content.dice`         | `sendDice`         | Random dice             |
+| Constructor            | Bot API method    | Description            |
+| ---------------------- | ----------------- | ---------------------- |
+| `Content.text`         | `sendMessage`     | Text                   |
+| `Content.richText`     | `sendRichMessage` | Rich formatted message |
+| `Content.photo`        | `sendPhoto`       | Photo                  |
+| `Content.video`        | `sendVideo`       | Video                  |
+| `Content.animation`    | `sendAnimation`   | GIF or video w/o sound |
+| `Content.audio`        | `sendAudio`       | Audio file             |
+| `Content.voice`        | `sendVoice`       | Voice note             |
+| `Content.videoNote`    | `sendVideoNote`   | Round video note       |
+| `Content.document`     | `sendDocument`    | File of any type       |
+| `Content.sticker`      | `sendSticker`     | Sticker                |
+| `Content.location`     | `sendLocation`    | Static location        |
+| `Content.liveLocation` | `sendLocation`    | Live location          |
+| `Content.venue`        | `sendVenue`       | Venue with address     |
+| `Content.contact`      | `sendContact`     | Phone contact          |
+| `Content.dice`         | `sendDice`        | Random dice            |
 
 #### Dialog
 

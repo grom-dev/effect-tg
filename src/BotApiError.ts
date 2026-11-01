@@ -1,5 +1,5 @@
-import type * as HttpBody from 'effect/unstable/http/HttpBody'
-import type * as HttpClientError from 'effect/unstable/http/HttpClientError'
+import type * as HttpBody from 'effect/http/HttpBody'
+import type * as HttpClientError from 'effect/http/HttpClientError'
 import type * as BotApiTransport from './BotApiTransport.ts'
 import * as Data from 'effect/Data'
 import * as Duration from 'effect/Duration'
