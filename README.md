@@ -18,13 +18,7 @@ Effectful library for crafting Telegram bots.
 
 ```sh
 # Install the library
-pnpm add @grom.js/effect-tg
-
-# Install Effect
-pnpm add effect@^4.1.0
-
-# Install JSX runtime for formatted text
-pnpm add @grom.js/tgx
+npm install @grom.js/effect-tg
 ```
 
 ## Working with Bot API
