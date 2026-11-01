@@ -85,34 +85,30 @@ export const dialogId: (peer: Peer) => DialogId = Match.type<Peer>().pipe(
  * @see {@link https://core.telegram.org/api/bots/ids Telegram API • Bot API dialog IDs}
  */
 export type DialogId = number & Brand.Brand<'@grom.js/effect-tg/DialogId'>
-export const DialogId: Brand.Brand.Constructor<DialogId> = Brand.refined<DialogId>(
+export const DialogId: Brand.Constructor<DialogId> = Brand.make<DialogId>(
   n => Option.isSome(internal.decodeDialogId(n)),
-  n => Brand.error(`Invalid dialog ID: ${n}`),
 )
 
 export type UserId = number & Brand.Brand<'@grom.js/effect-tg/UserId'>
-export const UserId: Brand.Brand.Constructor<UserId> = Brand.refined<UserId>(
+export const UserId: Brand.Constructor<UserId> = Brand.make<UserId>(
   n => Option.isSome(internal.encodePeerId('user', n)),
-  n => Brand.error(`Invalid user ID: ${n}`),
 )
 
 export type GroupId = number & Brand.Brand<'@grom.js/effect-tg/GroupId'>
-export const GroupId: Brand.Brand.Constructor<GroupId> = Brand.refined<GroupId>(
+export const GroupId: Brand.Constructor<GroupId> = Brand.make<GroupId>(
   n => Option.isSome(internal.encodePeerId('group', n)),
-  n => Brand.error(`Invalid group ID: ${n}`),
 )
 
 export type ChannelId = number & Brand.Brand<'@grom.js/effect-tg/ChannelId'>
-export const ChannelId: Brand.Brand.Constructor<ChannelId> = Brand.refined<ChannelId>(
+export const ChannelId: Brand.Constructor<ChannelId> = Brand.make<ChannelId>(
   n => Option.isSome(internal.encodePeerId('channel', n)),
-  n => Brand.error(`Invalid channel or supergroup ID: ${n}`),
 )
 
 /** @alias ChannelId */
 export type SupergroupId = ChannelId
 
 /** @alias ChannelId */
-export const SupergroupId: Brand.Brand.Constructor<ChannelId> = ChannelId
+export const SupergroupId: Brand.Constructor<ChannelId> = ChannelId
 
 // =============================================================================
 // Dialog ID <-> Peer ID

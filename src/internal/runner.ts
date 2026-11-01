@@ -27,7 +27,7 @@ export const makeSimple = (options?: {
             while: e => Match.value(e).pipe(
               Match.tag('InternalServerError', () => true),
               Match.tag('TransportError', e => Match.value(e.cause).pipe(
-                Match.tag('RequestError', e => e.reason === 'Transport'),
+                Match.tag('HttpClientError', e => e.reason._tag === 'TransportError'),
                 Match.orElse(() => false),
               )),
               Match.orElse(() => false),
@@ -41,7 +41,7 @@ export const makeSimple = (options?: {
         if (updates.length > 0) {
           const update = updates[0]!
           yield* Effect.provideService(bot, Bot.Update, update).pipe(
-            Effect.catchAll(error => (
+            Effect.catch(error => (
               Effect.logError('Error in bot:', error)
             )),
           )

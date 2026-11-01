@@ -19,7 +19,7 @@ export const make = ({ transport }: {
           if (response.ok) {
             return response.result
           }
-          return yield* Effect.fail(BotApiError.fromResponse(response))
+          return yield* BotApiError.fromResponse(response)
         },
       )
     },

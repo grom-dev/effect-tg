@@ -6,7 +6,7 @@ export type Bot<E = never, R = never> = Effect.Effect<void, E, R | Update>
 
 export interface Update extends Readonly<BotApi.Types.Update> {}
 
-export const Update: Context.Tag<Update, Update> = Context.GenericTag<Update>('@grom.js/effect-tg/Bot/Update')
+export const Update: Context.Service<Update, Update> = Context.Service<Update>('@grom.js/effect-tg/Bot/Update')
 
 export interface Middleware {
   <E, R>(self: Bot<E, R>): Bot<any, any>

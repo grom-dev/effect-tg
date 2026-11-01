@@ -20,6 +20,7 @@ export default antfu({
   },
   rules: {
     'curly': ['error', 'all'],
+    'antfu/reasonable-newline': 'off',
     'antfu/top-level-function': 'off',
     'yoda': 'off',
     'ts/no-namespace': 'off',

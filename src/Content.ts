@@ -1,6 +1,7 @@
 import type * as Duration from 'effect/Duration'
 import type * as File from './File.ts'
 import type * as LinkPreview from './LinkPreview.ts'
+import type * as RichText_ from './RichText.ts'
 import type * as Text_ from './Text.ts'
 import * as Option from 'effect/Option'
 
@@ -13,6 +14,7 @@ import * as Option from 'effect/Option'
  */
 export type Content =
   | Text
+  | RichText
   | Photo
   | Audio
   | Document
@@ -34,6 +36,16 @@ export interface Text {
   readonly _tag: 'Text'
   readonly text: Text_.Text
   readonly linkPreview: Option.Option<LinkPreview.LinkPreview>
+}
+
+/**
+ * @see {@link https://core.telegram.org/bots/api#sendrichmessage Bot API • sendRichMessage}
+ */
+export interface RichText {
+  readonly _tag: 'RichText'
+  readonly richText: RichText_.RichText
+  readonly isRtl: boolean
+  readonly skipEntityDetection: boolean
 }
 
 /**
@@ -203,7 +215,20 @@ export const text = (
 ): Text => ({
   _tag: 'Text',
   text,
-  linkPreview: Option.fromNullable(options?.linkPreview),
+  linkPreview: Option.fromNullishOr(options?.linkPreview),
+})
+
+export const richText = (
+  richText: RichText_.RichText,
+  options?: {
+    isRtl?: boolean
+    skipEntityDetection?: boolean
+  },
+): RichText => ({
+  _tag: 'RichText',
+  richText,
+  isRtl: options?.isRtl ?? false,
+  skipEntityDetection: options?.skipEntityDetection ?? false,
 })
 
 export const photo = (
@@ -216,7 +241,7 @@ export const photo = (
 ): Photo => ({
   _tag: 'Photo',
   file,
-  caption: Option.fromNullable(options.caption),
+  caption: Option.fromNullishOr(options.caption),
   layout: options.layout ?? 'caption-below',
   spoiler: options.spoiler ?? false,
 })
@@ -233,11 +258,11 @@ export const audio = (
 ): Audio => ({
   _tag: 'Audio',
   file,
-  caption: Option.fromNullable(options.caption),
-  duration: Option.fromNullable(options.duration),
-  performer: Option.fromNullable(options.performer),
-  title: Option.fromNullable(options.title),
-  thumbnail: Option.fromNullable(options.thumbnail),
+  caption: Option.fromNullishOr(options.caption),
+  duration: Option.fromNullishOr(options.duration),
+  performer: Option.fromNullishOr(options.performer),
+  title: Option.fromNullishOr(options.title),
+  thumbnail: Option.fromNullishOr(options.thumbnail),
 })
 
 export const document = (
@@ -250,8 +275,8 @@ export const document = (
 ): Document => ({
   _tag: 'Document',
   file,
-  caption: Option.fromNullable(options.caption),
-  thumbnail: Option.fromNullable(options.thumbnail),
+  caption: Option.fromNullishOr(options.caption),
+  thumbnail: Option.fromNullishOr(options.thumbnail),
   contentTypeDetection: options.contentTypeDetection ?? false,
 })
 
@@ -272,15 +297,15 @@ export const video = (
 ): Video => ({
   _tag: 'Video',
   file,
-  caption: Option.fromNullable(options.caption),
+  caption: Option.fromNullishOr(options.caption),
   layout: options.layout ?? 'caption-below',
   spoiler: options.spoiler ?? false,
-  duration: Option.fromNullable(options.duration),
-  width: Option.fromNullable(options.width),
-  height: Option.fromNullable(options.height),
-  thumbnail: Option.fromNullable(options.thumbnail),
-  cover: Option.fromNullable(options.cover),
-  startAt: Option.fromNullable(options.startAt),
+  duration: Option.fromNullishOr(options.duration),
+  width: Option.fromNullishOr(options.width),
+  height: Option.fromNullishOr(options.height),
+  thumbnail: Option.fromNullishOr(options.thumbnail),
+  cover: Option.fromNullishOr(options.cover),
+  startAt: Option.fromNullishOr(options.startAt),
   supportsStreaming: options.supportsStreaming ?? false,
 })
 
@@ -298,13 +323,13 @@ export const animation = (
 ): Animation => ({
   _tag: 'Animation',
   file,
-  caption: Option.fromNullable(options.caption),
+  caption: Option.fromNullishOr(options.caption),
   layout: options.layout ?? 'caption-below',
   spoiler: options.spoiler ?? false,
-  duration: Option.fromNullable(options.duration),
-  width: Option.fromNullable(options.width),
-  height: Option.fromNullable(options.height),
-  thumbnail: Option.fromNullable(options.thumbnail),
+  duration: Option.fromNullishOr(options.duration),
+  width: Option.fromNullishOr(options.width),
+  height: Option.fromNullishOr(options.height),
+  thumbnail: Option.fromNullishOr(options.thumbnail),
 })
 
 export const voice = (
@@ -316,8 +341,8 @@ export const voice = (
 ): Voice => ({
   _tag: 'Voice',
   file,
-  caption: Option.fromNullable(options.caption),
-  duration: Option.fromNullable(options.duration),
+  caption: Option.fromNullishOr(options.caption),
+  duration: Option.fromNullishOr(options.duration),
 })
 
 export const videoNote = (
@@ -330,9 +355,9 @@ export const videoNote = (
 ): VideoNote => ({
   _tag: 'VideoNote',
   file,
-  duration: Option.fromNullable(options.duration),
-  diameter: Option.fromNullable(options.diameter),
-  thumbnail: Option.fromNullable(options.thumbnail),
+  duration: Option.fromNullishOr(options.duration),
+  diameter: Option.fromNullishOr(options.diameter),
+  thumbnail: Option.fromNullishOr(options.thumbnail),
 })
 
 export const location = (options: {
@@ -343,7 +368,7 @@ export const location = (options: {
   _tag: 'Location',
   latitude: options.latitude,
   longitude: options.longitude,
-  uncertaintyRadius: Option.fromNullable(options.uncertaintyRadius),
+  uncertaintyRadius: Option.fromNullishOr(options.uncertaintyRadius),
   livePeriod: Option.none(),
   heading: Option.none(),
   proximityAlertRadius: Option.none(),
@@ -360,10 +385,10 @@ export const liveLocation = (options: {
   _tag: 'Location',
   latitude: options.latitude,
   longitude: options.longitude,
-  uncertaintyRadius: Option.fromNullable(options.uncertaintyRadius),
+  uncertaintyRadius: Option.fromNullishOr(options.uncertaintyRadius),
   livePeriod: Option.some(options.livePeriod),
-  heading: Option.fromNullable(options.heading),
-  proximityAlertRadius: Option.fromNullable(options.proximityAlertRadius),
+  heading: Option.fromNullishOr(options.heading),
+  proximityAlertRadius: Option.fromNullishOr(options.proximityAlertRadius),
 })
 
 export const venue = (options: {
@@ -381,10 +406,10 @@ export const venue = (options: {
   longitude: options.longitude,
   title: options.title,
   address: options.address,
-  foursquareId: Option.fromNullable(options.foursquareId),
-  foursquareType: Option.fromNullable(options.foursquareType),
-  googlePlaceId: Option.fromNullable(options.googlePlaceId),
-  googlePlaceType: Option.fromNullable(options.googlePlaceType),
+  foursquareId: Option.fromNullishOr(options.foursquareId),
+  foursquareType: Option.fromNullishOr(options.foursquareType),
+  googlePlaceId: Option.fromNullishOr(options.googlePlaceId),
+  googlePlaceType: Option.fromNullishOr(options.googlePlaceType),
 })
 
 export const contact = (options: {
@@ -396,8 +421,8 @@ export const contact = (options: {
   _tag: 'Contact',
   phoneNumber: options.phoneNumber,
   firstName: options.firstName,
-  lastName: Option.fromNullable(options.lastName),
-  vcard: Option.fromNullable(options.vcard),
+  lastName: Option.fromNullishOr(options.lastName),
+  vcard: Option.fromNullishOr(options.vcard),
 })
 
 export const dice = (emoji: Dice['emoji']): Dice => ({ _tag: 'Dice', emoji })
@@ -405,4 +430,4 @@ export const dice = (emoji: Dice['emoji']): Dice => ({ _tag: 'Dice', emoji })
 export const sticker = (
   file: File.FileId | File.External | File.InputFile,
   emoji?: string,
-): Sticker => ({ _tag: 'Sticker', file, emoji: Option.fromNullable(emoji) })
+): Sticker => ({ _tag: 'Sticker', file, emoji: Option.fromNullishOr(emoji) })

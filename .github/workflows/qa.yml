@@ -37,6 +37,10 @@ jobs:
           node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Check Bot API generation
+        run: |
+          pnpm gen:bot-api
+          git diff --exit-code -- src/internal/botApi.gen.ts
       - run: pnpm run typecheck
 
   test:

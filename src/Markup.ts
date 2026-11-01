@@ -66,7 +66,7 @@ export const replyKeyboard = (
   resizable: options?.resizable ?? false,
   oneTime: options?.oneTime ?? false,
   selective: options?.selective ?? false,
-  inputPlaceholder: Option.fromNullable(options?.inputPlaceholder),
+  inputPlaceholder: Option.fromNullishOr(options?.inputPlaceholder),
 })
 
 export const replyKeyboardRemove = (options?: {
@@ -82,7 +82,7 @@ export const forceReply = (options?: {
 }): ForceReply => ({
   _tag: 'ForceReply',
   selective: options?.selective ?? false,
-  inputPlaceholder: Option.fromNullable(options?.inputPlaceholder),
+  inputPlaceholder: Option.fromNullishOr(options?.inputPlaceholder),
 })
 
 // =============================================================================
@@ -263,6 +263,8 @@ export interface ChatAdminRights {
   readonly canPinMessages?: boolean
   readonly canManageTopics?: boolean
   readonly canManageDirectMessages?: boolean
+  readonly canManageTags?: boolean
+  readonly canSendWelcomeMessages: boolean
 }
 
 /**

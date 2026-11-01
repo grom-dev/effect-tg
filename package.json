@@ -1,8 +1,8 @@
 {
   "name": "@grom.js/effect-tg",
   "type": "module",
-  "version": "0.18.0",
-  "packageManager": "pnpm@10.25.0",
+  "version": "1.0.0-beta.4",
+  "packageManager": "pnpm@12.16.1",
   "description": "Effectful library for crafting Telegram bots.",
   "author": {
     "name": "Vladislav Deryabkin",
@@ -33,7 +33,7 @@
   },
   "scripts": {
     "prepare": "effect-language-service patch",
-    "gen:bot-api": "node ./scripts/gen-bot-api.ts",
+    "gen:bot-api": "node ./scripts/gen-bot-api.ts && eslint --fix ./src/internal/botApi.gen.ts",
     "typecheck": "tsc --build --noEmit tsconfig.json",
     "build": "rm -rf ./dist/ && tsc --project ./tsconfig.lib.json",
     "deps": "taze --write --interactive --include-locked minor",
@@ -41,29 +41,27 @@
     "lint:fix": "eslint --fix",
     "test": "vitest run --typecheck",
     "knip": "knip --config ./knip.config.ts",
-    "release": "bumpp"
+    "release": "bumpp --release patch"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.96.0",
     "@grom.js/tgx": "^1.0.0",
-    "effect": "^3.0.0"
+    "effect": "^4.1.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "7.7.3",
-    "@effect/language-service": "0.85.1",
-    "@effect/platform": "0.96.1",
-    "@grom.js/bot-api-spec": "0.11.1",
+    "@antfu/eslint-config": "10.0.0",
+    "@effect/language-service": "0.87.5",
+    "@grom.js/bot-api-spec": "0.12.0",
     "@grom.js/tgx": "1.4.3",
-    "@types/node": "22.19.21",
-    "@vitest/coverage-v8": "4.1.9",
-    "bumpp": "11.1.0",
-    "effect": "3.21.3",
-    "eslint": "9.39.4",
+    "@types/node": "26.6.6",
+    "@vitest/coverage-v8": "5.0.5",
+    "bumpp": "12.3.0",
+    "effect": "4.1.1",
+    "eslint": "10.14.0",
     "eslint-plugin-format": "2.0.1",
-    "knip": "6.16.1",
-    "taze": "19.14.1",
-    "ts-morph": "27.0.2",
-    "typescript": "5.9.3",
-    "vitest": "4.1.9"
+    "knip": "6.44.1",
+    "taze": "21.3.0",
+    "ts-morph": "28.0.0",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
   }
 }

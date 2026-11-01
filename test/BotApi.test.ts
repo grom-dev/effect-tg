@@ -1,10 +1,9 @@
-import type * as HttpClientRequest from '@effect/platform/HttpClientRequest'
-import * as HttpClient from '@effect/platform/HttpClient'
-import * as HttpClientResponse from '@effect/platform/HttpClientResponse'
 import * as Config from 'effect/Config'
 import * as ConfigProvider from 'effect/ConfigProvider'
 import * as Effect from 'effect/Effect'
 import * as Exit from 'effect/Exit'
+import * as HttpClient from 'effect/http/HttpClient'
+import * as HttpClientResponse from 'effect/http/HttpClientResponse'
 import * as Layer from 'effect/Layer'
 import * as Redacted from 'effect/Redacted'
 import { describe, expect, it } from 'vitest'
@@ -18,14 +17,9 @@ describe('BotApi.layerConfig', () => {
         new Response(JSON.stringify(body)),
       )
 
-    const makeTestClient = (
-      handler: (request: HttpClientRequest.HttpClientRequest) => Effect.Effect<HttpClientResponse.HttpClientResponse>,
-    ): HttpClient.HttpClient =>
-      HttpClient.make(handler)
-
     it('should use provided token config', async () => {
       let capturedUrl: URL | undefined
-      const mockClient = makeTestClient((request) => {
+      const mockClient = HttpClient.make((request) => {
         capturedUrl = new URL(request.url)
         return Effect.succeed(mockResponse({ ok: true, result: {} }))
       })
@@ -34,20 +28,16 @@ describe('BotApi.layerConfig', () => {
         yield* api.getMe()
       })
       await program.pipe(
-        Effect.provide(BotApi.layerConfig({ token: Config.redacted('BOT_TOKEN') })),
+        Effect.provide(BotApi.layerConfig({ token: Config.Redacted('BOT_TOKEN') })),
         Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
-        Effect.withConfigProvider(
-          ConfigProvider.fromMap(
-            new Map([['BOT_TOKEN', 'test-token-123']]),
-          ),
-        ),
+        Effect.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({ BOT_TOKEN: 'test-token-123' }))),
         Effect.runPromise,
       )
       expect(capturedUrl?.href).toBe('https://api.telegram.org/bottest-token-123/getMe')
     })
 
     it('should fail with ConfigError when token is missing', async () => {
-      const mockClient = makeTestClient(() =>
+      const mockClient = HttpClient.make(() =>
         Effect.succeed(mockResponse({ ok: true, result: {} })),
       )
       const program = Effect.gen(function* () {
@@ -55,9 +45,9 @@ describe('BotApi.layerConfig', () => {
         yield* api.getMe()
       })
       const exit = await program.pipe(
-        Effect.provide(BotApi.layerConfig({ token: Config.redacted('MISSING_TOKEN') })),
+        Effect.provide(BotApi.layerConfig({ token: Config.Redacted('MISSING_TOKEN') })),
         Effect.provide(Layer.succeed(HttpClient.HttpClient, mockClient)),
-        Effect.withConfigProvider(ConfigProvider.fromMap(new Map())),
+        Effect.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({}))),
         Effect.exit,
         Effect.runPromise,
       )
@@ -66,7 +56,7 @@ describe('BotApi.layerConfig', () => {
 
     it('should use prod environment by default', async () => {
       let capturedUrl: URL | undefined
-      const mockClient = makeTestClient((request) => {
+      const mockClient = HttpClient.make((request) => {
         capturedUrl = new URL(request.url)
         return Effect.succeed(mockResponse({ ok: true, result: {} }))
       })
@@ -84,7 +74,7 @@ describe('BotApi.layerConfig', () => {
 
     it('should use test environment when specified', async () => {
       let capturedUrl: URL | undefined
-      const mockClient = makeTestClient((request) => {
+      const mockClient = HttpClient.make((request) => {
         capturedUrl = new URL(request.url)
         return Effect.succeed(mockResponse({ ok: true, result: {} }))
       })
@@ -105,7 +95,7 @@ describe('BotApi.layerConfig', () => {
 
     it('should apply transport transformation', async () => {
       const methodCalls: string[] = []
-      const mockClient = makeTestClient(() =>
+      const mockClient = HttpClient.make(() =>
         Effect.succeed(mockResponse({ ok: true, result: {} })),
       )
       const program = Effect.gen(function* () {
@@ -132,7 +122,7 @@ describe('BotApi.layerConfig', () => {
     })
 
     it('should allow modifying responses', async () => {
-      const mockClient = makeTestClient(() =>
+      const mockClient = HttpClient.make(() =>
         Effect.succeed(
           mockResponse({
             ok: true,
@@ -173,7 +163,7 @@ describe('BotApi.layerConfig', () => {
     it('should work with all options combined', async () => {
       let capturedUrl: URL | undefined
       const methodCalls: string[] = []
-      const mockClient = makeTestClient((request) => {
+      const mockClient = HttpClient.make((request) => {
         capturedUrl = new URL(request.url)
         return Effect.succeed(mockResponse({ ok: true, result: {} }))
       })

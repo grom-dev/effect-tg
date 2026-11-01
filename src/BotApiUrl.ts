@@ -5,7 +5,7 @@ export interface BotApiUrl {
   readonly toFile: (filePath: string) => URL
 }
 
-export const BotApiUrl: Context.Tag<BotApiUrl, BotApiUrl> = Context.GenericTag<BotApiUrl>('@grom.js/effect-tg/BotApiUrl')
+export const BotApiUrl: Context.Service<BotApiUrl, BotApiUrl> = Context.Service<BotApiUrl>('@grom.js/effect-tg/BotApiUrl')
 
 export const makeProd = (token: string): BotApiUrl => (
   {

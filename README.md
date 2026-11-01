@@ -1,7 +1,7 @@
 # effect-tg
 
 [![Effectful](https://img.shields.io/badge/Yes.-%23fff?style=flat&logo=effect&logoColor=%23000&logoSize=auto&label=Effect%3F&labelColor=%23fff&color=%23000)](https://effect.website/)
-[![Bot API](https://img.shields.io/badge/v10.1-%23fff?style=flat&logo=telegram&logoColor=%2325A3E1&logoSize=auto&label=Bot%20API&labelColor=%23fff&color=%2325A3E1)](https://core.telegram.org/bots/api)
+[![Bot API](https://img.shields.io/badge/v10.3-%23fff?style=flat&logo=telegram&logoColor=%2325A3E1&logoSize=auto&label=Bot%20API&labelColor=%23fff&color=%2325A3E1)](https://core.telegram.org/bots/api)
 [![npm](https://img.shields.io/npm/v/%40grom.js%2Feffect-tg?style=flat&logo=npm&logoColor=%23BB443E&logoSize=auto&label=Latest&labelColor=%23fff&color=%23BB443E)](https://www.npmjs.com/package/@grom.js/effect-tg)
 [![codecov](https://img.shields.io/codecov/c/github/grom-dev/effect-tg?style=flat&logo=codecov&logoColor=%23f07&label=Coverage&labelColor=%23fff&color=%23f07)](https://codecov.io/gh/grom-dev/effect-tg)
 
@@ -19,12 +19,6 @@ Effectful library for crafting Telegram bots.
 ```sh
 # Install the library
 npm install @grom.js/effect-tg
-
-# Install Effect dependencies
-npm install effect @effect/platform
-
-# Install JSX runtime for formatted text
-npm install @grom.js/tgx
 ```
 
 ## Working with Bot API
@@ -88,13 +82,13 @@ This design enables:
 **Example:** Constructing `BotApi` layer with method call tracing.
 
 ```ts
-import { FetchHttpClient } from '@effect/platform'
 import { BotApi } from '@grom.js/effect-tg'
 import { Config, Effect, Layer } from 'effect'
+import { FetchHttpClient } from 'effect/http'
 
 const BotApiLive = Layer.provide(
   BotApi.layerConfig({
-    token: Config.redacted('BOT_TOKEN'),
+    token: Config.Redacted('BOT_TOKEN'),
     environment: 'prod',
     transformTransport: transport => ({
       sendRequest: (method, params) =>
@@ -256,22 +250,23 @@ const program = Effect.gen(function* () {
 
 `Content` module provides constructors for creating objects that represent the content of a message. `Send.sendMessage` uses the content type to choose the appropriate Bot API method automatically.
 
-| Constructor            | Bot API method  | Description            |
-| ---------------------- | --------------- | ---------------------- |
-| `Content.text`         | `sendMessage`   | Text                   |
-| `Content.photo`        | `sendPhoto`     | Photo                  |
-| `Content.video`        | `sendVideo`     | Video                  |
-| `Content.animation`    | `sendAnimation` | GIF or video w/o sound |
-| `Content.audio`        | `sendAudio`     | Audio file             |
-| `Content.voice`        | `sendVoice`     | Voice note             |
-| `Content.videoNote`    | `sendVideoNote` | Round video note       |
-| `Content.document`     | `sendDocument`  | File of any type       |
-| `Content.sticker`      | `sendSticker`   | Sticker                |
-| `Content.location`     | `sendLocation`  | Static location        |
-| `Content.liveLocation` | `sendLocation`  | Live location          |
-| `Content.venue`        | `sendVenue`     | Venue with address     |
-| `Content.contact`      | `sendContact`   | Phone contact          |
-| `Content.dice`         | `sendDice`      | Random dice            |
+| Constructor            | Bot API method    | Description            |
+| ---------------------- | ----------------- | ---------------------- |
+| `Content.text`         | `sendMessage`     | Text                   |
+| `Content.richText`     | `sendRichMessage` | Rich formatted message |
+| `Content.photo`        | `sendPhoto`       | Photo                  |
+| `Content.video`        | `sendVideo`       | Video                  |
+| `Content.animation`    | `sendAnimation`   | GIF or video w/o sound |
+| `Content.audio`        | `sendAudio`       | Audio file             |
+| `Content.voice`        | `sendVoice`       | Voice note             |
+| `Content.videoNote`    | `sendVideoNote`   | Round video note       |
+| `Content.document`     | `sendDocument`    | File of any type       |
+| `Content.sticker`      | `sendSticker`     | Sticker                |
+| `Content.location`     | `sendLocation`    | Static location        |
+| `Content.liveLocation` | `sendLocation`    | Live location          |
+| `Content.venue`        | `sendVenue`       | Venue with address     |
+| `Content.contact`      | `sendContact`     | Phone contact          |
+| `Content.dice`         | `sendDice`        | Random dice            |
 
 #### Dialog
 
@@ -530,4 +525,41 @@ const summary = Text.tgx(
 const publish = Send.message(Content.text(summary)).pipe(
   Send.to(Dialog.channel(3011378744)),
 )
+```
+
+### Rich text formatting
+
+`RichText` module provides utilities for creating [rich formatted messages](https://core.telegram.org/bots/api#rich-messages) — richer than regular formatted text, supporting headings, lists, tables, block quotes, buttons, embedded media, and more. Rich text is sent with `Content.richText`, which uses the `sendRichMessage` Bot API method.
+
+Just like `Text`, `RichText` supports Markdown and HTML, parsed by Telegram itself according to the [rich message formatting options](https://core.telegram.org/bots/api#rich-message-formatting-options). It additionally supports building a tree of blocks directly from Bot API types with `RichText.blocks`.
+
+**Example:** Formatting rich text with `RichText` module.
+
+```ts
+import { Content, Dialog, RichText, Send } from '@grom.js/effect-tg'
+
+// Markdown
+RichText.markdown('# Release notes\n\n- Faster startup\n- Fewer crashes')
+
+// HTML
+RichText.html('<h1>Release notes</h1><ul><li>Faster startup</li><li>Fewer crashes</li></ul>')
+
+// A tree of blocks, built directly from Bot API types
+RichText.blocks([
+  { type: 'heading', text: 'Release notes', size: 1 },
+  {
+    type: 'list',
+    items: [
+      { blocks: [{ type: 'paragraph', text: 'Faster startup' }] },
+      { blocks: [{ type: 'paragraph', text: 'Fewer crashes' }] },
+    ],
+  },
+])
+
+const publishNotes = Send.sendMessage({
+  content: Content.richText(
+    RichText.markdown('# Release notes\n\n- Faster startup\n- Fewer crashes'),
+  ),
+  dialog: Dialog.channel(3011378744),
+})
 ```

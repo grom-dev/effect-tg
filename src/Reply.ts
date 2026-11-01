@@ -19,7 +19,7 @@ export const make = (args: {
   dialog: args.dialog,
   messageId: args.messageId,
   optional: args.optional ?? false,
-  taskId: Option.fromNullable(args.taskId),
+  taskId: Option.fromNullishOr(args.taskId),
 })
 
 export const toMessage = (
@@ -32,5 +32,5 @@ export const toMessage = (
   dialog: Dialog.DialogId(message.chat.id),
   messageId: message.message_id,
   optional: options?.optional ?? false,
-  taskId: Option.fromNullable(options?.taskId),
+  taskId: Option.fromNullishOr(options?.taskId),
 })
