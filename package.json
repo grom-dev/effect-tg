@@ -41,7 +41,7 @@
     "lint:fix": "eslint --fix",
     "test": "vitest run --typecheck",
     "knip": "knip --config ./knip.config.ts",
-    "release": "bumpp"
+    "release": "bumpp --release patch"
   },
   "peerDependencies": {
     "@grom.js/tgx": "^1.0.0",

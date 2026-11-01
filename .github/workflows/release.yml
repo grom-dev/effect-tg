@@ -28,9 +28,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       - run: |
-          VERSION="${{ github.ref_name }}"
+          VERSION="$GITHUB_REF_NAME"
           if echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            pnpm publish --access=public --provenance --no-git-checks
+            pnpm publish --access=public --provenance --no-git-checks --tag latest
           else
             TAG=$(echo "$VERSION" | sed 's/^v[0-9]*\.[0-9]*\.[0-9]*-//' | sed 's/\..*//')
             pnpm publish --access=public --provenance --no-git-checks --tag "$TAG"
@@ -38,6 +38,7 @@ jobs:
 
   changelog:
     runs-on: ubuntu-latest
+    needs: publish-npm
     permissions:
       contents: write
     steps:
@@ -49,8 +50,9 @@ jobs:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
       - run: |
-          if echo "${{ github.ref_name }}" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+          if echo "$GITHUB_REF_NAME" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
             npx changelogithub
+            gh release edit "$GITHUB_REF_NAME" --latest
           else
             npx changelogithub --prerelease
           fi
